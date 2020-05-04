@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+
+<html>
+    
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>GETTING STARTED WITH BRACKETS</title>
+        <meta name="description" content="An interactive getting started guide for Brackets.">
+        <link rel="stylesheet" href="main.css">
+        
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+        <script src="math.js" type="text/javascript"></script>
+        
+        <style>
+            body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            
+            html {
+                height: 100%;
+            }
+        </style>
+
+    </head>
+    <body>
+        
+        <canvas id="mainCanvas" width="300" height="150" style="border:1px solid #d3d3d3;">
+            Your browser does not support the HTML5 canvas tag.
+        </canvas>
+        
+        <script>
+            /*
+             * showDetails
+             * @params document, conference
+             * document: used to append created elements to html
+             * conference: used to grab data necessary to populate created elements
+             *
+             * showDetails is in charge of displaying the data corresponding to each conference.
+             * It is a base template and used for all conferences, as they should all have the same
+             * data fields.
+             */
+            function showDetails(document, conference) {
+                details_element_ids = ["conferenceName", "mainParagraph"];
+                for (var i = 0; i < details_element_ids.length; i++) {
+                    if (document.getElementById(details_element_ids[i]) != null){
+                        elem = document.getElementById(details_element_ids[i]);
+                        elem.remove();
+                    }
+                }
+                // Header element, will contain Conference Name
+                var h1 = document.createElement('h1');
+                h1.id = "conferenceName";
+                h1.textContent = conference.name;
+                document.body.appendChild(h1);
+                
+                // Paragraph element, unknown what this will contain
+                var p1 = document.createElement('p1');
+                p1.id = "mainParagraph";
+                p1.textContent = "This is where all of the information about each conference will be placed.";
+                p1.setAttribute('class', 'note');
+                p1.setAttribute('vertical-align', 'baseline');
+                document.body.appendChild(p1);
+            }
+            
+            /**
+             * createConfVis
+             * @params ctx, x, y, radius, start_angle, end_angle, color, bolded_size, is_arc
+             * ctx: context, used to add created path into canvas
+             * x, y: Cartesian coordinates of the center of circle or arc to be created on the canvas
+             * radius: the radius of the circle or arc being created
+             * start_angle, end_angle: used to define start and end points if arc is being created
+             * color: color of circle or arc
+             * bolded_size: width of stroke for arc
+             * is_bold: bool indicating if arc is to be created
+             *
+             * createConfVis is in charge of creating the circles & arcs within canvas (for now)
+             */
+            function createConfVis(ctx, x, y, radius, start_angle, end_angle, color, bolded_size, is_arc) {
+                var path_made = NaN;
+                ctx.beginPath();
+                if (is_arc) {
+                    path_made = ctx.arc(x, y, radius, start_angle, end_angle);
+                } else {
+                    path_made = ctx.arc(x, y, radius, start_angle, end_angle);
+                }
+                ctx.strokeStyle = color;
+                ctx.lineWidth = bolded_size;
+                ctx.stroke();
+                ctx.closePath();
+                console.log(typeof path_made);
+                return path_made;
+            }
+
+            /**
+             * name
+             * @params c, event
+             * c: canvas object to grab boundingClientRect
+             * event: takes event from higher function call
+             *
+             * getCursorPosition grabs the position of each
+             * mouse click, and returns the Cartesian x, y
+             * coordinates as an array of size 2
+             */
+            function getCursorPosition(c, event) {
+                var rect = c.getBoundingClientRect();
+                var x = event.clientX - rect.left;
+                var y = event.clientY - rect.top;
+                return([x, y]);
+            }
+            
+            /**
+             * name
+             * @params c, ctx, x, y, base_inner_radius, base_outer_radius, bold_inner_radius, bold_outer_radius, start_angle, end_angle
+             *
+             *
+             *
+             *To be finished
+             *
+             *
+             */
+            function confClicked(c, ctx, x, y, base_inner_radius, base_outer_radius, bold_inner_radius, bold_outer_radius, start_angle, end_angle) {
+                console.log("SL:DFJKS:DLFJK");
+                x_center = c.width/2;
+                y_center = c.height/2;
+                x_offset = x - x_center;
+                y_offset = y - y_center;
+                rel_area = Math.sqrt(Math.pow(x_offset,2) + Math.pow(y_offset,2));
+                
+                console.log(x, x_center);
+                console.log(Math.pow(x_offset, 2));
+                console.log(rel_area, base_inner_radius, base_outer_radius);
+                
+                if  ((rel_area >= bold_inner_radius) &&
+                     (rel_area <= bold_outer_radius)) {
+                    return true;
+                }
+                return false;
+            }
+            
+            
+            /*
+             * main function call
+             */
+            function init() {
+                // init. canvas and context variables
+                var c = document.getElementById("mainCanvas");
+                var ctx = c.getContext("2d");
+                
+                // dynamically define canvas dimensions
+                c.width = document.body.clientWidth/2;
+                c.height = document.body.clientHeight;
+                cursor_click_coords = [];
+                
+                // init. event listener on canvas to continually check for any mouse clicks on a conference
+                c.addEventListener('mousedown', function(e) {
+                    cursor_click_coords = getCursorPosition(c, e);
+                    console.log("Clicked at: X = ", cursor_click_coords[0], cursor_click_coords[1]);
+                    
+                    // checks each conference shape bounds against mouse click to see if a conference was clicked
+                    for (var i = 0; i < num_confs; i++) {
+                        if (confClicked(c, ctx, cursor_click_coords[0], cursor_click_coords[1], conferences[i].base_inner_radius, conferences[i].base_outer_radius, conferences[i].bold_inner_radius,
+                                        conferences[i].bold_outer_radius, conferences[i].start_angle, conferences[i].end_angle)) {
+                            // if it was, it is noted in the console (for now) and its details are shown
+                            // INCREDIBLY INEFFICIENT AS OF NOW, could possibly use colors to make incredibly Efficient
+                            console.log("Conference, named ", conferences[i].name, " has been clicked.");
+                            showDetails(document, conferences[i]);
+                        }
+                    }
+                });
+                
+                // all having to do with creating visual aspect of conference
+                var num_confs = 3;
+                var spacing = 20;
+                var curr_radius = 200;
+                var line_size = 3;
+                var bolded_size = 10;
+                var submission_deadline = [24, 46, 52];
+                var decision_deadline = [48, 102, 256];
+                
+                // more conference information
+                var conferences = [];
+                var conf_names = ["Conf. 1", "Conf. 2", "Conf. 3"];
+                var conf_fields = ["Robotics", "AI", "Physics"];
+                var conf_color = ["#990011ff", "#435e55ff", "#d64161ff"];
+                
+                // this loop iterates through all of our data fields and creates a list of objects with the data necessary
+                // for the work being performed
+                for (var i = 0; i < num_confs; i++) {
+                    if (decision_deadline[i] < submission_deadline[i]) {
+                        console.log("Error: Decision Deadline cannot be before Submission Deadline");
+                    } else {
+                        var obj = {};
+                        // init. necessary information for conference
+                        obj.name = conf_names[i];
+                        obj.field = conf_fields[i];
+                        obj.submission_deadline = submission_deadline[i];
+                        obj.decision_deadline = decision_deadline[i];
+                        obj.color = conf_color[i];
+                        obj.base_inner_radius = curr_radius - line_size/2;
+                        obj.base_outer_radius = curr_radius + line_size/2;
+                        obj.bold_inner_radius = curr_radius - bolded_size/2;
+                        obj.bold_outer_radius = curr_radius + bolded_size/2;
+                        // used to declare start and end angles of arc
+                        start_angle = ((submission_deadline[i])/365) * (2*Math.PI);
+                        end_angle = ((decision_deadline[i])/365) * (2*Math.PI);
+                        obj.bold_start_angle = start_angle;
+                        obj.bold_end_angle = end_angle;
+                        // create visual aspects of conference
+                        obj.base_arc = createConfVis(ctx, c.width/2, c.height/2, curr_radius, 0, 2 * Math.PI, obj.color, line_size, false);
+                        obj.bold_arc = createConfVis(ctx, c.width/2, c.height/2, curr_radius, obj.bold_start_angle, obj.bold_end_angle, obj.color, bolded_size, true);
+                        
+                        // add new conference to conferences array
+                        conferences.push(obj);
+                        // increase curr_radius by spacing to prevent any interference between conferences
+                        curr_radius += spacing;
+                    }
+                }
+            }
+            
+            //calls main function using
+            $(document).ready(function() {
+                init();   
+            });
+            
+        </script>
+     
+        
+    </body>
+</html>
