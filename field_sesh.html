@@ -30,7 +30,7 @@
         <canvas id="mainCanvas" width="300" height="150" style="border:1px solid #d3d3d3;">
             Your browser does not support the HTML5 canvas tag.
         </canvas>
-        
+        <button onclick="enterFields()">Add A Conference</button>
         <script>
             /*
              * showDetails
@@ -59,7 +59,8 @@
                 // Paragraph element, unknown what this will contain
                 var p1 = document.createElement('p1');
                 p1.id = "mainParagraph";
-                p1.textContent = "This is where all of the information about each conference will be placed.";
+                p1.setAttribute('style', 'white-space: pre;');
+                p1.textContent = "Conference Topic: " + conference.field + "\r\n" + "Submission Deadline: " + conference.submission_deadline + "\r\nDecision Dealine: " + conference.decision_deadline;
                 p1.setAttribute('class', 'note');
                 p1.setAttribute('vertical-align', 'baseline');
                 document.body.appendChild(p1);
@@ -110,6 +111,16 @@
                 var y = event.clientY - rect.top;
                 return([x, y]);
             }
+
+            // Button for manually creating a conference
+            function enterFields() {
+                let newWindow = window.open("about:blank", "Conference Details", "width=700,height=400");
+                newWindow.document.write("Please Enter your Conference Information:\r\n");
+                var input = document.createElement("input");
+                input.setAttribute('type', 'text');
+                newWindow.document.appendChild(input);
+            }
+
             
             /**
              * name
@@ -203,6 +214,7 @@
                         obj.base_outer_radius = curr_radius + line_size/2;
                         obj.bold_inner_radius = curr_radius - bolded_size/2;
                         obj.bold_outer_radius = curr_radius + bolded_size/2;
+
                         // used to declare start and end angles of arc
                         start_angle = ((submission_deadline[i])/365) * (2*Math.PI);
                         end_angle = ((decision_deadline[i])/365) * (2*Math.PI);
