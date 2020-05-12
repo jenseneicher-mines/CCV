@@ -114,11 +114,44 @@
 
             // Button for manually creating a conference
             function enterFields() {
+                // Open pop-up window to input manual data
                 let newWindow = window.open("about:blank", "Conference Details", "width=700,height=400");
-                newWindow.document.write("Please Enter your Conference Information:\r\n");
-                var input = document.createElement("input");
-                input.setAttribute('type', 'text');
-                newWindow.document.appendChild(input);
+
+                //Ask user for conference information
+                //ask user for conference name
+                var conf = newWindow.document.createElement('conf');
+                conf.setAttribute('style', 'white-space: pre;');
+                conf.textContent = "Please Enter your Conference Name:";
+
+                //Ask User for submission deadline
+                var sub = newWindow.document.createElement('conf');
+                sub.setAttribute('style', 'white-space: pre;');
+                sub.textContent = "\r\nPlease Enter the submission deadline (mm/dd/yyyy):";
+
+                //Ask user for decision deadline
+                var dec = newWindow.document.createElement('conf');
+                dec.setAttribute('style', 'white-space: pre;');
+                dec.textContent = "\r\nPlease Enter the decision deadline deadline (mm/dd/yyyy):";
+
+                //input text box for conference name
+                var inputConference = newWindow.document.createElement("input");
+                inputConference.setAttribute('type', 'text')
+
+                //input text box for submission deadline
+                var inputSub = newWindow.document.createElement("input");
+                inputSub.setAttribute('type', 'text')
+
+                //input text box for decision deadline
+                var inputDec = newWindow.document.createElement("input");
+                inputDec.setAttribute('type', 'text');
+
+                //Add all elements to the pop-up window
+                newWindow.document.body.appendChild(conf);
+                newWindow.document.body.appendChild(inputConference);
+                newWindow.document.body.appendChild(sub);
+                newWindow.document.body.appendChild(inputSub);
+                newWindow.document.body.appendChild(dec);
+                newWindow.document.body.appendChild(inputDec);
             }
 
             
