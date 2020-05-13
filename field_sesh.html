@@ -124,15 +124,26 @@
 
                 //input text box for conference name
                 var inputConference = newWindow.document.createElement("input");
-                inputConference.setAttribute('type', 'text')
+                inputConference.setAttribute('type', 'text');
 
                 //input text box for submission deadline
                 var inputSub = newWindow.document.createElement("input");
-                inputSub.setAttribute('type', 'text')
+                inputSub.setAttribute('type', 'text');
 
                 //input text box for decision deadline
                 var inputDec = newWindow.document.createElement("input");
                 inputDec.setAttribute('type', 'text');
+                
+                var submit_button = newWindow.document.createElement("button");
+                submit_button.innerHTML = "Done";
+                submit_button.id = "submit_button";
+                submit_button.width = "20px";
+                submit_button.height = "100px";
+                submit_button.top = "100px";
+                submit_button.left = "20px";
+                submit_button.onclick = function() {
+                    console.log("Done");
+                };
 
                 //Add all elements to the pop-up window
                 newWindow.document.body.appendChild(conf);
@@ -141,6 +152,7 @@
                 newWindow.document.body.appendChild(inputSub);
                 newWindow.document.body.appendChild(dec);
                 newWindow.document.body.appendChild(inputDec);
+                newWindow.document.body.appendChild(submit_button);
             }
 
             /**
