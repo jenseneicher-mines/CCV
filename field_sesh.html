@@ -1,436 +1,278 @@
 <!DOCTYPE html>
 
 <html>
-    
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>Circular Conference Visualization</title>
-        <meta name="description" content="Circular Conference Visualization">
-        <link rel="stylesheet" href="main.css">
-        
-        <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
-        <script src="math.js" type="text/javascript"></script>
-        <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-        
-        <style>
-            body {
-                height: 100%;
-                margin: 0;
-                padding: 0;
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>GETTING STARTED WITH BRACKETS</title>
+    <meta name="description" content="An interactive getting started guide for Brackets.">
+    <link rel="stylesheet" href="main.css">
+
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+    <script src="math.js" type="text/javascript"></script>
+
+    <style>
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            height: 100%;
+        }
+    </style>
+
+</head>
+<body>
+
+<canvas id="mainCanvas" width="300" height="150" style="border:1px solid #d3d3d3;">
+    Your browser does not support the HTML5 canvas tag.
+
+    style="position: absolute; top:0; left:0; border:3px solid black;"></canvas>
+<button style="position: absolute; top:100px; left:20px;" onclick="enterFields()()">Enter A Conference</button>
+<script>
+    /*
+     * showDetails
+     * @params document, conference
+     * document: used to append created elements to html
+     * conference: used to grab data necessary to populate created elements
+     *
+     * showDetails is in charge of displaying the data corresponding to each conference.
+     * It is a base template and used for all conferences, as they should all have the same
+     * data fields.
+     */
+    function showDetails(document, conference) {
+        details_element_ids = ["conferenceName", "mainParagraph"];
+        for (var i = 0; i < details_element_ids.length; i++) {
+            if (document.getElementById(details_element_ids[i]) != null){
+                elem = document.getElementById(details_element_ids[i]);
+                elem.remove();
             }
-            
-            html {
-                height: 100%;
-            }
-        </style>
+        }
+        // Header element, will contain Conference Name
+        var h1 = document.createElement('h1');
+        h1.id = "conferenceName";
+        h1.textContent = conference.name;
+        document.body.appendChild(h1);
 
-    </head>
-    <body>
-        
-<<<<<<< HEAD
-=======
-        <canvas id="mainCanvas" width="300" height="150" style="border:1px solid #d3d3d3;">
-            Your browser does not support the HTML5 canvas tag.
+        // Paragraph element, unknown what this will contain
+        var p1 = document.createElement('p1');
+        p1.id = "mainParagraph";
+        p1.setAttribute('style', 'white-space: pre;');
+        p1.textContent = "Conference Topic: " + conference.field + "\r\n" + "Submission Deadline: " + conference.submission_deadline + "\r\nDecision Dealine: " + conference.decision_deadline;
+        p1.setAttribute('class', 'note');
+        p1.setAttribute('vertical-align', 'baseline');
+        document.body.appendChild(p1);
+    }
 
-        style="position: absolute; top:0; left:0; border:3px solid black;"></canvas>
-        <button style="position: absolute; top:100px; left:20px;" onclick="enterFields()()">Enter A Conference</button>
->>>>>>> adf9f65dddca4a814dda61d93a4b6326ee26851e
-        <script>
-            /*
-             * className
-             * @param firstArgName
-             */
-            class VisualizationHandler {
-                /*
-                 * docstring
-                 */
-                constructor(svg, document, x, y, conferences, conf_count, names, fields, colors, submission_deadlines, decision_deadlines) {
-                    this.svg = svg;
-                    this.document = document;
-                    this.x = x;
-                    this.y = y;
-                
-                    this.conferences = conferences;
-                    this.conf_count = conf_count;
-                    this.names = names;
-                    this.fields = fields;
-                    this.colors = colors;
-                    this.submission_deadlines = submission_deadlines;
-                    this.decision_deadlines = decision_deadlines;
-                    this.radii = [];
-                    this.inner_radii = [];
-                    this.outer_radii = [];
-                    this.start_angles = [];
-                    this.end_angles = [];
-                    this.rings = [];
-                    this.arcs = [];
-                    this.self = this;
-                    
-                    // variables necessary for visual creation
-                    var spacing = 20;
-                    var curr_radius = 200;
-                    var ring_size = 3;
-                    var arc_size = 10;
-                    
-                    // populate conferences array & fill other empty arrays
-                    for (var i = 0; i < conf_count; i++) {
-                        // add math related translations for arc creation
-                        this.radii.push(curr_radius);
-                        this.inner_radii.push(curr_radius - arc_size/2);
-                        this.outer_radii.push(curr_radius + arc_size/2);
-                        this.start_angles.push(((submission_deadlines[i])/365) * (2*Math.PI));
-                        this.end_angles.push(((decision_deadlines[i])/365) * (2*Math.PI));
-                        
-                        // handle single conference creation
-                        this.addConference(svg, document, this.names[i], i, this.x, this.y, this.fields[i], this.colors[i],
-                                            this.submission_deadlines[i], this.decision_deadlines[i],
-                                            curr_radius, this.inner_radii[i], this.outer_radii[i], this.start_angles[i], this.end_angles[i], ring_size, arc_size,
-                                            this.conferences, this.rings, this.arcs);
-                        
-                        // update curr_radius
-                        curr_radius += spacing;
-                    }
-            
-                }
-                
-<<<<<<< HEAD
-                addConference(svg, document, name, i, x, y, field, color, submission_deadline, decision_deadline, curr_radius, inner_radius, outer_radius,
-                              start_angle, end_angle, ring_size, arc_size, conferences, rings, arcs) {
-                    var conf = new Conference(name, i, x, y, field, color, submission_deadline, decision_deadline,
-                                                curr_radius, inner_radius, outer_radius, start_angle, end_angle, null, null);
-                        
-                    //Create conferences visuals and add to visualization handler arrays 'rings' and 'arcs's
-                    Conference.createConfVisuals(svg, document, conf, conf.x, conf.y, conf.radius, conf.start_angle, conf.end_angle, conf.conf_color, ring_size, arc_size);
-                    rings.push(conf.ring);
-                    arcs.push(conf.arc);
-                    
-                    conferences.push(conf);
-                }
-=======
-                // Paragraph element, unknown what this will contain
-                var p1 = document.createElement('p1');
-                p1.id = "mainParagraph";
-                p1.setAttribute('style', 'white-space: pre;');
-                p1.textContent = "Conference Topic: " + conference.field + "\r\n" + "Submission Deadline: " + conference.submission_deadline + "\r\nDecision Dealine: " + conference.decision_deadline;
-                p1.setAttribute('class', 'note');
-                p1.setAttribute('vertical-align', 'baseline');
-                document.body.appendChild(p1);
->>>>>>> adf9f65dddca4a814dda61d93a4b6326ee26851e
-            }
-            
-            
-            /**
-             * Conference Class
-             */
-            class Conference {
-                //constructor (must include all fields atm)
-                constructor(conf_name, conf_index, x, y, conf_field, conf_color, submission_deadline, decision_deadline, radius, inner_radius, outer_radius, start_angle, end_angle, ring, arc) {
-                    //var. having to do with conference info.
-                    this.conf_name = conf_name;
-                    this.conf_index = conf_index;
-                    this.conf_field = conf_field;
-                    this.conf_color = conf_color;
-                    
-                    //var. having to do with conference vis.
-                    this.x = x;
-                    this.y = y;
-                    this.radius = radius;
-                    this.inner_radius = inner_radius;
-                    this.outer_radius = outer_radius;
-                    this.start_angle = start_angle;
-                    this.end_angle = end_angle;
-                    
-                    //var. having to do with both conf. vis. & conf. info.
-                    this.submission_deadline = submission_deadline;
-                    this.decision_deadline = decision_deadline;
-                    
-                    //conf. shapes
-                    this.ring = ring;
-                    this.arc = arc;
-                }
-                
-                 /**
-                 * showDetails
-                 * @params document, conference
-                 * document: used to append created elements to html 
-                 * conference: used to grab data necessary to populate created elements
-                 *
-                 * showDetails is in charge of displaying the data corresponding to each conference.
-                 * It is a base template and used for all conferences, as they should all have the same
-                 * data fields.
-                 */
-                showDetails(document, conference) {
-                    var details_element_ids = ["conferenceName", "mainParagraph"];
-                    for (var i = 0; i < details_element_ids.length; i++) {
-                        if (document.getElementById(details_element_ids[i])){
-                            var elem = document.getElementById(details_element_ids[i]);
-                            elem.remove();
-                        }
-                    }
-                    // Header element, will contain Conference Name
-                    var h1 = document.createElement('h1');
-                    h1.id = "conferenceName";
-                    h1.textContent = conference.conf_name;
-                    var left = document.clientWidth/2;
-                    var top = document.clientHeight/2;
-                    //h1.style.left = left;
-                    //h1.style.top = top;
-                    h1.setAttribute("style", "position: absolute; z-index: 1; left: "+left+"; top: "+top+"; width:200px; height:100px;");
-                    //h1.style.zIndex = 1;
-                    document.body.appendChild(h1);
-                    
-                    // Paragraph element, unknown what this will contain
-                    var p1 = document.createElement('p1');
-                    p1.id = "mainParagraph";
-                    p1.textContent = "This is where all of the information about each conference will be placed.";
-                    p1.setAttribute('class', 'note');
-                    p1.setAttribute('vertical-align', 'baseline');
-                    document.body.appendChild(p1);
-                }
-                
-                /**
-                 * createConfVis
-                 * @params svg, conference, x, y, radius, start_angle, end_angle, color, ring_size, arc_size
-                 * svg: svg object, used to add created shapes into svg
-                 * x, y: Cartesian coordinates of the center of circle or arc to be created on the canvas
-                 * radius: the radius of the circle or arc being created
-                 * start_angle, end_angle: used to define start and end points if arc is being created
-                 * color: color of circle or arc
-                 * ring_size: width of stroke for ring
-                 * arc_size: width of stroke for arc
-                 *
-                 * createConfVis is in charge of creating the circles & arcs within canvas (for now)
-                 */
-                //Create Conference Visualizations (ring & arc), and add click handlers. TODO: SHOULD CLICK HANDLERS BE TAKEN CARE OF IN THE SAME FUNCTION???  
-                static createConfRing(svg, document, conference, x, y, radius, color, ring_size) {
-                    //init. and append new conference ring to svg
-                    var new_conf_ring = svg.append("circle").attr("cx", x).attr("cy", y)
-                                                            .attr("r", radius)
-                                                            .attr("stroke", color).attr("stroke-width", ring_size)
-                                                            .style("fill", "none")
-                                                            .on("click", function() {
-                                                                conference.showDetails(document, conference);
-                                                            });
-                    return new_conf_ring;
-                }
-                
-                static createConfArc(svg, document, conference, x, y, radius, start_angle, end_angle, color, arc_size) {
-                    //init. and append new conference arc to svg
-                    var newly_built_arc = d3.svg.arc().innerRadius(radius - (arc_size/2))
-                                                          .outerRadius(radius + (arc_size/2))
-                                                          .startAngle(start_angle)
-                                                          .endAngle(end_angle);
+    /**
+     * createConfVis
+     * @params ctx, x, y, radius, start_angle, end_angle, color, bolded_size, is_arc
+     * ctx: context, used to add created path into canvas
+     * x, y: Cartesian coordinates of the center of circle or arc to be created on the canvas
+     * radius: the radius of the circle or arc being created
+     * start_angle, end_angle: used to define start and end points if arc is being created
+     * color: color of circle or arc
+     * bolded_size: width of stroke for arc
+     * is_bold: bool indicating if arc is to be created
+     *
+     * createConfVis is in charge of creating the circles & arcs within canvas (for now)
+     */
+    function createConfVis(ctx, x, y, radius, start_angle, end_angle, color, bolded_size, is_arc) {
+        var path_made = NaN;
+        ctx.beginPath();
+        if (is_arc) {
+            path_made = ctx.arc(x, y, radius, start_angle, end_angle);
+        } else {
+            path_made = ctx.arc(x, y, radius, start_angle, end_angle);
+        }
+        ctx.strokeStyle = color;
+        ctx.lineWidth = bolded_size;
+        ctx.stroke();
+        ctx.closePath();
+        console.log(typeof path_made);
+        return path_made;
+    }
 
-<<<<<<< HEAD
-                    var new_conf_arc = svg.append("path").attr("d", newly_built_arc).attr("transform", "translate("+x+", "+y+")").style("fill", color)
-                                                            .on("click", function() {
-                                                               conference.showDetails(document, conference);
-                                                            });
-                    return new_conf_arc;
-                }
-=======
-            /**
-             * name
-             * @params c, event
-             * c: canvas object to grab boundingClientRect
-             * event: takes event from higher function call
-             *
-             * getCursorPosition grabs the position of each
-             * mouse click, and returns the Cartesian x, y
-             * coordinates as an array of size 2
-             */
-            function getCursorPosition(c, event) {
-                var rect = c.getBoundingClientRect();
-                var x = event.clientX - rect.left;
-                var y = event.clientY - rect.top;
-                return([x, y]);
-            }
+    /**
+     * name
+     * @params c, event
+     * c: canvas object to grab boundingClientRect
+     * event: takes event from higher function call
+     *
+     * getCursorPosition grabs the position of each
+     * mouse click, and returns the Cartesian x, y
+     * coordinates as an array of size 2
+     */
+    function getCursorPosition(c, event) {
+        var rect = c.getBoundingClientRect();
+        var x = event.clientX - rect.left;
+        var y = event.clientY - rect.top;
+        return([x, y]);
+    }
 
-            // Button for manually creating a conference
-            function enterFields() {
-                // Open pop-up window to input manual data
-                let newWindow = window.open("about:blank", "Conference Details", "width=700,height=400");
+    // Button for manually creating a conference
+    function enterFields() {
+        // Open pop-up window to input manual data
+        let newWindow = window.open("about:blank", "Conference Details", "width=700,height=400");
 
-                //Ask user for conference information
-                //ask user for conference name
-                var conf = newWindow.document.createElement('conf');
-                conf.setAttribute('style', 'white-space: pre;');
-                conf.textContent = "Please Enter your Conference Name:";
+        //Ask user for conference information
+        //ask user for conference name
+        var conf = newWindow.document.createElement('conf');
+        conf.setAttribute('style', 'white-space: pre;');
+        conf.textContent = "Please Enter your Conference Name:";
 
-                //Ask User for submission deadline
-                var sub = newWindow.document.createElement('conf');
-                sub.setAttribute('style', 'white-space: pre;');
-                sub.textContent = "\r\nPlease Enter the submission deadline (mm/dd/yyyy):";
+        //Ask User for submission deadline
+        var sub = newWindow.document.createElement('conf');
+        sub.setAttribute('style', 'white-space: pre;');
+        sub.textContent = "\r\nPlease Enter the submission deadline (mm/dd/yyyy):";
 
-                //Ask user for decision deadline
-                var dec = newWindow.document.createElement('conf');
-                dec.setAttribute('style', 'white-space: pre;');
-                dec.textContent = "\r\nPlease Enter the decision deadline deadline (mm/dd/yyyy):";
+        //Ask user for decision deadline
+        var dec = newWindow.document.createElement('conf');
+        dec.setAttribute('style', 'white-space: pre;');
+        dec.textContent = "\r\nPlease Enter the decision deadline deadline (mm/dd/yyyy):";
 
-                //input text box for conference name
-                var inputConference = newWindow.document.createElement("input");
-                inputConference.setAttribute('type', 'text')
+        //input text box for conference name
+        var inputConference = newWindow.document.createElement("input");
+        inputConference.setAttribute('type', 'text')
 
-                //input text box for submission deadline
-                var inputSub = newWindow.document.createElement("input");
-                inputSub.setAttribute('type', 'text')
+        //input text box for submission deadline
+        var inputSub = newWindow.document.createElement("input");
+        inputSub.setAttribute('type', 'text')
 
-                //input text box for decision deadline
-                var inputDec = newWindow.document.createElement("input");
-                inputDec.setAttribute('type', 'text');
+        //input text box for decision deadline
+        var inputDec = newWindow.document.createElement("input");
+        inputDec.setAttribute('type', 'text');
 
-                //Add all elements to the pop-up window
-                newWindow.document.body.appendChild(conf);
-                newWindow.document.body.appendChild(inputConference);
-                newWindow.document.body.appendChild(sub);
-                newWindow.document.body.appendChild(inputSub);
-                newWindow.document.body.appendChild(dec);
-                newWindow.document.body.appendChild(inputDec);
-            }
+        //Add all elements to the pop-up window
+        newWindow.document.body.appendChild(conf);
+        newWindow.document.body.appendChild(inputConference);
+        newWindow.document.body.appendChild(sub);
+        newWindow.document.body.appendChild(inputSub);
+        newWindow.document.body.appendChild(dec);
+        newWindow.document.body.appendChild(inputDec);
+    }
 
-            
-            /**
-             * name
-             * @params c, ctx, x, y, base_inner_radius, base_outer_radius, bold_inner_radius, bold_outer_radius, start_angle, end_angle
-             *
-             *
-             *
-             *To be finished
-             *
-             *
-             */
-            function confClicked(c, ctx, x, y, base_inner_radius, base_outer_radius, bold_inner_radius, bold_outer_radius, start_angle, end_angle) {
-                console.log("SL:DFJKS:DLFJK");
-                x_center = c.width/2;
-                y_center = c.height/2;
-                x_offset = x - x_center;
-                y_offset = y - y_center;
-                rel_area = Math.sqrt(Math.pow(x_offset,2) + Math.pow(y_offset,2));
->>>>>>> adf9f65dddca4a814dda61d93a4b6326ee26851e
-                
-                static createConfVisuals(svg, document, conf, x, y, radius, start_angle, end_angle, conf_color, ring_size, arc_size) {
-                    conf.ring = Conference.createConfRing(svg, document, conf, x, y, radius, conf_color, ring_size);
-                    conf.arc = Conference.createConfArc(svg, document, conf, x, y, radius, start_angle, end_angle, conf_color, arc_size);
-                }
-                
-                static delAndUpdateConfVis(svg, conference, conf_count, spacing, conferences, document, arc_size) {
-                    // remove ring and arc from d3 and svg
-                    conference.ring.remove();
-                    conference.arc.remove();
-                    
-                    // check if you need to update the visualization
-                    if (conference.conf_index < (conf_count - 1)) {
-                        console.log("Needs updating");
-                        
-                        for (var i = conference.conf_index+1; i < conf_count; i++) {
-                            console.log("Currently updating");
-                            
-                            conference = conferences[i];
-                            
-                            //update ring
-                            conference.conf_index -= 1;
-                            conference.ring.attr("r", conference.radius - spacing);
-                            
-                            //update arc
-                            // 1) remove current arc
-                            conference.arc.remove();
-                            conference.arc = null;
-                            // 2) create new, updated arc and re-add to conf object
-                            conference.arc = Conference.createConfArc(svg, document, conference, conference.x, conference.y, conference.radius - spacing,
-                                                                      conference.start_angle, conference.end_angle, conference.conf_color, arc_size);
-                        }
-                    }
-                    
-                    // return updated conf_count
-                    return conf_count - 1;
-                }
-                
-                static delConf() {
-                    
+
+    /**
+     * name
+     * @params c, ctx, x, y, base_inner_radius, base_outer_radius, bold_inner_radius, bold_outer_radius, start_angle, end_angle
+     *
+     *
+     *
+     *To be finished
+     *
+     *
+     */
+    function confClicked(c, ctx, x, y, base_inner_radius, base_outer_radius, bold_inner_radius, bold_outer_radius, start_angle, end_angle) {
+        console.log("SL:DFJKS:DLFJK");
+        x_center = c.width/2;
+        y_center = c.height/2;
+        x_offset = x - x_center;
+        y_offset = y - y_center;
+        rel_area = Math.sqrt(Math.pow(x_offset,2) + Math.pow(y_offset,2));
+
+        console.log(x, x_center);
+        console.log(Math.pow(x_offset, 2));
+        console.log(rel_area, base_inner_radius, base_outer_radius);
+
+        if  ((rel_area >= bold_inner_radius) &&
+            (rel_area <= bold_outer_radius)) {
+            return true;
+        }
+        return false;
+    }
+
+
+    /*
+     * main function call
+     */
+    function init() {
+        // init. canvas and context variables
+        var c = document.getElementById("mainCanvas");
+        var ctx = c.getContext("2d");
+
+        // dynamically define canvas dimensions
+        c.width = document.body.clientWidth/2;
+        c.height = document.body.clientHeight;
+        cursor_click_coords = [];
+
+        // init. event listener on canvas to continually check for any mouse clicks on a conference
+        c.addEventListener('mousedown', function(e) {
+            cursor_click_coords = getCursorPosition(c, e);
+            console.log("Clicked at: X = ", cursor_click_coords[0], cursor_click_coords[1]);
+
+            // checks each conference shape bounds against mouse click to see if a conference was clicked
+            for (var i = 0; i < num_confs; i++) {
+                if (confClicked(c, ctx, cursor_click_coords[0], cursor_click_coords[1], conferences[i].base_inner_radius, conferences[i].base_outer_radius, conferences[i].bold_inner_radius,
+                    conferences[i].bold_outer_radius, conferences[i].start_angle, conferences[i].end_angle)) {
+                    // if it was, it is noted in the console (for now) and its details are shown
+                    // INCREDIBLY INEFFICIENT AS OF NOW, could possibly use colors to make incredibly Efficient
+                    console.log("Conference, named ", conferences[i].name, " has been clicked.");
+                    showDetails(document, conferences[i]);
                 }
             }
-            
-            
-            /*
-             * main function call
-             */
-            function init() {
-                //svg creation
-                var svg_width = document.body.clientWidth / 2;
-                var svg_height = document.body.clientHeight;
-                var svg = d3.select("body").append("svg").attr("width", svg_width)
-                                                         .attr("height", svg_height)
-                                                         .style('border-width', '2')
-                                                         .style('border-color', 'red')
-                                                         .style('border-style', 'solid');
-                
-                // conference temp. variables
-                // having to do with creating visual aspect of conference
-                var num_confs = 3;
-                var submission_deadlines = [24, 46, 52];
-                var decision_deadlines = [48, 102, 256];
-                
-                // more conference information
-                var conferences = [];
-                var conf_names = ["Conf. 1", "Conf. 2", "Conf. 3"];
-                var conf_fields = ["Robotics", "AI", "Physics"];
-                var conf_colors = ["#e4ae90", "#9ce490", "#90c6e4"];
-                
-<<<<<<< HEAD
-                //create conferences & their visuals and add all info to conferences_handler object
-                conferences_handler = new VisualizationHandler(svg, document, svg_width/2, svg_height/2, conferences, num_confs, conf_names, conf_fields, conf_colors,
-                                                               submission_deadlines, decision_deadlines);
-                
-                console.log(conferences_handler.names);
-                
-                // UNDER CONSTRUCTION
-                // STILL NEED TO REMOVE CONFERENCE FROM conferences, AND CHECK IF I NEED TO DO ANYTHING ELSE FOR DELETION
-                //num_confs = Conference.delAndUpdateConfVis(svg, conferences[2], num_confs, spacing, conferences, document, arc_size);
-=======
-                // this loop iterates through all of our data fields and creates a list of objects with the data necessary
-                // for the work being performed
-                for (var i = 0; i < num_confs; i++) {
-                    if (decision_deadline[i] < submission_deadline[i]) {
-                        console.log("Error: Decision Deadline cannot be before Submission Deadline");
-                    } else {
-                        var obj = {};
-                        // init. necessary information for conference
-                        obj.name = conf_names[i];
-                        obj.field = conf_fields[i];
-                        obj.submission_deadline = submission_deadline[i];
-                        obj.decision_deadline = decision_deadline[i];
-                        obj.color = conf_color[i];
-                        obj.base_inner_radius = curr_radius - line_size/2;
-                        obj.base_outer_radius = curr_radius + line_size/2;
-                        obj.bold_inner_radius = curr_radius - bolded_size/2;
-                        obj.bold_outer_radius = curr_radius + bolded_size/2;
+        });
 
-                        // used to declare start and end angles of arc
-                        start_angle = ((submission_deadline[i])/365) * (2*Math.PI);
-                        end_angle = ((decision_deadline[i])/365) * (2*Math.PI);
-                        obj.bold_start_angle = start_angle;
-                        obj.bold_end_angle = end_angle;
-                        // create visual aspects of conference
-                        obj.base_arc = createConfVis(ctx, c.width/2, c.height/2, curr_radius, 0, 2 * Math.PI, obj.color, line_size, false);
-                        obj.bold_arc = createConfVis(ctx, c.width/2, c.height/2, curr_radius, obj.bold_start_angle, obj.bold_end_angle, obj.color, bolded_size, true);
-                        
-                        // add new conference to conferences array
-                        conferences.push(obj);
-                        // increase curr_radius by spacing to prevent any interference between conferences
-                        curr_radius += spacing;
-                    }
-                }
->>>>>>> adf9f65dddca4a814dda61d93a4b6326ee26851e
+        // all having to do with creating visual aspect of conference
+        var num_confs = 3;
+        var spacing = 20;
+        var curr_radius = 200;
+        var line_size = 3;
+        var bolded_size = 10;
+        var submission_deadline = [24, 46, 52];
+        var decision_deadline = [48, 102, 256];
+
+        // more conference information
+        var conferences = [];
+        var conf_names = ["Conf. 1", "Conf. 2", "Conf. 3"];
+        var conf_fields = ["Robotics", "AI", "Physics"];
+        var conf_color = ["#990011ff", "#435e55ff", "#d64161ff"];
+
+        // this loop iterates through all of our data fields and creates a list of objects with the data necessary
+        // for the work being performed
+        for (var i = 0; i < num_confs; i++) {
+            if (decision_deadline[i] < submission_deadline[i]) {
+                console.log("Error: Decision Deadline cannot be before Submission Deadline");
+            } else {
+                var obj = {};
+                // init. necessary information for conference
+                obj.name = conf_names[i];
+                obj.field = conf_fields[i];
+                obj.submission_deadline = submission_deadline[i];
+                obj.decision_deadline = decision_deadline[i];
+                obj.color = conf_color[i];
+                obj.base_inner_radius = curr_radius - line_size/2;
+                obj.base_outer_radius = curr_radius + line_size/2;
+                obj.bold_inner_radius = curr_radius - bolded_size/2;
+                obj.bold_outer_radius = curr_radius + bolded_size/2;
+
+                // used to declare start and end angles of arc
+                start_angle = ((submission_deadline[i])/365) * (2*Math.PI);
+                end_angle = ((decision_deadline[i])/365) * (2*Math.PI);
+                obj.bold_start_angle = start_angle;
+                obj.bold_end_angle = end_angle;
+                // create visual aspects of conference
+                obj.base_arc = createConfVis(ctx, c.width/2, c.height/2, curr_radius, 0, 2 * Math.PI, obj.color, line_size, false);
+                obj.bold_arc = createConfVis(ctx, c.width/2, c.height/2, curr_radius, obj.bold_start_angle, obj.bold_end_angle, obj.color, bolded_size, true);
+
+                // add new conference to conferences array
+                conferences.push(obj);
+                // increase curr_radius by spacing to prevent any interference between conferences
+                curr_radius += spacing;
             }
-            
-            //calls main function using
-            $(document).ready(function() {
-                init();   
-            });
-            
-        </script>
-     
-        
-    </body>
+        }
+    }
+
+    //calls main function using
+    $(document).ready(function() {
+        init();
+    });
+
+</script>
+
+
+</body>
 </html>
