@@ -28,6 +28,14 @@
     </head>
     <body>
         
+<<<<<<< HEAD
+=======
+        <canvas id="mainCanvas" width="300" height="150" style="border:1px solid #d3d3d3;">
+            Your browser does not support the HTML5 canvas tag.
+
+        style="position: absolute; top:0; left:0; border:3px solid black;"></canvas>
+        <button style="position: absolute; top:100px; left:20px;" onclick="enterFields()()">Enter A Conference</button>
+>>>>>>> adf9f65dddca4a814dda61d93a4b6326ee26851e
         <script>
             /*
              * className
@@ -86,6 +94,7 @@
             
                 }
                 
+<<<<<<< HEAD
                 addConference(svg, document, name, i, x, y, field, color, submission_deadline, decision_deadline, curr_radius, inner_radius, outer_radius,
                               start_angle, end_angle, ring_size, arc_size, conferences, rings, arcs) {
                     var conf = new Conference(name, i, x, y, field, color, submission_deadline, decision_deadline,
@@ -98,6 +107,16 @@
                     
                     conferences.push(conf);
                 }
+=======
+                // Paragraph element, unknown what this will contain
+                var p1 = document.createElement('p1');
+                p1.id = "mainParagraph";
+                p1.setAttribute('style', 'white-space: pre;');
+                p1.textContent = "Conference Topic: " + conference.field + "\r\n" + "Submission Deadline: " + conference.submission_deadline + "\r\nDecision Dealine: " + conference.decision_deadline;
+                p1.setAttribute('class', 'note');
+                p1.setAttribute('vertical-align', 'baseline');
+                document.body.appendChild(p1);
+>>>>>>> adf9f65dddca4a814dda61d93a4b6326ee26851e
             }
             
             
@@ -203,12 +222,92 @@
                                                           .startAngle(start_angle)
                                                           .endAngle(end_angle);
 
+<<<<<<< HEAD
                     var new_conf_arc = svg.append("path").attr("d", newly_built_arc).attr("transform", "translate("+x+", "+y+")").style("fill", color)
                                                             .on("click", function() {
                                                                conference.showDetails(document, conference);
                                                             });
                     return new_conf_arc;
                 }
+=======
+            /**
+             * name
+             * @params c, event
+             * c: canvas object to grab boundingClientRect
+             * event: takes event from higher function call
+             *
+             * getCursorPosition grabs the position of each
+             * mouse click, and returns the Cartesian x, y
+             * coordinates as an array of size 2
+             */
+            function getCursorPosition(c, event) {
+                var rect = c.getBoundingClientRect();
+                var x = event.clientX - rect.left;
+                var y = event.clientY - rect.top;
+                return([x, y]);
+            }
+
+            // Button for manually creating a conference
+            function enterFields() {
+                // Open pop-up window to input manual data
+                let newWindow = window.open("about:blank", "Conference Details", "width=700,height=400");
+
+                //Ask user for conference information
+                //ask user for conference name
+                var conf = newWindow.document.createElement('conf');
+                conf.setAttribute('style', 'white-space: pre;');
+                conf.textContent = "Please Enter your Conference Name:";
+
+                //Ask User for submission deadline
+                var sub = newWindow.document.createElement('conf');
+                sub.setAttribute('style', 'white-space: pre;');
+                sub.textContent = "\r\nPlease Enter the submission deadline (mm/dd/yyyy):";
+
+                //Ask user for decision deadline
+                var dec = newWindow.document.createElement('conf');
+                dec.setAttribute('style', 'white-space: pre;');
+                dec.textContent = "\r\nPlease Enter the decision deadline deadline (mm/dd/yyyy):";
+
+                //input text box for conference name
+                var inputConference = newWindow.document.createElement("input");
+                inputConference.setAttribute('type', 'text')
+
+                //input text box for submission deadline
+                var inputSub = newWindow.document.createElement("input");
+                inputSub.setAttribute('type', 'text')
+
+                //input text box for decision deadline
+                var inputDec = newWindow.document.createElement("input");
+                inputDec.setAttribute('type', 'text');
+
+                //Add all elements to the pop-up window
+                newWindow.document.body.appendChild(conf);
+                newWindow.document.body.appendChild(inputConference);
+                newWindow.document.body.appendChild(sub);
+                newWindow.document.body.appendChild(inputSub);
+                newWindow.document.body.appendChild(dec);
+                newWindow.document.body.appendChild(inputDec);
+            }
+
+            
+            /**
+             * name
+             * @params c, ctx, x, y, base_inner_radius, base_outer_radius, bold_inner_radius, bold_outer_radius, start_angle, end_angle
+             *
+             *
+             *
+             *To be finished
+             *
+             *
+             */
+            function confClicked(c, ctx, x, y, base_inner_radius, base_outer_radius, bold_inner_radius, bold_outer_radius, start_angle, end_angle) {
+                console.log("SL:DFJKS:DLFJK");
+                x_center = c.width/2;
+                y_center = c.height/2;
+                x_offset = x - x_center;
+                y_offset = y - y_center;
+                rel_area = Math.sqrt(Math.pow(x_offset,2) + Math.pow(y_offset,2));
+>>>>>>> adf9f65dddca4a814dda61d93a4b6326ee26851e
                 
                 static createConfVisuals(svg, document, conf, x, y, radius, start_angle, end_angle, conf_color, ring_size, arc_size) {
                     conf.ring = Conference.createConfRing(svg, document, conf, x, y, radius, conf_color, ring_size);
@@ -278,6 +377,7 @@
                 var conf_fields = ["Robotics", "AI", "Physics"];
                 var conf_colors = ["#e4ae90", "#9ce490", "#90c6e4"];
                 
+<<<<<<< HEAD
                 //create conferences & their visuals and add all info to conferences_handler object
                 conferences_handler = new VisualizationHandler(svg, document, svg_width/2, svg_height/2, conferences, num_confs, conf_names, conf_fields, conf_colors,
                                                                submission_deadlines, decision_deadlines);
@@ -287,6 +387,41 @@
                 // UNDER CONSTRUCTION
                 // STILL NEED TO REMOVE CONFERENCE FROM conferences, AND CHECK IF I NEED TO DO ANYTHING ELSE FOR DELETION
                 //num_confs = Conference.delAndUpdateConfVis(svg, conferences[2], num_confs, spacing, conferences, document, arc_size);
+=======
+                // this loop iterates through all of our data fields and creates a list of objects with the data necessary
+                // for the work being performed
+                for (var i = 0; i < num_confs; i++) {
+                    if (decision_deadline[i] < submission_deadline[i]) {
+                        console.log("Error: Decision Deadline cannot be before Submission Deadline");
+                    } else {
+                        var obj = {};
+                        // init. necessary information for conference
+                        obj.name = conf_names[i];
+                        obj.field = conf_fields[i];
+                        obj.submission_deadline = submission_deadline[i];
+                        obj.decision_deadline = decision_deadline[i];
+                        obj.color = conf_color[i];
+                        obj.base_inner_radius = curr_radius - line_size/2;
+                        obj.base_outer_radius = curr_radius + line_size/2;
+                        obj.bold_inner_radius = curr_radius - bolded_size/2;
+                        obj.bold_outer_radius = curr_radius + bolded_size/2;
+
+                        // used to declare start and end angles of arc
+                        start_angle = ((submission_deadline[i])/365) * (2*Math.PI);
+                        end_angle = ((decision_deadline[i])/365) * (2*Math.PI);
+                        obj.bold_start_angle = start_angle;
+                        obj.bold_end_angle = end_angle;
+                        // create visual aspects of conference
+                        obj.base_arc = createConfVis(ctx, c.width/2, c.height/2, curr_radius, 0, 2 * Math.PI, obj.color, line_size, false);
+                        obj.bold_arc = createConfVis(ctx, c.width/2, c.height/2, curr_radius, obj.bold_start_angle, obj.bold_end_angle, obj.color, bolded_size, true);
+                        
+                        // add new conference to conferences array
+                        conferences.push(obj);
+                        // increase curr_radius by spacing to prevent any interference between conferences
+                        curr_radius += spacing;
+                    }
+                }
+>>>>>>> adf9f65dddca4a814dda61d93a4b6326ee26851e
             }
             
             //calls main function using
