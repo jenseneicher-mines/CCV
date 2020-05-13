@@ -199,14 +199,15 @@
                     var top = document.clientHeight/2;
                     //h1.style.left = left;
                     //h1.style.top = top;
-                    h1.setAttribute("style", "position: absolute; z-index: 1; left: "+left+"; top: "+top+"; width:200px; height:100px;");
+                    h1.setAttribute("style", "position: left; z-index: 1; left: "+left+"; top: "+top+"; width:200px; height:20px;");
                     //h1.style.zIndex = 1;
                     document.body.appendChild(h1);
 
                     // Paragraph element, unknown what this will contain
                     var p1 = document.createElement('p1');
                     p1.id = "mainParagraph";
-                    p1.textContent = "This is where all of the information about each conference will be placed.";
+                    p1.setAttribute("style", "position: absolute; z-index: 1; left: "+left+"; top: "+top+"; width:200px; height:100px;");
+                    p1.textContent = "Conference Topic: " + conference.conf_field + "\r\n" + "Submission Deadline: " + conference.submission_deadline + "\r\nDecision Dealine: " + conference.decision_deadline;
                     p1.setAttribute('class', 'note');
                     p1.setAttribute('vertical-align', 'baseline');
                     document.body.appendChild(p1);
