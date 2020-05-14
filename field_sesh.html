@@ -103,6 +103,7 @@
 
             // Button for manually creating a conference
             function enterFields() {
+
                 // Open pop-up window to input manual data
                 let newWindow = window.open("about:blank", "Conference Details", "width=700,height=400");
 
@@ -124,16 +125,17 @@
 
                 //input text box for conference name
                 var inputConference = newWindow.document.createElement("input");
-                inputConference.setAttribute('type', 'text');
+                inputConference.setAttribute('type1', 'text');
 
                 //input text box for submission deadline
                 var inputSub = newWindow.document.createElement("input");
-                inputSub.setAttribute('type', 'text');
+                inputSub.setAttribute('type2', 'text');
 
                 //input text box for decision deadline
                 var inputDec = newWindow.document.createElement("input");
-                inputDec.setAttribute('type', 'text');
-                
+                inputDec.setAttribute('type3', 'text');
+
+                //create a submit button that will call the function to save inputs
                 var submit_button = newWindow.document.createElement("button");
                 submit_button.innerHTML = "Done";
                 submit_button.id = "submit_button";
@@ -141,8 +143,28 @@
                 submit_button.height = "100px";
                 submit_button.top = "100px";
                 submit_button.left = "20px";
+
                 submit_button.onclick = function() {
+                    //create an array to append the data entered for a new conference
+                    var newConference = [];
+
+                    //save new conference name
+                    var inConf = inputConference.value;
+                    newConference.push(inConf);
+
+                    //save the new conferences submission deadline
+                    var inSub = inputSub.value;
+                    newConference.push(inSub);
+
+                    //save the new conferences decision deadline
+                    var inDec = inputDec.value;
+                    newConference.push(inDec);
+
+                    // display array for checking, close window, and return array containing new conference details
+                    console.log(newConference);
                     console.log("Done");
+                    newWindow.close();
+                    return newConference;
                 };
 
                 //Add all elements to the pop-up window
