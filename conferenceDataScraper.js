@@ -1,4 +1,4 @@
-// Author: Benjamin Jessing
+// Author: Benjamin Jessing, Daniel Garcia
 
 /* The scrapeConferenceData() function scrapes data that is present in a WikiCFP
  * conference webpage. The URL is the only necessary argument; the function
@@ -8,7 +8,9 @@
  *    scrapeConferenceData('http://www.wikicfp.com/...').submissionDeadline;
 */
 
-function scrapeConferenceData(conferenceURL) {
+const puppeteer = require('puppeteer');
+
+function scrapeConferenceDataUsingCheerio(conferenceURL) {
    // setup
    var request = require('request');
    var cheerio = require('cheerio');
@@ -61,9 +63,9 @@ function scrapeConferenceData(conferenceURL) {
          conferenceData.cameraReadyDeadline = 'VERIFY WITH CLIENT; UNAVAILABLE ON WIKICFP';
 
          // the conferenceData Object can now be returned; it is full of information
-         console.log('This is the fully-loaded conference data Object:');
-         console.log('(Some information might be undefined because it was not provided on WikiCFP.)');
-         console.log(conferenceData);
+         //console.log('This is the fully-loaded conference data Object:');
+         //console.log('(Some information might be undefined because it was not provided on WikiCFP.)');
+         //console.log(conferenceData);
          return conferenceData;
       } else {
          // this outputs to the console if the URL does not exist
@@ -71,7 +73,35 @@ function scrapeConferenceData(conferenceURL) {
          return undefined;
       }
    });
+   return conferenceData;
 }
 
-// DELETEME
-scrapeConferenceData('http://wikicfp.com/cfp/servlet/event.showcfp?eventid=98130&copyownerid=52097&skip=1');
+async function grabTopFiveUrls(conf_url) {
+   var all_info = [];
+   
+   // connect to the website and open an invisible browsing tab
+   const browser = await puppeteer.launch();
+   const page = await browser.newPage();
+   await page.goto(conf_url);
+   
+   //loop through popular links, follow them and grab the conference info, then push info into all_info array
+   for (var i = 2; i <= 6; i++) {
+      await page.$eval( 'body > div:nth-child(5) > table > tbody > tr > td:nth-child(5) > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child('+i+') > td:nth-child(1) > div > a', form => form.click() );
+      //console.log(page.url());
+      all_info.push(scrapeConferenceDataUsingCheerio(page.url()));
+      await page.goBack();
+   }
+   
+   // close the browser
+   browser.close();
+   // return all_info
+   return all_info;
+}
+
+//run used to call created async function and allow 'await' followed by the results given
+async function run() {
+   var all_info = await grabTopFiveUrls('http://www.wikicfp.com/cfp/');
+   console.log("--------------------");
+   console.log(all_info);
+}
+run()
