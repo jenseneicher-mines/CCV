@@ -14,7 +14,6 @@
         <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
         
         <style>
-
             .container {
                 float: left;
             }
@@ -23,6 +22,7 @@
                 margin: 0;
                 padding: 0;
             }
+            
             html {
                 height: 100%;
             }
@@ -37,6 +37,32 @@
     <button style="position: absolute; top:100px; left:20px;" onclick="enterFields()">Enter A Conference</button>
 
         <script>
+            /*
+             * className
+             * @param firstArgName
+             */
+            class dataHandler {
+                /*
+                 * docstring
+                 */
+                constructor() {}
+
+                convertDateToNum(now) {
+                    var start = new Date(now.getFullYear(), 0, 0);
+                    var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
+                    var oneDay = 1000 * 60 * 60 * 24;
+                    var day = Math.round(diff / oneDay);
+                    console.log('Day of year: ' + day);
+                    return day;
+                }
+
+                convertNumToDate(now) {
+
+                }
+            }
+
+            
+
             /*
              * className
              * @param firstArgName
@@ -67,29 +93,30 @@
                     this.arcs = [];
                     this.self = this;
 
+                    this.curr_radius = 200;
+
                     // variables necessary for visual creation
                     var spacing = 20;
-                    var curr_radius = 200;
                     var ring_size = 3;
                     var arc_size = 10;
 
                     // populate conferences array & fill other empty arrays
                     for (var i = 0; i < conf_count; i++) {
                         // add math related translations for arc creation
-                        this.radii.push(curr_radius);
-                        this.inner_radii.push(curr_radius - arc_size/2);
-                        this.outer_radii.push(curr_radius + arc_size/2);
+                        this.radii.push(this.curr_radius);
+                        this.inner_radii.push(this.curr_radius - arc_size/2);
+                        this.outer_radii.push(this.curr_radius + arc_size/2);
                         this.start_angles.push(((submission_deadlines[i])/365) * (2*Math.PI));
                         this.end_angles.push(((decision_deadlines[i])/365) * (2*Math.PI));
 
                         // handle single conference creation
                         this.addConference(svg, document, this.names[i], i, this.x, this.y, this.fields[i], this.colors[i],
                                             this.submission_deadlines[i], this.decision_deadlines[i],
-                                            curr_radius, this.inner_radii[i], this.outer_radii[i], this.start_angles[i], this.end_angles[i], ring_size, arc_size,
+                                            this.curr_radius, this.inner_radii[i], this.outer_radii[i], this.start_angles[i], this.end_angles[i], ring_size, arc_size,
                                             this.conferences, this.rings, this.arcs);
 
                         // update curr_radius
-                        curr_radius += spacing;
+                        this.curr_radius += spacing;
                     }
 
                 }
@@ -105,6 +132,22 @@
                     arcs.push(conf.arc);
 
                     conferences.push(conf);
+                }
+
+                createDateLine(svg, data_handler, now, x, y, r) {
+                    //handle date conversion for finding correct angle
+                    var converted_date = data_handler.convertDateToNum(now);
+                    console.log(converted_date);
+                    var date_angle = (converted_date/365) * (2*Math.PI);
+                    console.log(date_angle);
+                    var newly_built_date_line = d3.svg.line.radial().angle(date_angle).radius(function(d) { return d; } );
+                    console.log(newly_built_date_line);
+
+                    //MAGIC NUMBER 15 LOOKIN REEEEAAAAAL SHIT
+                    var date_line = svg.append("line").attr("x1", x).attr("y1", y)
+                                                      .attr("x2", x + (r - 15)*Math.cos(date_angle)).attr("y2", y + (r - 15)*Math.sin(date_angle))
+                                                      .attr("stroke-width", 2).attr("stroke", "black");
+                    return date_line;
                 }
             }
 
@@ -348,6 +391,9 @@
              * main function call
              */
             function init() {
+                // dataHandler object for any functions having to do with data handling (self explanatory)
+                data_handler = new dataHandler();
+
                 //svg creation
                 var svg_width = document.body.clientWidth / 2;
                 var svg_height = document.body.clientHeight;
@@ -371,6 +417,11 @@
                 conferences_handler = new VisualizationHandler(svg, document, svg_width/2, svg_height/2, conferences, num_confs, conf_names, conf_fields, conf_colors,
                                                                submission_deadlines, decision_deadlines);
 
+                //create date line
+                var now = new Date();
+                conferences_handler.createDateLine(svg, data_handler, now, conferences_handler.x, conferences_handler.y, conferences_handler.curr_radius);
+
+                //TESTING, can be deleted if necessary
                 console.log(conferences_handler.names);
 
                 // UNDER CONSTRUCTION
