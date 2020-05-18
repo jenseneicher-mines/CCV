@@ -61,7 +61,7 @@
                 }
             }
 
-            
+
 
             /*
              * className
@@ -157,33 +157,74 @@
                 // Open pop-up window to input manual data
                 let newWindow = window.open("about:blank", "Conference Details", "width=700,height=400");
 
+                // Allow for searching for a conference
+                var confTS = newWindow.document.createElement('confTS');
+                confTS.setAttribute('style', 'white-space: pre;');
+                confTS.textContent = "Search conference by title:"
+
+                // Allow for searching conference by URL
+                var confURLS = newWindow.document.createElement('confURLS');
+                confURLS.setAttribute('style', 'white-space: pre;');
+                confURLS.textContent = "\r\nLoad Conference by WikiCFP URL:";
+
+                //OR
+                var Or = newWindow.document.createElement('Or');
+                Or.setAttribute('style', 'white-space: pre;');
+                Or.textContent = "\r\nOR.." + "\r\nManually Enter Conference Details";
+
                 //Ask user for conference information
+                //Ask user for where the conference is taking place
+                var confPlc = newWindow.document.createElement('confPlc');
+                confPlc.setAttribute('style', 'white-space: pre;');
+                confPlc.textContent = "\r\nPlease enter the location of your conference (City,State,Country):";
+
                 //ask user for conference name
                 var conf = newWindow.document.createElement('conf');
                 conf.setAttribute('style', 'white-space: pre;');
-                conf.textContent = "Please Enter your Conference Name:";
+                conf.textContent = "\r\nPlease Enter your Conference Name/Title:";
 
                 //Ask User for submission deadline
                 var sub = newWindow.document.createElement('conf');
                 sub.setAttribute('style', 'white-space: pre;');
-                sub.textContent = "\r\nPlease Enter the submission deadline (mm/dd/yyyy):";
+                sub.textContent = "\r\nPlease enter the submission deadline (mm/dd/yyyy):";
+
+                //Ask the user for a notification deadline
+                var notif = newWindow.document.createElement('notif');
+                notif.setAttribute('style', 'white-space: pre;');
+                notif.textContent = "\r\nPlease Enter the notification deadline (mm/dd/yyyy):";
 
                 //Ask user for decision deadline
                 var dec = newWindow.document.createElement('conf');
                 dec.setAttribute('style', 'white-space: pre;');
-                dec.textContent = "\r\nPlease Enter the decision deadline deadline (mm/dd/yyyy):";
+                dec.textContent = "\r\nPlease Enter the final version deadline (mm/dd/yyyy):";
+
+                //input text box for searching by conference name
+                var inputConferenceTitle = newWindow.document.createElement("input");
+                inputConferenceTitle.setAttribute('type', 'text');
+
+                //input text box for searching by conference URL
+                var inputConferenceURL = newWindow.document.createElement("input");
+                inputConferenceURL.setAttribute('type0', 'text');
+
+                //input text box for searching by conference name
+                var inputConfPlc = newWindow.document.createElement("input");
+                inputConfPlc.setAttribute('type1', 'text');
 
                 //input text box for conference name
                 var inputConference = newWindow.document.createElement("input");
-                inputConference.setAttribute('type1', 'text');
+                inputConference.setAttribute('type2', 'text');
 
                 //input text box for submission deadline
                 var inputSub = newWindow.document.createElement("input");
-                inputSub.setAttribute('type2', 'text');
+                inputSub.setAttribute('type3', 'text');
+
+                //input text box for notification deadline
+                var inputConferenceNotif = newWindow.document.createElement("input");
+                inputConferenceNotif.setAttribute('type4', 'text');
 
                 //input text box for decision deadline
                 var inputDec = newWindow.document.createElement("input");
-                inputDec.setAttribute('type3', 'text');
+                inputDec.setAttribute('type5', 'text');
 
                 //create a submit button that will call the function to save inputs
                 var submit_button = newWindow.document.createElement("button");
@@ -198,6 +239,14 @@
                     //create an array to append the data entered for a new conference
                     var newConference = [];
 
+                    //save new conference title
+                    var inTitle = inputConferenceTitle.value;
+                    newConference.push(inTitle);
+
+                    //save new conference URL
+                    var inURL = inputConferenceURL.value;
+                    newConference.push(inURL);
+
                     //save new conference name
                     var inConf = inputConference.value;
                     newConference.push(inConf);
@@ -205,6 +254,10 @@
                     //save the new conferences submission deadline
                     var inSub = inputSub.value;
                     newConference.push(inSub);
+
+                    //save the notification deadline
+                    var inNotif = inputConferenceNotif.value;
+                    newConference.push(inNotif);
 
                     //save the new conferences decision deadline
                     var inDec = inputDec.value;
@@ -218,10 +271,19 @@
                 };
 
                 //Add all elements to the pop-up window
+                newWindow.document.body.appendChild(confTS);
+                newWindow.document.body.appendChild(inputConferenceTitle);
+                newWindow.document.body.appendChild(confURLS);
+                newWindow.document.body.appendChild(inputConferenceURL);
+                newWindow.document.body.appendChild(Or);
+                newWindow.document.body.appendChild(confPlc);
+                newWindow.document.body.appendChild(inputConfPlc);
                 newWindow.document.body.appendChild(conf);
                 newWindow.document.body.appendChild(inputConference);
                 newWindow.document.body.appendChild(sub);
                 newWindow.document.body.appendChild(inputSub);
+                newWindow.document.body.appendChild(notif);
+                newWindow.document.body.appendChild(inputConferenceNotif);
                 newWindow.document.body.appendChild(dec);
                 newWindow.document.body.appendChild(inputDec);
                 newWindow.document.body.appendChild(submit_button);
