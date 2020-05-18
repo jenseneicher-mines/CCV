@@ -14,12 +14,15 @@
         <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
         
         <style>
+
+            .container {
+                float: left;
+            }
             body {
                 height: 100%;
                 margin: 0;
                 padding: 0;
             }
-            
             html {
                 height: 100%;
             }
@@ -27,6 +30,10 @@
 
     </head>
     <body>
+
+    <div class="container" id="chart1">
+    </div>
+
     <button style="position: absolute; top:100px; left:20px;" onclick="enterFields()">Enter A Conference</button>
 
         <script>
@@ -225,6 +232,12 @@
                             elem.remove();
                         }
                     }
+
+                    //create a new container that will appear on the left side of the screen
+                    var container2 = document.createElement("div");
+                    container2.setAttribute("style","float: left;");
+                    document.body.appendChild(container2);
+
                     // Header element, will contain Conference Name
                     var h1 = document.createElement('h1');
                     h1.id = "conferenceName";
@@ -233,9 +246,10 @@
                     var top = document.clientHeight/2;
                     //h1.style.left = left;
                     //h1.style.top = top;
-                    h1.setAttribute("style", "position: left; z-index: 1; left: "+left+"; top: "+top+"; width:200px; height:20px;");
+                    //h1.setAttribute("style", "position: left; z-index: 1; left: "+left+"; top: "+top+"; width:200px; height:20px;");
                     //h1.style.zIndex = 1;
-                    document.body.appendChild(h1);
+                     container2.appendChild(h1);
+                    //container2.appendChild(h1);
 
                     // Paragraph element, unknown what this will contain
                     var p1 = document.createElement('p1');
@@ -244,7 +258,7 @@
                     p1.textContent = "Conference Topic: " + conference.conf_field + "\r\n" + "Submission Deadline: " + conference.submission_deadline + "\r\nDecision Dealine: " + conference.decision_deadline;
                     p1.setAttribute('class', 'note');
                     p1.setAttribute('vertical-align', 'baseline');
-                    document.body.appendChild(p1);
+                    container2.appendChild(p1);
                 }
 
                 /**
@@ -337,11 +351,9 @@
                 //svg creation
                 var svg_width = document.body.clientWidth / 2;
                 var svg_height = document.body.clientHeight;
-                var svg = d3.select("body").append("svg").attr("width", svg_width)
-                                                         .attr("height", svg_height)
-                                                         .style('border-width', '2')
-                                                         .style('border-color', 'red')
-                                                         .style('border-style', 'solid');
+                var svg = d3.select("#chart1").append("svg").attr("width", svg_width)
+                                                         .attr("height", svg_height);
+
 
                 // conference temp. variables
                 // having to do with creating visual aspect of conference
@@ -353,7 +365,7 @@
                 var conferences = [];
                 var conf_names = ["Conf. 1", "Conf. 2", "Conf. 3"];
                 var conf_fields = ["Robotics", "AI", "Physics"];
-                var conf_colors = ["#e4ae90", "#9ce490", "#90c6e4"];
+                var conf_colors = ["#f08950", "#9ce490", "#90c6e4"];
 
                 //create conferences & their visuals and add all info to conferences_handler object
                 conferences_handler = new VisualizationHandler(svg, document, svg_width/2, svg_height/2, conferences, num_confs, conf_names, conf_fields, conf_colors,
