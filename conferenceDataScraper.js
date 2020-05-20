@@ -78,12 +78,12 @@ function scrapeConferenceDataUsingCheerio(conferenceURL) {
 
 async function grabTopFiveUrls(conf_url) {
    var all_info = [];
-   
+
    // connect to the website and open an invisible browsing tab
    const browser = await puppeteer.launch();
    const page = await browser.newPage();
    await page.goto(conf_url);
-   
+
    //loop through popular links, follow them and grab the conference info, then push info into all_info array
    for (var i = 2; i <= 6; i++) {
       await page.$eval( 'body > div:nth-child(5) > table > tbody > tr > td:nth-child(5) > table > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child('+i+') > td:nth-child(1) > div > a', form => form.click() );
@@ -91,7 +91,9 @@ async function grabTopFiveUrls(conf_url) {
       all_info.push(scrapeConferenceDataUsingCheerio(page.url()));
       await page.goBack();
    }
-   
+
+   // DEBUG SUCCESS: wait for the last conference to load its data before returning
+   await page.waitFor(500);
    // close the browser
    browser.close();
    // return all_info
