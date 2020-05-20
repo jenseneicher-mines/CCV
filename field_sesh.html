@@ -330,7 +330,7 @@
                  * data fields.
                  */
                 showDetails(document, conference) {
-                    var details_element_ids = ["conferenceName", "mainParagraph"];
+                    var details_element_ids = ["conferenceName", "mainParagraph", "deleteButton"];
                     for (var i = 0; i < details_element_ids.length; i++) {
                         if (document.getElementById(details_element_ids[i])){
                             var elem = document.getElementById(details_element_ids[i]);
@@ -342,6 +342,13 @@
                     var container2 = document.createElement("div");
                     container2.setAttribute("style","float: left;");
                     document.body.appendChild(container2);
+
+                     var container3 = document.createElement("div2");
+                     container3.setAttribute("style","float: absolute;");
+                     container3.style.position = "absolute";
+                     container3.style.left = 1025 + 'px';
+                     container3.style.top = 140 +'px';
+                     document.body.appendChild(container3);
 
                     // Header element, will contain Conference Name
                     var h1 = document.createElement('h1');
@@ -364,6 +371,19 @@
                     p1.setAttribute('class', 'note');
                     p1.setAttribute('vertical-align', 'baseline');
                     container2.appendChild(p1);
+
+                     var deleteButton = document.createElement("button");
+                     deleteButton.innerHTML = "Delete Conference";
+                     deleteButton.id = "deleteButton";
+                     deleteButton.width = "20px";
+                     deleteButton.height = "100px";
+                     deleteButton.top = "100px";
+                     deleteButton.left = "20px";
+                     container3.appendChild(deleteButton);
+
+                     deleteButton.onclick = function() {
+                         conference.delConf();
+                     }
                 }
 
                 /**
@@ -444,7 +464,7 @@
                 }
 
                 static delConf() {
-
+                    console.log("Call to delAndUpdateConfVis");
                 }
             }
 
