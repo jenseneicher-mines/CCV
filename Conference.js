@@ -99,7 +99,7 @@ class Conference {
         container3.appendChild(deleteButton);
 
         deleteButton.onclick = function() {
-            conference.delConf();
+            var  visualization_handler = new VisualizationHandler();
         }
     }
 

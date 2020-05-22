@@ -248,22 +248,26 @@
             // conference temp. variables
             // having to do with creating visual aspect of conference
             var num_confs = 3;
-            var conferenceStart_dates = [5, 6, 5];
-            var conferenceEnd_dates = [9, 10, 11];
-            var notification_deadlines = [1, 4, 17];
-            var submission_deadlines = [24, 46, 52];
-            var decision_deadlines = [48, 102, 256];
-    
+            
             // more conference information
-            var conferences = [];
-            var conf_names = ["IEEE CAMAD 2020", "RAI--Ei and Scopus 2020", "IWSMR 2020"];
-            var conf_locations = ["Denver,CO,US", "Boston,MA,US", "Pittsburgh,PA,US"];
-            var conf_fields = ["Robotics", "AI", "Physics"];
-            var conf_colors = ["#f08950", "#9ce490", "#90c6e4"];
+            var conferences = [["IEEE CAMAD 2020", "Robotics", "#f08950", 24, 32, 48, 5, 9],
+                               ["RAI--Ei and Scopus 2020", "AI", "#9ce490", 46, 80, 102, 6, 10],
+                               ["IWSMR 2020", "Physics", "#90c6e4", 52, 96, 256, 5, 11]];
+            
+            
+            //var conf_names = ["IEEE CAMAD 2020", "RAI--Ei and Scopus 2020", "IWSMR 2020"];
+            //var conf_locations = ["Denver,CO,US", "Boston,MA,US", "Pittsburgh,PA,US"];
+            //var conf_fields = ["Robotics", "AI", "Physics"];
+            //var conf_colors = ["#f08950", "#9ce490", "#90c6e4"];
+            //var conferenceStart_dates = [5, 6, 5];
+            //var conferenceEnd_dates = [9, 10, 11];
+            //var notification_deadlines = [1, 4, 17];
+            //var submission_deadlines = [24, 46, 52];
+            //var decision_deadlines = [48, 102, 256];
+            
     
             //create conferences & their visuals and add all info to conferences_handler object
-            conferences_handler = new VisualizationHandler(svg, document, svg_width/2, svg_height/2, conferences, num_confs, conf_names, conf_fields, conf_colors,
-                submission_deadlines, decision_deadlines, conferenceStart_dates, conferenceEnd_dates, notification_deadlines, conf_locations);
+            conferences_handler = new VisualizationHandler(svg, document, svg_width/2, svg_height/2, conferences, num_confs);
     
             //create months ring
             conferences_handler.createMonthsRing(svg, conferences_handler.x, conferences_handler.y);

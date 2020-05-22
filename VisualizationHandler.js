@@ -27,7 +27,7 @@ class VisualizationHandler {
     * array of conference information (i.e. [["name_1", "field_1"]["field_1", "field_2"]]), then necessary adjustments will be made.
     * If this change is made it should be noted that updating info arrays IS ESSENTIAL
     */
-   constructor(svg, document, x, y, conferences, num_confs, names, fields, colors, submission_deadlines, decision_deadlines, conferenceStart_dates, conferenceEnd_dates, notification_deadlines, conf_locations,) {
+   constructor(svg, document, x, y, conferences, num_confs) {
        this.svg = svg;
        this.document = document;
        this.x = x;
@@ -35,16 +35,15 @@ class VisualizationHandler {
 
        this.conferences = conferences;
        this.num_confs = num_confs;
-       this.names = names;
-       this.fields = fields;
-       this.colors = colors;
-       this.submission_deadlines = submission_deadlines;
-       this.decision_deadlines = decision_deadlines;
-       this.conferenceStart_dates = conferenceStart_dates;
-       this.conferenceEnd_dates = conferenceEnd_dates;
-       this.notification_deadlines = notification_deadlines;
-       this.conf_locations = conf_locations;
-       this.radii = [];
+       this.names = [];
+       this.fields = [];
+       this.colors = [];
+       this.submission_deadlines = [];
+       this.decision_deadlines = [];
+       this.conferenceStart_dates = [];
+       this.conferenceEnd_dates = [];
+       this.notification_deadlines = [];
+       this.locations = [];
        this.inner_radii = [];
        this.outer_radii = [];
        this.start_angles = [];
@@ -60,26 +59,34 @@ class VisualizationHandler {
        var spacing = 20;
        var ring_size = 3;
        var arc_size = 10;
-
+       
        // populate conferences array & fill other empty arrays
        for (var i = 0; i < num_confs; i++) {
-           // add math related translations for arc creation
-           this.radii.push(this.curr_radius);
-           this.inner_radii.push(this.curr_radius - arc_size/2);
-           this.outer_radii.push(this.curr_radius + arc_size/2);
-           this.start_angles.push(((submission_deadlines[i])/365) * (2*Math.PI));
-           this.end_angles.push(((decision_deadlines[i])/365) * (2*Math.PI));
-
-   // handle single conference creation
-   this.addConference(svg, document, num_confs, this.names[i], i, this.x, this.y, this.fields[i], this.colors[i],
-       this.submission_deadlines[i], this.decision_deadlines[i], this.conferenceStart_dates[i], this.conferenceEnd_dates[i], this.notification_deadlines[i], this.conf_locations[i],
-       this.curr_radius, this.inner_radii[i], this.outer_radii[i], this.start_angles[i], this.end_angles[i], ring_size, arc_size,
-       this.conferences, this.rings, this.arcs);
+            this.names.push(conferences[i][0]);
+            this.fields.push(conferences[i][1]);
+            this.colors.push(conferences[i][2]);
+            this.submission_deadlines.push(conferences[i][3]);
+            this.notification_deadlines.push(conferences[i][4]);
+            this.decision_deadlines.push(conferences[i][5]);
+            this.conferenceStart_dates.push(conferences[i][6]);
+            this.conferenceEnd_dates.push(conferences[i][7]);
+            this.locations.push(conferences[i][8]);
+           
+            // add math related translations for arc creation
+            this.inner_radii.push(this.curr_radius - arc_size/2);
+            this.outer_radii.push(this.curr_radius + arc_size/2);
+            this.start_angles.push(((this.submission_deadlines[i])/365) * (2*Math.PI));
+            this.end_angles.push(((this.decision_deadlines[i])/365) * (2*Math.PI));
+            
+            // handle single conference creation
+            this.addConference(svg, document, num_confs, this.names[i], i, this.x, this.y, this.fields[i], this.colors[i],
+                                 this.submission_deadlines[i], this.decision_deadlines[i], this.conferenceStart_dates[i], this.conferenceEnd_dates[i],
+                                 this.notification_deadlines[i], this.locations[i], this.curr_radius, this.inner_radii[i], this.outer_radii[i],
+                                 this.start_angles[i], this.end_angles[i], ring_size, arc_size, this.conferences, this.rings, this.arcs);
 
            // update curr_radius
            this.curr_radius += spacing;
        }
-
    }
 
    // handles addition of all conference information
