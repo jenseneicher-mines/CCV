@@ -30,6 +30,8 @@
 
 </head>
 <body>
+    
+<input type="file" id="file_conference_data" accept=".txt">
 
 <div class="container" id="chart1">
 </div>
@@ -50,6 +52,37 @@
         class dataHandler {
             // no args necessary in creation of dataHandler obj as of yet
             constructor() {}
+            
+            grabConferenceData(input_file) {
+                var file_lines = input_file.split('\n');
+                
+                var conference_data = [];
+                
+                var num_confs = parseInt(file_lines[0], 10);
+                var confs_as_url = parseInt(file_lines[1], 10);
+                var confs_as_manual = parseInt(file_lines[2]);
+                console.log(num_confs, confs_as_url, confs_as_manual);
+                
+                for (var i = 3; i < 3 + confs_as_url; i++) {
+                    console.log(file_lines[i]);
+                }
+                
+                for (var j = 3+confs_as_url; j < 3+confs_as_url+confs_as_manual; j++) {
+                    var split_line = file_lines[j].split(',');
+                    
+                    var conference = [];
+                    for (var k = 0; k < split_line.length; k++) {
+                        if (k <= 2) {
+                            conference.push(split_line[k]);
+                        } else {
+                            conference.push(parseInt(split_line[k], 10));
+                        }
+                    }
+                    conference_data.push(conference);
+                }
+                console.log(conference_data);
+                return conference_data;
+            }
     
             // converts date object to a number to 1 and 366 (considers leap years)
             convertDateToNum(now) {
@@ -235,46 +268,67 @@
          * main function call
          */
         function init() {
-            // dataHandler object for any functions having to do with data handling (self explanatory)
-            data_handler = new dataHandler();
-    
             //svg creation
             var svg_width = document.body.clientWidth / 2;
             var svg_height = document.body.clientHeight;
             var svg = d3.select("#chart1").append("svg").attr("width", svg_width)
                                                      .attr("height", svg_height);
+                                                     
+            // dataHandler object for any functions having to do with data handling (self explanatory)
+            data_handler = new dataHandler();
+            
+            // initialize conferences array that will hold all data about conferences
+            var conferences = [];
+            
+            // handle grabbing file and populating conferences array with necessary data
+            var finished_processing_data = false;
+            
+            const file_conference_data = document.getElementById('file_conference_data');
+            file_conference_data.addEventListener('change', (event) => {
+                const file_list = event.target.files;
+                
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                    conference_file_text = event.target.result;
+                    conferences = data_handler.grabConferenceData(conference_file_text);
+                    
+                    finished_processing_data = true;
+                    
+                    ////////////////////////////// INITIALIZATION OF VISUALIZATION HAS MOVED HERE //////////////////////////////////////////
+                    //create conferences & their visuals and add all info to conferences_handler object
+                    var conferences_handler = new VisualizationHandler(svg, document, svg_width/2, svg_height/2, conferences, num_confs);
+            
+                    //create months ring
+                    conferences_handler.createMonthsRing(svg, conferences_handler.x, conferences_handler.y);
+            
+                    //create date line
+                    var now = new Date();
+                    conferences_handler.createDateLine(svg, data_handler, now, conferences_handler.x, conferences_handler.y, conferences_handler.curr_radius);
+                };
+                reader.readAsText(file_list[0]);
+            });
     
     
             // conference temp. variables
             // having to do with creating visual aspect of conference
             var num_confs = 3;
             
-            // more conference information
-            var conferences = [["IEEE CAMAD 2020", "Robotics", "#f08950", 24, 32, 48, 5, 9],
-                               ["RAI--Ei and Scopus 2020", "AI", "#9ce490", 46, 80, 102, 6, 10],
-                               ["IWSMR 2020", "Physics", "#90c6e4", 52, 96, 256, 5, 11]];
-            
-            
-            //var conf_names = ["IEEE CAMAD 2020", "RAI--Ei and Scopus 2020", "IWSMR 2020"];
-            //var conf_locations = ["Denver,CO,US", "Boston,MA,US", "Pittsburgh,PA,US"];
-            //var conf_fields = ["Robotics", "AI", "Physics"];
-            //var conf_colors = ["#f08950", "#9ce490", "#90c6e4"];
-            //var conferenceStart_dates = [5, 6, 5];
-            //var conferenceEnd_dates = [9, 10, 11];
-            //var notification_deadlines = [1, 4, 17];
-            //var submission_deadlines = [24, 46, 52];
-            //var decision_deadlines = [48, 102, 256];
-            
-    
-            //create conferences & their visuals and add all info to conferences_handler object
-            conferences_handler = new VisualizationHandler(svg, document, svg_width/2, svg_height/2, conferences, num_confs);
-    
-            //create months ring
-            conferences_handler.createMonthsRing(svg, conferences_handler.x, conferences_handler.y);
-    
-            //create date line
-            var now = new Date();
-            conferences_handler.createDateLine(svg, data_handler, now, conferences_handler.x, conferences_handler.y, conferences_handler.curr_radius);
+            ////////////////////// NO LONGER NECESSARY, conferences POPULATED ABOVE //////////////
+            //// more conference information
+            //var conferences = [["IEEE CAMAD 2020", "Robotics", "#f08950", 24, 32, 48, 5, 9],
+            //                   ["RAI--Ei and Scopus 2020", "AI", "#9ce490", 46, 80, 102, 6, 10],
+            //                   ["IWSMR 2020", "Physics", "#90c6e4", 52, 96, 256, 5, 11]];
+            //
+            //
+            ////var conf_names = ["IEEE CAMAD 2020", "RAI--Ei and Scopus 2020", "IWSMR 2020"];
+            ////var conf_locations = ["Denver,CO,US", "Boston,MA,US", "Pittsburgh,PA,US"];
+            ////var conf_fields = ["Robotics", "AI", "Physics"];
+            ////var conf_colors = ["#f08950", "#9ce490", "#90c6e4"];
+            ////var conferenceStart_dates = [5, 6, 5];
+            ////var conferenceEnd_dates = [9, 10, 11];
+            ////var notification_deadlines = [1, 4, 17];
+            ////var submission_deadlines = [24, 46, 52];
+            ////var decision_deadlines = [48, 102, 256];
     
             //handle onclick event for enterFields button (if 10 or more conferences made do not allow creation of another)
             if (conferences_handler.num_confs >= 10) {
@@ -287,13 +341,6 @@
                     var conference_info = enterFields(svg, document, conferences_handler, color);
                 };
             }
-    
-            //create months ring
-            conferences_handler.createMonthsRing(svg, conferences_handler.x, conferences_handler.y);
-    
-            //create date line
-            var now = new Date();
-            conferences_handler.createDateLine(svg, data_handler, now, conferences_handler.x, conferences_handler.y, conferences_handler.curr_radius);
     
             //TESTING, can be deleted if necessary
             console.log(conferences_handler.names);
