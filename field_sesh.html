@@ -104,7 +104,7 @@
             //ask user for conference field
             var field = newWindow.document.createElement('conf');
             field.setAttribute('style', 'white-space: pre;');
-            field.textContent = "\r\nPlease enter your Conference Field";
+            field.textContent = "\r\nPlease enter your Conference Field:";
     
             //Ask User for submission deadline
             var sub = newWindow.document.createElement('conf');
@@ -125,9 +125,6 @@
             //input text box for searching by conference name
             var inputConferenceTitle = newWindow.document.createElement("input");
             inputConferenceTitle.setAttribute('type', 'text');
-    
-            var inputConferenceField = newWindow.document.createElement("input");
-            inputConferenceField.setAttribute('type', 'text');
             
             //input text box for searching by conference URL
             var inputConferenceURL = newWindow.document.createElement("input");
@@ -140,6 +137,9 @@
             //input text box for conference name
             var inputConference = newWindow.document.createElement("input");
             inputConference.setAttribute('type2', 'text');
+            
+            var inputField = newWindow.document.createElement("input");
+            inputField.setAttribute('type', 'text');
     
             //input text box for submission deadline
             var inputSub = newWindow.document.createElement("input");
@@ -180,7 +180,7 @@
                 newConference.push(inConf);
                 
                 //save new conference field
-                var inField = inputConferenceField.value;
+                var inField = inputField.value;
                 newConference.push(inField);
     
                 //save the new conferences submission deadline
@@ -219,6 +219,8 @@
             newWindow.document.body.appendChild(inputConfPlc);
             newWindow.document.body.appendChild(conf);
             newWindow.document.body.appendChild(inputConference);
+            newWindow.document.body.appendChild(field);
+            newWindow.document.body.appendChild(inputField);
             newWindow.document.body.appendChild(sub);
             newWindow.document.body.appendChild(inputSub);
             newWindow.document.body.appendChild(notif);
