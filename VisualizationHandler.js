@@ -33,7 +33,7 @@ class VisualizationHandler {
        this.x = x;
        this.y = y;
 
-       this.conferences = conferences;
+       this.conferences = [];
        this.num_confs = num_confs;
        this.names = [];
        this.fields = [];
@@ -79,7 +79,7 @@ class VisualizationHandler {
             this.end_angles.push(((this.decision_deadlines[i])/365) * (2*Math.PI));
             
             // handle single conference creation
-            this.addConference(svg, document, num_confs, this.names[i], i, this.x, this.y, this.fields[i], this.colors[i],
+            this.addConference(svg, document, this, num_confs, this.names[i], i, this.x, this.y, this.fields[i], this.colors[i],
                                  this.submission_deadlines[i], this.decision_deadlines[i], this.conferenceStart_dates[i], this.conferenceEnd_dates[i],
                                  this.notification_deadlines[i], this.locations[i], this.curr_radius, this.inner_radii[i], this.outer_radii[i],
                                  this.start_angles[i], this.end_angles[i], ring_size, arc_size, this.conferences, this.rings, this.arcs);
@@ -90,17 +90,19 @@ class VisualizationHandler {
    }
 
    // handles addition of all conference information
-   addConference(svg, document, num_confs, name, i, x, y, field, color, submission_deadline, decision_deadline, conferenceStart_dates, conferenceEnd_dates, notification_deadlines, conf_locations, curr_radius, inner_radius, outer_radius,
+   addConference(svg, document, conferences_handler, num_confs, name, i, x, y, field, color, submission_deadline, decision_deadline, conferenceStart_dates, conferenceEnd_dates, notification_deadlines, conf_locations, curr_radius, inner_radius, outer_radius,
                  start_angle, end_angle, ring_size, arc_size, conferences, rings, arcs) {
        console.log("Added conference");
        console.log(name, i, x, y, field, color, submission_deadline, decision_deadline, conferenceStart_dates, conferenceEnd_dates, notification_deadlines, conf_locations,
                                    curr_radius, inner_radius, outer_radius, start_angle, end_angle, null, null);
 
-       var conf = new Conference(name, i, x, y, field, color, submission_deadline, decision_deadline, conferenceStart_dates, conferenceEnd_dates, notification_deadlines, conf_locations,
+       var conf = new Conference(conferences_handler, name, i, x, y, field, color, submission_deadline, decision_deadline, conferenceStart_dates, conferenceEnd_dates, notification_deadlines, conf_locations,
            curr_radius, inner_radius, outer_radius, start_angle, end_angle, null, null);
+       
+       console.log("addConference: ", conf.x, conf.y);
 
        //Create conferences visuals and add to visualization handler arrays 'rings' and 'arcs's
-       Conference.createConfVisuals(svg, document, conf, conf.x, conf.y, conf.radius, conf.start_angle, conf.end_angle, conf.conf_color, ring_size, arc_size);
+       Conference.createConfVisuals(svg, document, conferences_handler, conf, conf.x, conf.y, conf.radius, conf.start_angle, conf.end_angle, conf.conf_color, ring_size, arc_size);
        rings.push(conf.ring);
        arcs.push(conf.arc);
 
@@ -108,36 +110,67 @@ class VisualizationHandler {
        return num_confs + 1;
    }
 
-   delAndUpdate(svg, conference, selected_index, rings, arcs, num_confs, spacing, conferences, document, arc_size) {
+   static delAndUpdate(svg, document, conferences_handler, selected_index, spacing, arc_size) {
        // remove ring and arc from d3 and svg
-       rings[selected_index].remove();
-       arcs[selected_index].remove();
-
+       console.log(conferences_handler, selected_index);
+       
+       conferences_handler.rings[selected_index].remove();       
+       conferences_handler.arcs[selected_index].remove();
+       
+       console.log(conferences_handler.arcs, conferences_handler.rings);
+       
        // check if you need to update the visualization
-       if (conference.conf_index < (num_confs - 1)) {
+       if (conferences_handler.conferences[selected_index].conf_index < (conferences_handler.num_confs - 1)) {
            console.log("Needs updating");
 
-           for (var i = conference.conf_index+1; i < num_confs; i++) {
-               console.log("Currently updating");
-
-               conference = conferences[i];
+           for (var i = selected_index+1; i < conferences_handler.num_confs; i++) {
+               console.log("Currently updating", i);
+               
+               var conference = conferences_handler.conferences[i];
+               conference.radius = conference.radius - spacing;
+               //conference.start_angle = 
+               
+               
+               
+               console.log(conference);
 
                //update ring
                conference.conf_index -= 1;
-               rings[i].attr("r", conference.radius - spacing);
+               console.log(conferences_handler.rings[i]);
+               conferences_handler.rings[i].attr("r", conference.radius);
 
                //update arc
                // 1) remove current arc
-               arcs[i].remove();
-               arcs[i] = null;
+               conferences_handler.arcs[i].remove();
+               conferences_handler.arcs[i] = null;
                // 2) create new, updated arc and re-add to conf object
-               arcs[i] = Conference.createConfArc(svg, document, conference, conference.x, conference.y, conference.radius - spacing,
+               conferences_handler.arcs[i] = Conference.createConfArc(svg, document, conferences_handler, conference, conference.x, conference.y, conference.radius,
                                                          conference.start_angle, conference.end_angle, conference.conf_color, arc_size);
            }
        }
+      conferences_handler.conferences = conferences_handler.conferences.slice(0, selected_index).concat(conferences_handler.conferences.slice(selected_index + 1, conferences_handler.conferences.length));
+      
+      conferences_handler.names = conferences_handler.names.slice(0, selected_index).concat(conferences_handler.names.slice(selected_index + 1, conferences_handler.names.length));
+      conferences_handler.fields = conferences_handler.fields.slice(0, selected_index).concat(conferences_handler.fields.slice(selected_index + 1, conferences_handler.fields.length));
+      conferences_handler.colors = conferences_handler.colors.slice(0, selected_index).concat(conferences_handler.colors.slice(selected_index + 1, conferences_handler.colors.length));
+      conferences_handler.submission_deadlines = conferences_handler.submission_deadlines.slice(0, selected_index).concat(conferences_handler.submission_deadlines.slice(selected_index + 1, conferences_handler.submission_deadlines.length));
+      conferences_handler.decision_deadlines = conferences_handler.decision_deadlines.slice(0, selected_index).concat(conferences_handler.decision_deadlines.slice(selected_index + 1, conferences_handler.decision_deadlines.length));
+      conferences_handler.conferenceStart_dates = conferences_handler.conferenceStart_dates.slice(0, selected_index).concat(conferences_handler.conferenceStart_dates.slice(selected_index + 1, conferences_handler.conferenceStart_dates.length));
+      conferences_handler.conferenceEnd_dates = conferences_handler.conferenceEnd_dates.slice(0, selected_index).concat(conferences_handler.conferenceEnd_dates.slice(selected_index + 1, conferences_handler.conferenceEnd_dates.length));
+      conferences_handler.notification_deadlines = conferences_handler.notification_deadlines.slice(0, selected_index).concat(conferences_handler.notification_deadlines.slice(selected_index + 1, conferences_handler.notification_deadlines.length));
+      conferences_handler.locations = conferences_handler.locations.slice(0, selected_index).concat(conferences_handler.locations.slice(selected_index + 1, conferences_handler.locations.length));
+      conferences_handler.inner_radii = conferences_handler.inner_radii.slice(0, selected_index).concat(conferences_handler.inner_radii.slice(selected_index + 1, conferences_handler.inner_radii.length));
+      conferences_handler.outer_radii = conferences_handler.outer_radii.slice(0, selected_index).concat(conferences_handler.outer_radii.slice(selected_index + 1, conferences_handler.outer_radii.length));
+      conferences_handler.start_angles = conferences_handler.start_angles.slice(0, selected_index).concat(conferences_handler.start_angles.slice(selected_index + 1, conferences_handler.start_angles.length));
+      conferences_handler.end_angles = conferences_handler.end_angles.slice(0, selected_index).concat(conferences_handler.end_angles.slice(selected_index + 1, conferences_handler.end_angles.length));
+      conferences_handler.rings = conferences_handler.rings.slice(0, selected_index).concat(conferences_handler.rings.slice(selected_index + 1, conferences_handler.rings.length));
+      conferences_handler.arcs = conferences_handler.arcs.slice(0, selected_index).concat(conferences_handler.arcs.slice(selected_index + 1, conferences_handler.arcs.length));
+
+      
+      //conferences_handler.
 
        // return updated num_confs
-       return num_confs - 1;
+       return conferences_handler.num_confs - 1;
    }
 
    // creates line on visualization indicating the day
