@@ -71,6 +71,7 @@ class Conference {
         var h1 = document.createElement('h1');
         h1.id = "conferenceName";
         h1.textContent = conference.conf_name;
+        h1.style.color = conference.conf_color;
         var left = document.clientWidth/2;
         var top = document.clientHeight/2;
         //h1.style.left = left;
