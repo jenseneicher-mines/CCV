@@ -100,6 +100,74 @@
                 return new Date(date.setDate(now_num)); // add the number of days
             }
         }
+        
+        
+        
+        
+        function showDetails(svg, document, conferences_handler, conference) {
+            // new elements are added dynamically on conference visualization click. This means that objects
+            // need to be deleted and re-added each time a new conference is clicked. This array and fo r loop
+            //
+            // handles conference descriptive element deletions
+            var details_element_ids = ["conferenceName", "mainParagraph", "deleteButton"];
+            for (var i = 0; i < details_element_ids.length; i++) {
+                if (document.getElementById(details_element_ids[i])){
+                    var elem = document.getElementById(details_element_ids[i]);
+                    elem.remove();
+                }
+            }
+    
+            //create a new container that will appear on the left side of the screen
+            var container2 = document.createElement("div");
+            container2.setAttribute("style","float: left;");
+            document.body.appendChild(container2);
+    
+            var container3 = document.createElement("div2");
+            container3.setAttribute("style","float: absolute;");
+            container3.style.position = "absolute";
+            container3.style.left = 1025 + 'px';
+            container3.style.top = 175 +'px';
+            document.body.appendChild(container3);
+    
+            // Header element, will contain Conference Name
+            var h1 = document.createElement('h1');
+            h1.id = "conferenceName";
+            h1.textContent = conference.conf_name;
+            h1.style.color = conference.conf_color;
+            var left = document.clientWidth/2;
+            var top = document.clientHeight/2;
+            //h1.style.left = left;
+            //h1.style.top = top;
+            //h1.setAttribute("style", "position: left; z-index: 1; left: "+left+"; top: "+top+"; width:200px; height:20px;");
+            //h1.style.zIndex = 1;
+            container2.appendChild(h1);
+            //container2.appendChild(h1);
+    
+            // Paragraph element, unknown what this will contain
+            var p1 = document.createElement('p1');
+            p1.id = "mainParagraph";
+            p1.setAttribute("style", "position: absolute; z-index: 1; left: "+left+"; top: "+top+"; width:190px; height:100px;");
+            p1.textContent = "Conference Topic: " + conference.conf_field + "\r\nLocation: " + conference.conf_location + "\r\nSubmission Deadline: " + conference.submission_deadline + "\r\nNotification Deadline: " + conference.notification_deadline + "\r\nFinal Version Due: " + conference.decision_deadline;
+            p1.setAttribute('class', 'note');
+            p1.setAttribute('vertical-align', 'baseline');
+            container2.appendChild(p1);
+    
+            var deleteButton = document.createElement("button");
+            deleteButton.innerHTML = "Delete Conference";
+            deleteButton.id = "deleteButton";
+            deleteButton.width = "20px";
+            deleteButton.height = "100px";
+            deleteButton.top = "100px";
+            deleteButton.left = "20px";
+            container3.appendChild(deleteButton);
+    
+            deleteButton.onclick = function() {
+                conferences_handler.num_confs = VisualizationHandler.delAndUpdate(svg, document, conferences_handler, selected_conf_index, 20, 10);
+            };
+        }
+        
+        
+        
     
         // Button click event function for manually creating a conference
         function enterFields(svg, document, conferences_handler, color) {
@@ -331,6 +399,22 @@
                     //create date line
                     var now = new Date();
                     conferences_handler.createDateLine(svg, data_handler, now, conferences_handler.x, conferences_handler.y, conferences_handler.curr_radius);
+                
+                    //handle onclick event for enterFields button (if 10 or more conferences made do not allow creation of another)
+                    if (conferences_handler.num_confs >= 10) {
+                        console.log("Maximum number of conferences allowed has been reached. " +
+                                    "Please delete a conference before adding a new one.");
+                    } else {
+                        var button_enter_fields = document.getElementById("buttonEnterFields");
+                        button_enter_fields.onclick = function () {
+                            var color = "#48c9b0";
+                            var conference_info = enterFields(svg, document, conferences_handler, color);
+                        };
+                    }
+                
+                
+                
+                
                 };
                 reader.readAsText(file_list[0]);
             });
@@ -357,20 +441,8 @@
             ////var submission_deadlines = [24, 46, 52];
             ////var decision_deadlines = [48, 102, 256];
     
-            //handle onclick event for enterFields button (if 10 or more conferences made do not allow creation of another)
-            if (conferences_handler.num_confs >= 10) {
-                console.log("Maximum number of conferences allowed has been reached. " +
-                            "Please delete a conference before adding a new one.");
-            } else {
-                var button_enter_fields = document.getElementById("buttonEnterFields");
-                button_enter_fields.onclick = function () {
-                    var color = "#48c9b0";
-                    var conference_info = enterFields(svg, document, conferences_handler, color);
-                };
-            }
-    
             //TESTING, can be deleted if necessary
-            console.log(conferences_handler.names);
+            //console.log(conferences_handler.names);
     
             // UNDER CONSTRUCTION
             // STILL NEED TO REMOVE CONFERENCE FROM conferences, AND CHECK IF I NEED TO DO ANYTHING ELSE FOR DELETION

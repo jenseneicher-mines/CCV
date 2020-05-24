@@ -3,8 +3,9 @@
  */
 class Conference {
     //constructor (must include all fields atm)
-    constructor(conf_name, conf_index, x, y, conf_field, conf_color, submission_deadline, decision_deadline, conferenceStart_date, conferenceEnd_date, notification_deadline, conf_location, radius, inner_radius, outer_radius, start_angle, end_angle, ring, arc) {
+    constructor(conferences_handler, conf_name, conf_index, x, y, conf_field, conf_color, submission_deadline, decision_deadline, conferenceStart_date, conferenceEnd_date, notification_deadline, conf_location, radius, inner_radius, outer_radius, start_angle, end_angle, ring, arc) {
         //var. having to do with conference info.
+        this.conferences_handler = conferences_handler;
         this.conf_name = conf_name;
         this.conf_index = conf_index;
         this.conf_field = conf_field;
@@ -42,67 +43,67 @@ class Conference {
      * It is a base template and used for all conferences, as they should all have the same
      * data fields.
      */
-    showDetails(document, conference) {
-        // new elements are added dynamically on conference visualization click. This means that objects
-        // need to be deleted and re-added each time a new conference is clicked. This array and fo r loop
-        //
-        // handles conference descriptive element deletions
-        var details_element_ids = ["conferenceName", "mainParagraph", "deleteButton"];
-        for (var i = 0; i < details_element_ids.length; i++) {
-            if (document.getElementById(details_element_ids[i])){
-                var elem = document.getElementById(details_element_ids[i]);
-                elem.remove();
-            }
-        }
-
-        //create a new container that will appear on the left side of the screen
-        var container2 = document.createElement("div");
-        container2.setAttribute("style","float: left;");
-        document.body.appendChild(container2);
-
-        var container3 = document.createElement("div2");
-        container3.setAttribute("style","float: absolute;");
-        container3.style.position = "absolute";
-        container3.style.left = 1025 + 'px';
-        container3.style.top = 175 +'px';
-        document.body.appendChild(container3);
-
-        // Header element, will contain Conference Name
-        var h1 = document.createElement('h1');
-        h1.id = "conferenceName";
-        h1.textContent = conference.conf_name;
-        h1.style.color = conference.conf_color;
-        var left = document.clientWidth/2;
-        var top = document.clientHeight/2;
-        //h1.style.left = left;
-        //h1.style.top = top;
-        //h1.setAttribute("style", "position: left; z-index: 1; left: "+left+"; top: "+top+"; width:200px; height:20px;");
-        //h1.style.zIndex = 1;
-        container2.appendChild(h1);
-        //container2.appendChild(h1);
-
-        // Paragraph element, unknown what this will contain
-        var p1 = document.createElement('p1');
-        p1.id = "mainParagraph";
-        p1.setAttribute("style", "position: absolute; z-index: 1; left: "+left+"; top: "+top+"; width:190px; height:100px;");
-        p1.textContent = "Conference Topic: " + conference.conf_field + "\r\nLocation: " + conference.conf_location + "\r\nSubmission Deadline: " + conference.submission_deadline + "\r\nNotification Deadline: " + conference.notification_deadline + "\r\nFinal Version Due: " + conference.decision_deadline;
-        p1.setAttribute('class', 'note');
-        p1.setAttribute('vertical-align', 'baseline');
-        container2.appendChild(p1);
-
-        var deleteButton = document.createElement("button");
-        deleteButton.innerHTML = "Delete Conference";
-        deleteButton.id = "deleteButton";
-        deleteButton.width = "20px";
-        deleteButton.height = "100px";
-        deleteButton.top = "100px";
-        deleteButton.left = "20px";
-        container3.appendChild(deleteButton);
-
-        deleteButton.onclick = function() {
-            var  visualization_handler = new VisualizationHandler();
-        }
-    }
+    //showDetails(document, conference) {
+    //    // new elements are added dynamically on conference visualization click. This means that objects
+    //    // need to be deleted and re-added each time a new conference is clicked. This array and fo r loop
+    //    //
+    //    // handles conference descriptive element deletions
+    //    var details_element_ids = ["conferenceName", "mainParagraph", "deleteButton"];
+    //    for (var i = 0; i < details_element_ids.length; i++) {
+    //        if (document.getElementById(details_element_ids[i])){
+    //            var elem = document.getElementById(details_element_ids[i]);
+    //            elem.remove();
+    //        }
+    //    }
+    //
+    //    //create a new container that will appear on the left side of the screen
+    //    var container2 = document.createElement("div");
+    //    container2.setAttribute("style","float: left;");
+    //    document.body.appendChild(container2);
+    //
+    //    var container3 = document.createElement("div2");
+    //    container3.setAttribute("style","float: absolute;");
+    //    container3.style.position = "absolute";
+    //    container3.style.left = 1025 + 'px';
+    //    container3.style.top = 175 +'px';
+    //    document.body.appendChild(container3);
+    //
+    //    // Header element, will contain Conference Name
+    //    var h1 = document.createElement('h1');
+    //    h1.id = "conferenceName";
+    //    h1.textContent = conference.conf_name;
+    //    h1.style.color = conference.conf_color;
+    //    var left = document.clientWidth/2;
+    //    var top = document.clientHeight/2;
+    //    //h1.style.left = left;
+    //    //h1.style.top = top;
+    //    //h1.setAttribute("style", "position: left; z-index: 1; left: "+left+"; top: "+top+"; width:200px; height:20px;");
+    //    //h1.style.zIndex = 1;
+    //    container2.appendChild(h1);
+    //    //container2.appendChild(h1);
+    //
+    //    // Paragraph element, unknown what this will contain
+    //    var p1 = document.createElement('p1');
+    //    p1.id = "mainParagraph";
+    //    p1.setAttribute("style", "position: absolute; z-index: 1; left: "+left+"; top: "+top+"; width:190px; height:100px;");
+    //    p1.textContent = "Conference Topic: " + conference.conf_field + "\r\nLocation: " + conference.conf_location + "\r\nSubmission Deadline: " + conference.submission_deadline + "\r\nNotification Deadline: " + conference.notification_deadline + "\r\nFinal Version Due: " + conference.decision_deadline;
+    //    p1.setAttribute('class', 'note');
+    //    p1.setAttribute('vertical-align', 'baseline');
+    //    container2.appendChild(p1);
+    //
+    //    var deleteButton = document.createElement("button");
+    //    deleteButton.innerHTML = "Delete Conference";
+    //    deleteButton.id = "deleteButton";
+    //    deleteButton.width = "20px";
+    //    deleteButton.height = "100px";
+    //    deleteButton.top = "100px";
+    //    deleteButton.left = "20px";
+    //    container3.appendChild(deleteButton);
+    //
+    //    deleteButton.onclick = function() {
+    //        VisualizationHandler.delAndUpdate();
+    //    }
+    //}
 
     /**
      * createConfRing
@@ -117,14 +118,14 @@ class Conference {
      * Creates conference ring
      */
     //Create Conference Visualizations (ring & arc), and add click handlers. TODO: SHOULD CLICK HANDLERS BE TAKEN CARE OF IN THE SAME FUNCTION???
-    static createConfRing(svg, document, conference, x, y, radius, color, ring_size) {
+    static createConfRing(svg, document, conferences_handler, conference, x, y, radius, color, ring_size) {
         //init. and append new conference ring to svg
         var new_conf_ring = svg.append("circle").attr("cx", x).attr("cy", y)
                                                 .attr("r", radius)
                                                 .attr("stroke", color).attr("stroke-width", ring_size)
                                                 .style("fill", "none")
                                                 .on("click", function() {
-                                                    conference.showDetails(document, conference);
+                                                    showDetails(svg, document, conferences_handler, conference);
                                                     selected_conf_index = conference.conf_index;
                                                 });
         return new_conf_ring;
@@ -141,7 +142,7 @@ class Conference {
      * arc_size: width of stroke for arc
      * Creates Conference arc indicating all deadlines
      */
-    static createConfArc(svg, document, conference, x, y, radius, start_angle, end_angle, color, arc_size) {
+    static createConfArc(svg, document, conferences_handler, conference, x, y, radius, start_angle, end_angle, color, arc_size) {
         //init. and append new conference arc to svg
         var newly_built_arc = d3.svg.arc().innerRadius(radius - (arc_size/2))
                                               .outerRadius(radius + (arc_size/2))
@@ -150,7 +151,7 @@ class Conference {
 
         var new_conf_arc = svg.append("path").attr("d", newly_built_arc).attr("transform", "translate("+x+", "+y+")").style("fill", color)
                                                 .on("click", function() {
-                                                   conference.showDetails(document, conference);
+                                                    showDetails(svg, document, conferences_handler, conference);
                                                     selected_conf_index = conference.conf_index;
                                                 });
         return new_conf_arc;
@@ -161,8 +162,9 @@ class Conference {
      *
      * Uses the two previous function to handle all Conference visualization creation
      */
-    static createConfVisuals(svg, document, conf, x, y, radius, start_angle, end_angle, conf_color, ring_size, arc_size) {
-        conf.ring = Conference.createConfRing(svg, document, conf, x, y, radius, conf_color, ring_size);
-        conf.arc = Conference.createConfArc(svg, document, conf, x, y, radius, start_angle, end_angle, conf_color, arc_size);
+    static createConfVisuals(svg, document, conferences_handler, conf, x, y, radius, start_angle, end_angle, conf_color, ring_size, arc_size) {
+        console.log("createConfVisuals: ", x, y);
+        conf.ring = Conference.createConfRing(svg, document, conferences_handler, conf, x, y, radius, conf_color, ring_size);
+        conf.arc = Conference.createConfArc(svg, document, conferences_handler, conf, x, y, radius, start_angle, end_angle, conf_color, arc_size);
     }
 }
