@@ -223,19 +223,19 @@
             //Ask User for submission deadline
             var sub = newWindow.document.createElement('conf');
             sub.setAttribute('style', 'white-space: pre;');
-            sub.textContent = "\r\nPlease Enter the Submission Deadline (mm/dd/yyyy):";
+            sub.textContent = "\r\nPlease Select the Submission Deadline:";
             sub.style.fontWeight = 'bold';
     
             //Ask the user for a notification deadline
             var notif = newWindow.document.createElement('notif');
             notif.setAttribute('style', 'white-space: pre;');
-            notif.textContent = "\r\nPlease Enter the Notification Deadline (mm/dd/yyyy):";
+            notif.textContent = "\r\nPlease Select the Notification Deadline:";
             notif.style.fontWeight = 'bold';
     
             //Ask user for decision deadline
             var dec = newWindow.document.createElement('conf');
             dec.setAttribute('style', 'white-space: pre;');
-            dec.textContent = "\r\nPlease Enter the Final Version Deadline (mm/dd/yyyy):";
+            dec.textContent = "\r\nPlease Select the Final Version Deadline:";
             dec.style.fontWeight = 'bold';
 
             //White space
@@ -265,15 +265,18 @@
     
             //input text box for submission deadline
             var inputSub = newWindow.document.createElement("input");
-            inputSub.setAttribute('type3', 'text');
+            inputSub.type = "date";
+            inputSub.style.width = '130px';
     
             //input text box for notification deadline
             var inputConferenceNotif = newWindow.document.createElement("input");
-            inputConferenceNotif.setAttribute('type4', 'text');
+            inputConferenceNotif.type = "date";
+            inputConferenceNotif.style.width = '130px';
     
             //input text box for decision deadline
             var inputDec = newWindow.document.createElement("input");
-            inputDec.setAttribute('type5', 'text');
+            inputDec.type = "date";
+            inputDec.style.width = '130px';
     
             /////////////////////////////// SUBMIT /////////////////////////////////
             //create a submit button that will call the function to save inputs
@@ -316,6 +319,7 @@
                 //save the new conferences decision deadline
                 var inDec = inputDec.value;
                 newConference.push(inDec);
+                console.log(newConference);
     
                 conferences_handler.addConference(svg, document, newConference[2], conferences_handler.num_confs + 1,
                                 conferences_handler.x, conferences_handler.y,
