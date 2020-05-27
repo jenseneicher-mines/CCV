@@ -197,14 +197,14 @@ class VisualizationHandler {
    // creates 12 month arcs inside the smallest conference radius to show the user how time is alloted in the visualization
    createMonthsRing(svg, x, y) {
        // how month names are displayed, change this array if you would like different names to be shown
-       var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+       var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
        // empty arrays to store the 12 created month arcs
        var month_arcs = [];
        var month_text_objs = [];
 
        // math portion to properly define size and spacing of arcs
-       var spacing = (0.05*((2*Math.PI)/12));
+       var spacing = (0.009*((2*Math.PI)/12));
        var arc_length = (((2*Math.PI)/12) - (2*spacing));
        var start_angle = spacing;
        var end_angle = arc_length - spacing;
@@ -217,7 +217,7 @@ class VisualizationHandler {
                                                  .startAngle(start_angle)
                                                  .endAngle(end_angle);
 
-           var new_month_arc = svg.append("path").attr("id", months[i] + "_arc").attr("d", newly_built_arc).attr("transform", "translate("+x+", "+y+")").style("fill", "green");
+           var new_month_arc = svg.append("path").attr("id", months[i] + "_arc").attr("d", newly_built_arc).attr("transform", "translate("+x+", "+y+")").style("fill", "#AD193D");
 
 
 
@@ -225,7 +225,7 @@ class VisualizationHandler {
            var months_text = svg.append("text").attr("id", months[i])
                                                .attr("x", 20)   //Move the text from the start angle of the arc
                                                .attr("dy", 18) //Move the text down
-                                               .append("textPath").attr("xlink:href", "#"+months[i]+"_arc").style("text-anchor", "middle").text(months[i]);
+                                               .append("textPath").attr("xlink:href", "#"+months[i]+"_arc").style("text-anchor", "right").text(months[i]);
 
            // store the created text and arc (not really necessary as of now, but it's here just in case)
            month_arcs.push(new_month_arc);
