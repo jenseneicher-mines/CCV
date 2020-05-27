@@ -19,12 +19,16 @@
         }
         body {
             height: 100%;
-            margin: 0;
-            padding: 0;
+            margin: 0px;
+            padding: 0px;
         }
-
         html {
             height: 100%;
+        }
+        div.fixed-rectangle {
+            width: 100%;
+            height: 75px;
+            background-color: #AD193D;
         }
     </style>
 
@@ -34,9 +38,19 @@
 <div class="container" id="chart1">
 </div>
 
+<div class="fixed-rectangle"></div>
+
+
+<body style="background-color:#F3F3F3;">
+
 <p style="position: absolute; top: 850px; left: 700px;">Upload Saved Conferences:</p>
-<input type="file" id="file_conference_data" accept=".txt" style="position: absolute; top: 865px; left: 882px;">
-<button id="buttonEnterFields" style="position: absolute; top:100px; left:20px;" onclick="enterFields()">Enter A Conference</button>
+
+<p style="position: absolute; font-size:30px; font-style: italic; color: whitesmoke; top: 0px; left: 20px;">Conference Cycle Visualization</p>
+
+<input type="file" id="file_conference_data" accept=".txt" style="position: absolute; border: thin solid #ad193d; width: 86px; top: 865px; left: 882px;">
+
+<button id="buttonEnterFields" style="position: absolute; border: solid #ad193d; top:100px; left:20px;" onclick="enterFields()">Enter A Conference</button>
+
 
     <script type="text/javascript" src="VisualizationHandler.js"></script>
     <script type="text/javascript" src="Conference.js"></script>
@@ -125,7 +139,8 @@
             container3.setAttribute("style","float: absolute;");
             container3.style.position = "absolute";
             container3.style.left = 1025 + 'px';
-            container3.style.top = 175 +'px';
+            container3.style.top = 375 +'px'
+            container3.style.border = "thin solid" + conference.conf_color;
             document.body.appendChild(container3);
     
             // Header element, will contain Conference Name
@@ -145,10 +160,12 @@
             // Paragraph element, unknown what this will contain
             var p1 = document.createElement('p1');
             p1.id = "mainParagraph";
-            p1.setAttribute("style", "position: absolute; z-index: 1; left: "+left+"; top: "+top+"; width:190px; height:100px;");
+            p1.setAttribute("style", "position: absolute; font-size:20px; z-index: 1; left: "+left+"; top: "+top+"; width:250px; height:200px;");
             p1.textContent = "Conference Topic: " + conference.conf_field + "\r\nLocation: " + conference.conf_location + "\r\nSubmission Deadline: " + conference.submission_deadline + "\r\nNotification Deadline: " + conference.notification_deadline + "\r\nFinal Version Due: " + conference.decision_deadline;
             p1.setAttribute('class', 'note');
             p1.setAttribute('vertical-align', 'baseline');
+            p1.style.border = "thick solid #F3EBCE";
+            p1.style.backgroundColor = "linen";
             container2.appendChild(p1);
     
             var deleteButton = document.createElement("button");
@@ -445,7 +462,7 @@
                     } else {
                         var button_enter_fields = document.getElementById("buttonEnterFields");
                         button_enter_fields.onclick = function () {
-                            var color = "#48c9b0";
+                            var color = "#AD193D";
                             var conference_info = enterFields(svg, document, conferences_handler, color);
                         };
                     }
