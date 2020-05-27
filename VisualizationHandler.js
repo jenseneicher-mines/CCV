@@ -36,6 +36,7 @@ class VisualizationHandler {
        this.conferences = [];
        this.num_confs = num_confs;
        this.names = [];
+       this.urls = [];
        this.fields = [];
        this.colors = [];
        this.submission_deadlines = [];
@@ -63,14 +64,15 @@ class VisualizationHandler {
        // populate conferences array & fill other empty arrays
        for (var i = 0; i < num_confs; i++) {
             this.names.push(conferences[i][0]);
-            this.fields.push(conferences[i][1]);
-            this.colors.push(conferences[i][2]);
-            this.submission_deadlines.push(conferences[i][3]);
-            this.notification_deadlines.push(conferences[i][4]);
-            this.decision_deadlines.push(conferences[i][5]);
-            this.conferenceStart_dates.push(conferences[i][6]);
-            this.conferenceEnd_dates.push(conferences[i][7]);
-            this.locations.push(conferences[i][8]);
+            this.urls.push(conferences[i][1]);
+            this.fields.push(conferences[i][2]);
+            this.colors.push(conferences[i][3]);
+            this.submission_deadlines.push(conferences[i][4]);
+            this.notification_deadlines.push(conferences[i][5]);
+            this.decision_deadlines.push(conferences[i][6]);
+            this.conferenceStart_dates.push(conferences[i][7]);
+            this.conferenceEnd_dates.push(conferences[i][8]);
+            this.locations.push(conferences[i][9]);
            
             // add math related translations for arc creation
             this.inner_radii.push(this.curr_radius - arc_size/2);
@@ -79,7 +81,7 @@ class VisualizationHandler {
             this.end_angles.push(((this.decision_deadlines[i])/365) * (2*Math.PI));
             
             // handle single conference creation
-            this.addConference(svg, document, this, num_confs, this.names[i], i, this.x, this.y, this.fields[i], this.colors[i],
+            this.addConference(svg, document, this, num_confs, this.names[i], this.urls[i], i, this.x, this.y, this.fields[i], this.colors[i],
                                  this.submission_deadlines[i], this.decision_deadlines[i], this.conferenceStart_dates[i], this.conferenceEnd_dates[i],
                                  this.notification_deadlines[i], this.locations[i], this.curr_radius, this.inner_radii[i], this.outer_radii[i],
                                  this.start_angles[i], this.end_angles[i], ring_size, arc_size, this.conferences, this.rings, this.arcs);
@@ -87,16 +89,18 @@ class VisualizationHandler {
            // update curr_radius
            this.curr_radius += spacing;
        }
+       console.log(this.urls);
+       console.log(this.colors);
    }
 
    // handles addition of all conference information
-   addConference(svg, document, conferences_handler, num_confs, name, i, x, y, field, color, submission_deadline, decision_deadline, conferenceStart_dates, conferenceEnd_dates, notification_deadlines, conf_locations, curr_radius, inner_radius, outer_radius,
+   addConference(svg, document, conferences_handler, num_confs, name, conf_url, i, x, y, field, color, submission_deadline, decision_deadline, conferenceStart_dates, conferenceEnd_dates, notification_deadlines, conf_locations, curr_radius, inner_radius, outer_radius,
                  start_angle, end_angle, ring_size, arc_size, conferences, rings, arcs) {
        console.log("Added conference");
        console.log(name, i, x, y, field, color, submission_deadline, decision_deadline, conferenceStart_dates, conferenceEnd_dates, notification_deadlines, conf_locations,
                                    curr_radius, inner_radius, outer_radius, start_angle, end_angle, null, null);
 
-       var conf = new Conference(conferences_handler, name, i, x, y, field, color, submission_deadline, decision_deadline, conferenceStart_dates, conferenceEnd_dates, notification_deadlines, conf_locations,
+       var conf = new Conference(conferences_handler, name, conf_url, i, x, y, field, color, submission_deadline, decision_deadline, conferenceStart_dates, conferenceEnd_dates, notification_deadlines, conf_locations,
            curr_radius, inner_radius, outer_radius, start_angle, end_angle, null, null);
        
        console.log("addConference: ", conf.x, conf.y);
