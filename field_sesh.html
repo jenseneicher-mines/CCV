@@ -27,7 +27,7 @@
         }
         div.fixed-rectangle {
             width: 100%;
-            height: 75px;
+            height: 9%;
             background-color: #AD193D;
         }
     </style>
@@ -43,13 +43,13 @@
 
 <body style="background-color:#F3F3F3;">
 
-<p style="position: absolute; top: 850px; left: 700px;">Upload Saved Conferences:</p>
+<p style="position: absolute; top: 83.5%; left: 34.5%;">Upload Saved Conferences:
+    <input type="file" id="file_conference_data" accept=".txt" style="position: absolute; border: thin solid #ad193d; width: 87px; top: 85%; left: 25%;">
+</p>
 
-<p style="position: absolute; font-size:30px; font-style: italic; color: whitesmoke; top: 0px; left: 20px;">Conference Cycle Visualization</p>
+<p style="position: absolute; font-size:30px; font-style: italic; color: whitesmoke; top: 0%; left: 1%;">Conference Cycle Visualization</p>
 
-<input type="file" id="file_conference_data" accept=".txt" style="position: absolute; border: thin solid #ad193d; width: 87px; top: 865px; left: 882px;">
-
-<button id="buttonEnterFields" style="position: absolute; border: solid #ad193d; top:100px; left:20px;" onclick="enterFields()">Enter A Conference</button>
+<button id="buttonEnterFields" style="position: absolute; border: solid #ad193d; top:11%; left:1%;" onclick="enterFields()">Enter A Conference</button>
 
 
     <script type="text/javascript" src="VisualizationHandler.js"></script>
@@ -138,8 +138,8 @@
             var container3 = document.createElement("div2");
             container3.setAttribute("style","float: absolute;");
             container3.style.position = "absolute";
-            container3.style.left = 1025 + 'px';
-            container3.style.top = 375 +'px'
+            container3.style.left = 1026 + 'px';
+            container3.style.top = 376 +'px'
             container3.style.border = "thin solid" + conference.conf_color;
             document.body.appendChild(container3);
     
