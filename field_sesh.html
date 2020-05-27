@@ -35,73 +35,21 @@
 </div>
 
 <p style="position: absolute; top: 850px; left: 700px;">Upload Saved Conferences:</p>
+<a download="info.txt" id="downloadlink" style="display: none; top: 190px; left: 20px">Download</a>
 <input type="file" id="file_conference_data" accept=".txt" style="position: absolute; top: 865px; left: 882px;">
+<button id="buttonExportConferenceData" style="position: absolute; top: 200px; left: 20px">Export Data</button>
 <button id="buttonEnterFields" style="position: absolute; top:100px; left:20px;" onclick="enterFields()">Enter A Conference</button>
 
     <script type="text/javascript" src="VisualizationHandler.js"></script>
     <script type="text/javascript" src="Conference.js"></script>
+    <script type="text/javascript" src="DataHandler.js"></script>
     
     <script>
+        // declare variable used to keep track of what conference is being looked at currently
         var selected_conf_index;
-        /*
-         * dataHandler
-         *
-         * Class used for any necessary data manipulation
-         */
-        class dataHandler {
-            // no args necessary in creation of dataHandler obj as of yet
-            constructor() {}
-            
-            grabConferenceData(input_file) {
-                var file_lines = input_file.split('\n');
-                
-                var conference_data = [];
-                
-                var num_confs = parseInt(file_lines[0], 10);
-                var confs_as_url = parseInt(file_lines[1], 10);
-                var confs_as_manual = parseInt(file_lines[2]);
-                console.log(num_confs, confs_as_url, confs_as_manual);
-                
-                for (var i = 3; i < 3 + confs_as_url; i++) {
-                    console.log(file_lines[i]);
-                }
-                
-                for (var j = 3+confs_as_url; j < 3+confs_as_url+confs_as_manual; j++) {
-                    var split_line = file_lines[j].split(',');
-                    
-                    var conference = [];
-                    for (var k = 0; k < split_line.length; k++) {
-                        if (k <= 2) {
-                            conference.push(split_line[k]);
-                        } else {
-                            conference.push(parseInt(split_line[k], 10));
-                        }
-                    }
-                    conference_data.push(conference);
-                }
-                console.log(conference_data);
-                return conference_data;
-            }
-    
-            // converts date object to a number to 1 and 366 (considers leap years)
-            convertDateToNum(now) {
-                var start = new Date(now.getFullYear(), 0, 0);
-                var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
-                var oneDay = 1000 * 60 * 60 * 24;
-                var day = Math.round(diff / oneDay);
-                console.log('Day of year: ' + day);
-                return day;
-            }
-    
-            // converts number from 1 to 366 (considering leap years) into a date object
-            convertNumToDate(now, now_num) {
-                var date = new Date(now.getFullYear(), 0); // initialize a date in `year-01-01`
-                return new Date(date.setDate(now_num)); // add the number of days
-            }
-        }
         
-        
-        
+        // initialize conferences array that will hold all data about conferences
+        var conferences = [];        
         
         function showDetails(svg, document, conferences_handler, conference) {
             // new elements are added dynamically on conference visualization click. This means that objects
@@ -375,9 +323,6 @@
             // dataHandler object for any functions having to do with data handling (self explanatory)
             data_handler = new dataHandler();
             
-            // initialize conferences array that will hold all data about conferences
-            var conferences = [];
-            
             // handle grabbing file and populating conferences array with necessary data
             var finished_processing_data = false;
             
@@ -415,8 +360,13 @@
                         };
                     }
                 
-                
-                
+                    //handle onclick event for exportData button
+                    var button_export_data = document.getElementById("buttonExportConferenceData");
+                    button_export_data.onclick = function() {
+                        var download_link = document.getElementById("downloadlink");
+                        download_link.href = data_handler.exportConferenceData(conferences_handler.conferences);
+                        download_link.style.display = 'block';
+                    };
                 
                 };
                 reader.readAsText(file_list[0]);
