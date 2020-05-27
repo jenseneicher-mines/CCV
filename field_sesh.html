@@ -172,7 +172,7 @@
         function enterFields(svg, document, conferences_handler, color) {
     
             // Open pop-up window to input manual data
-            let newWindow = window.open("about:blank", "Conference Details", "width=700,height=400");
+            let newWindow = window.open("about:blank", "Conference Details", "width=750,height=500");
     
             //////////////////////// NON-MANUAL CONFERENCE ENTRY METHODS ////////////////////////
             // Allow for searching for a conference with it's title and a search bar
@@ -206,6 +206,12 @@
             confPlc.setAttribute('style', 'white-space: pre;');
             confPlc.textContent = "\r\nPlease Enter the Location of your Conference (City,State,Country):";
             confPlc.style.fontWeight = 'bold';
+
+            //Ask user for start date
+            var confDate = newWindow.document.createElement('confPlc');
+            confDate.setAttribute('style', 'white-space: pre;');
+            confDate.textContent = "\r\nPlease Enter the Start and End Dates of the Conference (Start-End)";
+            confDate.style.fontWeight = 'bold';
     
             //ask user for conference name
             var conf = newWindow.document.createElement('conf');
@@ -241,6 +247,11 @@
             var wt = newWindow.document.createElement('wt');
             wt.setAttribute('style', 'white-space: pre;');
             wt.textContent = "\r\n";
+
+            //Dash
+            var dash = newWindow.document.createElement('dash');
+            dash.setAttribute('style', 'white-space: pre;');
+            dash.textContent = " - ";
     
             /////////////////////////// inputs ////////////////////////////////
             //input text box for searching by conference name
@@ -254,10 +265,20 @@
             //input text box for searching by conference name
             var inputConfPlc = newWindow.document.createElement("input");
             inputConfPlc.setAttribute('type1', 'text');
-    
+
             //input text box for conference name
             var inputConference = newWindow.document.createElement("input");
             inputConference.setAttribute('type2', 'text');
+
+            //input text box for conference start date
+            var inputConfStart = newWindow.document.createElement("input");
+            inputConfStart.type = "date";
+            inputConfStart.style.width = '130px';
+
+            //input text box for conference end date
+            var inputConfEnd = newWindow.document.createElement("input");
+            inputConfEnd.type = "date";
+            inputConfEnd.style.width = '130px';
             
             var inputField = newWindow.document.createElement("input");
             inputField.setAttribute('type', 'text');
@@ -318,11 +339,21 @@
                 //save the new conferences decision deadline
                 var inDec = inputDec.value;
                 newConference.push(inDec);
+
+                //save the new conference start date
+                var inStart = inputConfStart.value;
+                newConference.push(inStart);
+
+                //save the new conference end date
+                var inEnd = inputConfEnd.value;
+                newConference.push(inEnd);
+
+
                 console.log(newConference);
     
                 conferences_handler.addConference(svg, document, newConference[2], conferences_handler.num_confs + 1,
                                 conferences_handler.x, conferences_handler.y,
-                                newConference[3], color, newConference[4], newConference[5], newConference[6], conferences_handler.curr_radius,
+                                newConference[3], color, newConference[4], newConference[5], newConference[7], newConference[8], newConference[6], conferences_handler.curr_radius,
                                 conferences_handler.inner_radius, conferences_handler.outer_radius,
                                 conferences_handler.start_angle, conferences_handler.end_angle, 3, 10, conferences_handler.conferences,
                                 conferences_handler.rings, conferences_handler.arcs);
@@ -347,6 +378,10 @@
             newWindow.document.body.appendChild(wt.cloneNode(true));
             newWindow.document.body.appendChild(confPlc);
             newWindow.document.body.appendChild(inputConfPlc);
+            newWindow.document.body.appendChild(confDate);
+            newWindow.document.body.appendChild(inputConfStart);
+            newWindow.document.body.appendChild(dash);
+            newWindow.document.body.appendChild(inputConfEnd);
             newWindow.document.body.appendChild(conf);
             newWindow.document.body.appendChild(inputConference);
             newWindow.document.body.appendChild(field);
