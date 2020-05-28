@@ -18,6 +18,7 @@ function scrapeConferenceDataUsingCheerio(conferenceURL) {
    // this Object will be updated and returned later
    var conferenceData = {
       conferenceName: undefined,
+      location: undefined,
       submissionDeadline: undefined,
       notificationDeadline: undefined,
       abstractDeadline: undefined,
@@ -40,6 +41,7 @@ function scrapeConferenceDataUsingCheerio(conferenceURL) {
          conferenceData.conferenceName = $('title').text().trim();
 
          // scrape data that is clearly labeled on WikiCFP
+         conferenceData.location = extractNextElementText(tableCells, 'Where');
          conferenceData.submissionDeadline = extractNextElementText(tableCells, 'Submission Deadline');
          conferenceData.notificationDeadline = extractNextElementText(tableCells, 'Notification Due');
          conferenceData.abstractDeadline = extractNextElementText(tableCells, 'Abstract Registration Due');
