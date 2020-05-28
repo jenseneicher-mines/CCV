@@ -27,7 +27,7 @@
         }
         div.fixed-rectangle {
             width: 100%;
-            height: 75px;
+            height: 9%;
             background-color: #AD193D;
         }
     </style>
@@ -40,24 +40,26 @@
 
 <div class="fixed-rectangle"></div>
 
-<a download="info.txt" id="downloadlink" style="display: none; top: 190px; left: 20px">Download</a>
+<p style="position: absolute; top: 83.5%; left: 37.6%; line-height: 30px;">Upload or Save Conferences
+    <input type="file" id="file_conference_data" accept=".txt" style="position: absolute; border: thin solid #ad193d; width: 87px; top: 85%; left: 0%;">
+    <button id="buttonExportConferenceData" style="position: absolute; top: 85%; left: 50%; border: thin solid #ad193d;">Export Data</button>
+</p>
 
-<button id="buttonExportConferenceData" style="position: absolute; top: 200px; left: 20px">Export Data</button>
+<a download="info.txt" id="downloadlink" style="display: none; position: absolute; top: 85%; left: 25%;">Download</a>
 
-<p style="position: absolute; font-size:30px; font-style: italic; color: whitesmoke; top: 0px; left: 20px;">Conference Cycle Visualization</p>
+<p style="position: absolute; font-size:30px; font-style: italic; color: whitesmoke; top: 0%; left: 1%;">Conference Cycle Visualization</p>
 
-<input type="file" id="file_conference_data" accept=".txt" style="position: absolute; border: thin solid #ad193d; width: 87px; top: 865px; left: 882px;">
+<button id="buttonEnterFields" style="position: absolute; border: solid #ad193d; top:11%; left:1%;" onclick="enterFields()">Enter A Conference</button>
 
-<button id="buttonEnterFields" style="position: absolute; border: solid #ad193d; top:100px; left:20px;" onclick="enterFields()">Enter A Conference</button>
 
     <script type="text/javascript" src="VisualizationHandler.js"></script>
     <script type="text/javascript" src="Conference.js"></script>
     <script type="text/javascript" src="DataHandler.js"></script>
-    
+
     <script>
         // declare variable used to keep track of what conference is being looked at currently
         var selected_conf_index;
-        
+
         // initialize conferences array that will hold all data about conferences
         var conferences = [];
         
@@ -99,8 +101,8 @@
             var container3 = document.createElement("div2");
             container3.setAttribute("style","float: absolute;");
             container3.style.position = "absolute";
-            container3.style.left = 1025 + 'px';
-            container3.style.top = 375 +'px'
+            container3.style.left = 1026 + 'px';
+            container3.style.top = 376 +'px'
             container3.style.border = "thin solid" + conference.conf_color;
             document.body.appendChild(container3);
     
@@ -407,7 +409,6 @@
          * main function call
          */
         function init() {
-            console.log("Entered init");
             //svg creation
             var svg_width = document.body.clientWidth / 2;
             var svg_height = document.body.clientHeight;
@@ -436,9 +437,8 @@
                     ////////////////////////////// INITIALIZATION OF VISUALIZATION HAS MOVED HERE //////////////////////////////////////////
                     //create conferences & their visuals and add all info to conferences_handler object
                     var conferences_handler = new VisualizationHandler(svg, document, svg_width/2, svg_height/2, conferences, num_confs, data_handler);
-                    
                     console.log("Successfully created conferences_handler: ", conferences_handler);
-            
+
                     //create months ring
                     conferences_handler.createMonthsRing(svg, conferences_handler.x, conferences_handler.y);
             
