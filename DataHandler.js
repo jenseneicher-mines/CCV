@@ -67,9 +67,9 @@ class dataHandler {
            var conference_start_date = conferences[i].conferenceStart_date;
            var conference_end_date = conferences[i].conferenceEnd_date;
            var location = conferences[i].conf_location;
-           text_conferences_data += name + ',' + url + ','+ field + ',' + color + ',' + data_handler.convertDateToNum(submission_deadline) + ',' +
-                                       data_handler.convertDateToNum(notification_deadline) + ',' + data_handler.convertDateToNum(decision_deadline) + ',' +
-                                       data_handler.convertDateToNum(conference_start_date) + ',' + data_handler.convertDateToNum(conference_end_date) + ',' + location + '\n';
+           text_conferences_data += name + ',' + url + ','+ field + ',' + color + ',' + submission_deadline + ',' +
+                                       notification_deadline + ',' + decision_deadline + ',' +
+                                       conference_start_date + ',' + conference_end_date + ',' + location + '\n';
        }
        
        

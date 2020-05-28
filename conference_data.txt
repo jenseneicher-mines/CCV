@@ -1,6 +1,6 @@
 3
 0
 3
-IEEE CAMAD 2020,Robotics,#f08950,24,32,48,5,9
-RAI--Ei and Scopus 2020,AI,#9ce490,46,80,102,6,10
-IWSMR 2020,Physics,#90c6e4,52,96,256,5,11
+IEEE CAMAD 2020,,Robotics,#f08950,24,32,48,100,120,Right There,9
+RAI--Ei and Scopus 2020,,AI,#9ce490,46,80,102,20,30,Over Here,10
+IWSMR 2020,,Physics,#90c6e4,52,96,256,24,48,Under That Bridge,11
