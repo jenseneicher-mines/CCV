@@ -2,33 +2,42 @@
  * Conference Class
  */
 class Conference {
-    //constructor (must include all fields atm)
-    constructor(conferences_handler, conf_name, conf_index, x, y, conf_field, conf_color, submission_deadline, decision_deadline, conferenceStart_date, conferenceEnd_date, notification_deadline, conf_location, radius, inner_radius, outer_radius, start_angle, end_angle, ring, arc) {
-        //var. having to do with conference info.
+    // constructor (must include all fields atm)
+    constructor(conferences_handler, conf_name, conf_url, conf_index, x, y, conf_field, conf_color, submission_deadline, decision_deadline,
+                conferenceStart_date, conferenceEnd_date, notification_deadline, conf_location, radius, inner_radius, outer_radius, start_angle, end_angle,
+                conf_dates_start_angle, conf_dates_end_angle, ring, arc) {
+        // var. having to do with conference info.
         this.conferences_handler = conferences_handler;
         this.conf_name = conf_name;
+        this.conf_url = conf_url;
         this.conf_index = conf_index;
         this.conf_field = conf_field;
         this.conf_color = conf_color;
 
-        //var. having to do with conference vis.
+        // var. having to do with conference vis.
         this.x = x;
         this.y = y;
         this.radius = radius;
         this.inner_radius = inner_radius;
         this.outer_radius = outer_radius;
+        this.conf_dates_start_angle = conf_dates_start_angle;
+        this.conf_dates_end_angle = conf_dates_end_angle;
         this.start_angle = start_angle;
         this.end_angle = end_angle;
 
-         //var. having to do with both conf. vis. & conf. info.
+        // var. having to do with both conf. vis. & conf. info.
         this.submission_deadline = submission_deadline;
         this.decision_deadline = decision_deadline;
         this.conferenceStart_date = conferenceStart_date;
         this.conferenceEnd_date = conferenceEnd_date;
         this.notification_deadline = notification_deadline;
         this.conf_location = conf_location;
+        
+        // change ring and arc size here
+        this.ring_size = 3;
+        this.arc_size = 10;
 
-        //conf. shapes
+        // conf. shapes
         this.ring = ring;
         this.arc = arc;
     }
@@ -118,16 +127,19 @@ class Conference {
      * Creates conference ring
      */
     //Create Conference Visualizations (ring & arc), and add click handlers. TODO: SHOULD CLICK HANDLERS BE TAKEN CARE OF IN THE SAME FUNCTION???
-    static createConfRing(svg, document, conferences_handler, conference, x, y, radius, color, ring_size) {
+    static createConfRing(svg, document, conferences_handler, data_handler, conference, x, y, radius, color) {
         //init. and append new conference ring to svg
+        console.log("createConfRing: ", svg, document);
         var new_conf_ring = svg.append("circle").attr("cx", x).attr("cy", y)
                                                 .attr("r", radius)
-                                                .attr("stroke", color).attr("stroke-width", ring_size)
+                                                .attr("stroke", color).attr("stroke-width", conference.ring_size)
                                                 .style("fill", "none")
                                                 .on("click", function() {
-                                                    showDetails(svg, document, conferences_handler, conference);
+                                                    showDetails(svg, document, conferences_handler, data_handler, conference);
                                                     selected_conf_index = conference.conf_index;
                                                 });
+                                                
+        console.log("createConfRing: ", new_conf_ring);
         return new_conf_ring;
     }
 
@@ -142,29 +154,71 @@ class Conference {
      * arc_size: width of stroke for arc
      * Creates Conference arc indicating all deadlines
      */
-    static createConfArc(svg, document, conferences_handler, conference, x, y, radius, start_angle, end_angle, color, arc_size) {
+    static createConfArc(svg, document, conferences_handler, data_handler, conference, x, y, radius, start_angle, end_angle, color) {
         //init. and append new conference arc to svg
-        var newly_built_arc = d3.svg.arc().innerRadius(radius - (arc_size/2))
-                                              .outerRadius(radius + (arc_size/2))
+        var newly_built_arc = d3.svg.arc().innerRadius(radius - (conference.arc_size/2))
+                                              .outerRadius(radius + (conference.arc_size/2))
                                               .startAngle(start_angle)
                                               .endAngle(end_angle);
 
         var new_conf_arc = svg.append("path").attr("d", newly_built_arc).attr("transform", "translate("+x+", "+y+")").style("fill", color)
                                                 .on("click", function() {
-                                                    showDetails(svg, document, conferences_handler, conference);
+                                                    showDetails(svg, document, conferences_handler, data_handler, conference);
                                                     selected_conf_index = conference.conf_index;
                                                 });
         return new_conf_arc;
     }
+    
+    static createConfDatesArc(svg, document, conferences_handler, data_handler, conference, x, y, radius, start_angle, end_angle) {
+        //init. and append new conference arc to svg
+        var newly_built_arc = d3.svg.arc().innerRadius(radius - (conference.arc_size/2))
+                                              .outerRadius(radius + (conference.arc_size/2))
+                                              .startAngle(start_angle)
+                                              .endAngle(end_angle);
+
+        var new_conf_arc = svg.append("path").attr("d", newly_built_arc).attr("transform", "translate("+x+", "+y+")").style("fill", "#ffffff")
+                                                .on("click", function() {
+                                                    showDetails(svg, document, conferences_handler, data_handler, conference);
+                                                    selected_conf_index = conference.conf_index;
+                                                });
+        return new_conf_arc;
+    }
+    
+    static createConfNotificationsDeadlineArc(svg, document, conferences_handler, data_handler, conference, x, y, radius) {
+        //init. and append new conference arc to svg
+        var arc_spacing = (Math.PI/360)*2;
+        
+        var notification_deadline_angle = (((conference.notification_deadline)/365) * (2*Math.PI));
+        
+        var newly_built_arc = d3.svg.arc().innerRadius(radius - (conference.arc_size/2))
+                                          .outerRadius(radius + (conference.arc_size/2))
+                                          .startAngle(notification_deadline_angle - arc_spacing)
+                                          .endAngle(notification_deadline_angle + arc_spacing);
+
+        var new_conf_arc = svg.append("path").attr("d", newly_built_arc).attr("transform", "translate("+x+", "+y+")").style("fill", "#ffffff")
+                                                .on("click", function() {
+                                                    showDetails(svg, document, conferences_handler, data_handler, conference);
+                                                    selected_conf_index = conference.conf_index;
+                                                });
+        return new_conf_arc;
+        
+        
+    }   
 
     /*
      * createConfVisuals
      *
      * Uses the two previous function to handle all Conference visualization creation
      */
-    static createConfVisuals(svg, document, conferences_handler, conf, x, y, radius, start_angle, end_angle, conf_color, ring_size, arc_size) {
+    static createConfVisuals(svg, document, conferences_handler, data_handler, conf, x, y, radius, start_angle, end_angle, conf_color, conf_start_angle, conf_end_angle) {
         console.log("createConfVisuals: ", x, y);
-        conf.ring = Conference.createConfRing(svg, document, conferences_handler, conf, x, y, radius, conf_color, ring_size);
-        conf.arc = Conference.createConfArc(svg, document, conferences_handler, conf, x, y, radius, start_angle, end_angle, conf_color, arc_size);
+        conf.ring = Conference.createConfRing(svg, document, conferences_handler, data_handler, conf, x, y, radius, conf_color);
+        conf.arc = Conference.createConfArc(svg, document, conferences_handler, data_handler, conf, x, y, radius, start_angle, end_angle, conf_color);
+        console.log("createConfVisuals: ", conf_start_angle, conf_end_angle);
+        conf.conf_dates_arc = Conference.createConfDatesArc(svg, document, conferences_handler, data_handler, conf, x, y, radius, conf_start_angle, conf_end_angle);
+        
+        if ((conf.notification_deadline != "") && (conf.notification_deadline != null)) {
+            conf.notification_deadline_arcs = Conference.createConfNotificationsDeadlineArc(svg, document, conferences_handler, data_handler, conf, x, y, radius);
+        }
     }
 }

@@ -59,11 +59,28 @@
         var selected_conf_index;
         
         // initialize conferences array that will hold all data about conferences
-        var conferences = [];        
+        var conferences = [];
         
-        function showDetails(svg, document, conferences_handler, conference) {
+        function getRandomColor() {
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            for (var i = 0; i < 6; i++) {
+              color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+        
+        function parseDate(s) {
+            var b = s.split(/\D/);
+            return new Date(b[0], --b[1], b[2]);
+        }
+        
+        function showDetails(svg, document, conferences_handler, data_handler, conference) {
+            // create Date obj
+            var now = new Date();
+            
             // new elements are added dynamically on conference visualization click. This means that objects
-            // need to be deleted and re-added each time a new conference is clicked. This array and fo r loop
+            // need to be deleted and re-added each time a new conference is clicked. This array and for loop
             //
             // handles conference descriptive element deletions
             var details_element_ids = ["conferenceName", "mainParagraph", "deleteButton"];
@@ -105,7 +122,10 @@
             var p1 = document.createElement('p1');
             p1.id = "mainParagraph";
             p1.setAttribute("style", "position: absolute; font-size:20px; z-index: 1; left: "+left+"; top: "+top+"; width:250px; height:200px;");
-            p1.textContent = "Conference Topic: " + conference.conf_field + "\r\nLocation: " + conference.conf_location + "\r\nSubmission Deadline: " + conference.submission_deadline + "\r\nNotification Deadline: " + conference.notification_deadline + "\r\nFinal Version Due: " + conference.decision_deadline;
+            p1.textContent = "Conference Topic: " + conference.conf_field + "\r\nLocation: " + conference.conf_location + "\r\nSubmission Deadline: " +
+                                data_handler.convertNumToDate(new Date(), conference.submission_deadline) + "\r\nNotification Deadline: " +
+                                data_handler.convertNumToDate(new Date(), conference.notification_deadline) + "\r\nFinal Version Due: " +
+                                data_handler.convertNumToDate(new Date(), conference.decision_deadline);
             p1.setAttribute('class', 'note');
             p1.setAttribute('vertical-align', 'baseline');
             p1.style.border = "thick solid #F3EBCE";
@@ -274,51 +294,76 @@
                 var newConference = [];
     
                 //save new conference title
-                var inTitle = inputConferenceTitle.value;
-                newConference.push(inTitle);
+                var inTitle = inputConferenceTitle.value;       
+                newConference.push(inTitle);                //0
     
                 //save new conference URL
                 var inURL = inputConferenceURL.value;
-                newConference.push(inURL);
+                newConference.push(inURL);                  //1 conf url
     
                 //save new conference name
                 var inConf = inputConference.value;
-                newConference.push(inConf);
+                newConference.push(inConf);                 //2 conf name
                 
                 //save new conference field
                 var inField = inputField.value;
-                newConference.push(inField);
+                newConference.push(inField);                //3 conf field
     
                 //save the new conferences submission deadline
                 var inSub = inputSub.value;
-                newConference.push(inSub);
+                newConference.push(inSub);                  //4 submission_deadline
     
                 //save the notification deadline
                 var inNotif = inputConferenceNotif.value;
-                newConference.push(inNotif);
+                newConference.push(inNotif);                //5 notification_deadline
     
                 //save the new conferences decision deadline
                 var inDec = inputDec.value;
-                newConference.push(inDec);
+                newConference.push(inDec);                  //6 decision_deadline
 
                 //save the new conference start date
                 var inStart = inputConfStart.value;
-                newConference.push(inStart);
+                newConference.push(inStart);                //7 conf start date
 
                 //save the new conference end date
                 var inEnd = inputConfEnd.value;
-                newConference.push(inEnd);
+                newConference.push(inEnd);                  //8 conf end date
 
 
                 console.log(newConference);
-    
-                conferences_handler.addConference(svg, document, newConference[2], conferences_handler.num_confs + 1,
-                                conferences_handler.x, conferences_handler.y,
-                                newConference[3], color, newConference[4], newConference[5], newConference[7], newConference[8], newConference[6], conferences_handler.curr_radius,
-                                conferences_handler.inner_radius, conferences_handler.outer_radius,
-                                conferences_handler.start_angle, conferences_handler.end_angle, 3, 10, conferences_handler.conferences,
-                                conferences_handler.rings, conferences_handler.arcs);
-    
+                
+                /////////////////////////////////////////////////////////////////////////////
+                var spacing = 20;
+                var ring_size = 3;
+                var arc_size = 10;
+                
+                console.log("parseDate: ", parseDate(newConference[4]), data_handler.convertDateToNum(parseDate(newConference[4])), data_handler.convertDateToNum(parseDate(newConference[6])));
+                
+                conferences_handler.submission_deadlines.push(data_handler.convertDateToNum(parseDate(newConference[4])));
+                conferences_handler.decision_deadlines.push(data_handler.convertDateToNum(parseDate(newConference[6])));
+                
+                console.log("Num", conferences_handler.submission_deadlines[conferences_handler.conferences.length]);
+                
+                console.log((((conferences_handler.submission_deadlines[conferences_handler.conferences.length])/365) * (2*Math.PI)));
+                
+                var updated_inner_radius = conferences_handler.curr_radius - arc_size/2;
+                var updated_outer_radius = conferences_handler.curr_radius + arc_size/2;
+                var updated_start_angle = (((conferences_handler.submission_deadlines[conferences_handler.conferences.length])/365) * (2*Math.PI));
+                var updated_end_angle = (((conferences_handler.decision_deadlines[conferences_handler.conferences.length])/365) * (2*Math.PI));
+                var updated_conf_dates_start_angle = (((this.conferenceStart_dates[i])/365) * (2*Math.PI));
+                var updated_conf_dates_end_angle = (((this.conferenceEnd_dates[i])/365) * (2*Math.PI));
+                
+                conferences_handler.addConference(svg, document, conferences_handler, data_handler, conferences_handler.num_confs + 1, newConference[2], newConference[1],
+                                conferences_handler.conferences.length, conferences_handler.x, conferences_handler.y, newConference[3], getRandomColor(),
+                                data_handler.convertDateToNum(parseDate(newConference[4])), data_handler.convertDateToNum(parseDate(newConference[6])), // conf submission, decision deadlines
+                                data_handler.convertDateToNum(parseDate(newConference[7])), data_handler.convertDateToNum(parseDate(newConference[8])), // conf start, end dates
+                                data_handler.convertDateToNum(parseDate(newConference[5])), // conf notification deadline
+                                conferences_handler.curr_radius, updated_inner_radius, updated_outer_radius, updated_start_angle,
+                                updated_end_angle, updated_conf_dates_start_angle, updated_conf_dates_end_angle, 3, 10, conferences_handler.conferences);
+                conferences_handler.num_confs += 1;
+                
+                console.log(conferences_handler.conferences);
+                
                 // display array for checking, close window, and return array containing new conference details
                 console.log(newConference);
                 console.log("Done");
@@ -390,7 +435,7 @@
                     
                     ////////////////////////////// INITIALIZATION OF VISUALIZATION HAS MOVED HERE //////////////////////////////////////////
                     //create conferences & their visuals and add all info to conferences_handler object
-                    var conferences_handler = new VisualizationHandler(svg, document, svg_width/2, svg_height/2, conferences, num_confs);
+                    var conferences_handler = new VisualizationHandler(svg, document, svg_width/2, svg_height/2, conferences, num_confs, data_handler);
                     
                     console.log("Successfully created conferences_handler: ", conferences_handler);
             
@@ -417,7 +462,7 @@
                     var button_export_data = document.getElementById("buttonExportConferenceData");
                     button_export_data.onclick = function() {
                         var download_link = document.getElementById("downloadlink");
-                        download_link.href = data_handler.exportConferenceData(conferences_handler.conferences);
+                        download_link.href = data_handler.exportConferenceData(conferences_handler.conferences, data_handler);
                         download_link.style.display = 'block';
                     };
                 

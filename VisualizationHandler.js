@@ -27,13 +27,16 @@ class VisualizationHandler {
     * array of conference information (i.e. [["name_1", "field_1"]["field_1", "field_2"]]), then necessary adjustments will be made.
     * If this change is made it should be noted that updating info arrays IS ESSENTIAL
     */
-   constructor(svg, document, x, y, conferences, num_confs) {
+   constructor(svg, document, x, y, conferences, num_confs, data_handler) {
        this.svg = svg;
        this.document = document;
        this.x = x;
        this.y = y;
 
        this.conferences = [];
+       
+       this.data_handler = data_handler;
+       
        this.num_confs = num_confs;
        this.names = [];
        this.urls = [];
@@ -49,6 +52,8 @@ class VisualizationHandler {
        this.outer_radii = [];
        this.start_angles = [];
        this.end_angles = [];
+       this.conf_dates_start_angles = [];
+       this.conf_dates_end_angles = [];
        this.rings = [];
        this.arcs = [];
        this.self = this;
@@ -79,39 +84,51 @@ class VisualizationHandler {
             this.outer_radii.push(this.curr_radius + arc_size/2);
             this.start_angles.push(((this.submission_deadlines[i])/365) * (2*Math.PI));
             this.end_angles.push(((this.decision_deadlines[i])/365) * (2*Math.PI));
+            this.conf_dates_start_angles.push(((this.conferenceStart_dates[i])/365) * (2*Math.PI));
+            this.conf_dates_end_angles.push(((this.conferenceEnd_dates[i])/365) * (2*Math.PI));
             
             // handle single conference creation
-            this.addConference(svg, document, this, num_confs, this.names[i], this.urls[i], i, this.x, this.y, this.fields[i], this.colors[i],
+            var conf = this.addConference(svg, document, this, this.data_handler, num_confs, this.names[i], this.urls[i], i, this.x, this.y, this.fields[i], this.colors[i],
                                  this.submission_deadlines[i], this.decision_deadlines[i], this.conferenceStart_dates[i], this.conferenceEnd_dates[i],
                                  this.notification_deadlines[i], this.locations[i], this.curr_radius, this.inner_radii[i], this.outer_radii[i],
-                                 this.start_angles[i], this.end_angles[i], ring_size, arc_size, this.conferences, this.rings, this.arcs);
-
-           // update curr_radius
-           this.curr_radius += spacing;
+                                 this.start_angles[i], this.end_angles[i], this.conf_dates_start_angles[i], this.conf_dates_end_angles[i], ring_size, arc_size, this.conferences);
        }
        console.log(this.urls);
        console.log(this.colors);
    }
 
    // handles addition of all conference information
-   addConference(svg, document, conferences_handler, num_confs, name, conf_url, i, x, y, field, color, submission_deadline, decision_deadline, conferenceStart_dates, conferenceEnd_dates, notification_deadlines, conf_locations, curr_radius, inner_radius, outer_radius,
-                 start_angle, end_angle, ring_size, arc_size, conferences, rings, arcs) {
+   addConference(svg, document, conferences_handler, data_handler, num_confs, name, conf_url, i, x, y, field, color, submission_deadline, decision_deadline,
+                 conferenceStart_dates, conferenceEnd_dates, notification_deadlines, conf_location, curr_radius, inner_radius, outer_radius,
+                 start_angle, end_angle, conf_dates_start_angle, conf_dates_end_angle, ring_size, arc_size, conferences) {
        console.log("Added conference");
-       console.log(name, i, x, y, field, color, submission_deadline, decision_deadline, conferenceStart_dates, conferenceEnd_dates, notification_deadlines, conf_locations,
-                                   curr_radius, inner_radius, outer_radius, start_angle, end_angle, null, null);
-
-       var conf = new Conference(conferences_handler, name, conf_url, i, x, y, field, color, submission_deadline, decision_deadline, conferenceStart_dates, conferenceEnd_dates, notification_deadlines, conf_locations,
-           curr_radius, inner_radius, outer_radius, start_angle, end_angle, null, null);
+       
+       console.log("addConference: ", start_angle, end_angle);
+       
+       console.log(name, i, x, y, field, color, submission_deadline, decision_deadline, conferenceStart_dates, conferenceEnd_dates, notification_deadlines, conf_location,
+                                   curr_radius, inner_radius, outer_radius, start_angle, end_angle, conf_dates_start_angle, conf_dates_end_angle, null, null);
+                                   
+       var conf = new Conference(conferences_handler, name, conf_url, i, x, y, field, color, submission_deadline, decision_deadline, conferenceStart_dates, conferenceEnd_dates, notification_deadlines, conf_location,
+           curr_radius, inner_radius, outer_radius, start_angle, end_angle, conf_dates_start_angle, conf_dates_end_angle, null, null);
+       
+       console.log("addConference: ", conf.start_angle, conf.end_angle);
        
        console.log("addConference: ", conf.x, conf.y);
+       
+       console.log("addConference: ", conf);
+       
+       console.log("addConference: ", conf.conf_dates_start_angle, conf.conf_dates_end_angle);
 
        //Create conferences visuals and add to visualization handler arrays 'rings' and 'arcs's
-       Conference.createConfVisuals(svg, document, conferences_handler, conf, conf.x, conf.y, conf.radius, conf.start_angle, conf.end_angle, conf.conf_color, ring_size, arc_size);
-       rings.push(conf.ring);
-       arcs.push(conf.arc);
-
-       conferences.push(conf);
-       return num_confs + 1;
+       Conference.createConfVisuals(svg, document, conferences_handler, data_handler, conf, conf.x, conf.y, conf.radius, conf.start_angle, conf.end_angle, conf.conf_color, conf.conf_dates_start_angle, conf.conf_dates_end_angle);
+       
+       conferences_handler.rings.push(conf.ring);
+       conferences_handler.arcs.push(conf.arc);
+       conferences_handler.conferences.push(conf);
+       conferences_handler.num_confs += 1;
+       // update curr_radius
+       conferences_handler.curr_radius += 20;
+       return conf;
    }
 
    static delAndUpdate(svg, document, conferences_handler, selected_index, spacing, arc_size) {
@@ -225,6 +242,7 @@ class VisualizationHandler {
            var months_text = svg.append("text").attr("id", months[i])
                                                .attr("x", 20)   //Move the text from the start angle of the arc
                                                .attr("dy", 18) //Move the text down
+                                               .style("font-size", 16)
                                                .append("textPath").attr("xlink:href", "#"+months[i]+"_arc").style("text-anchor", "right").text(months[i]);
 
            // store the created text and arc (not really necessary as of now, but it's here just in case)
