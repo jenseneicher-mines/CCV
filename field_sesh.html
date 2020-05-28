@@ -352,8 +352,8 @@
                 var updated_outer_radius = conferences_handler.curr_radius + arc_size/2;
                 var updated_start_angle = (((conferences_handler.submission_deadlines[conferences_handler.conferences.length])/365) * (2*Math.PI));
                 var updated_end_angle = (((conferences_handler.decision_deadlines[conferences_handler.conferences.length])/365) * (2*Math.PI));
-                var updated_conf_dates_start_angle = (((this.conferenceStart_dates[i])/365) * (2*Math.PI));
-                var updated_conf_dates_end_angle = (((this.conferenceEnd_dates[i])/365) * (2*Math.PI));
+                var updated_conf_dates_start_angle = (((conferences_handler.conferenceStart_dates[conferences_handler.conferences.length])/365) * (2*Math.PI));
+                var updated_conf_dates_end_angle = (((conferences_handler.conferenceEnd_dates[conferences_handler.conferences.length])/365) * (2*Math.PI));
                 
                 conferences_handler.addConference(svg, document, conferences_handler, data_handler, conferences_handler.num_confs + 1, newConference[2], newConference[1],
                                 conferences_handler.conferences.length, conferences_handler.x, conferences_handler.y, newConference[3], getRandomColor(),
