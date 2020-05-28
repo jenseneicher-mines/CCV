@@ -33,7 +33,7 @@
     </style>
 
 </head>
-<body style="background-color:#F3F3F3;">
+<body style="background-color:#e8e8e8;">
 
 <div class="container" id="chart1">
 </div>
@@ -76,11 +76,11 @@
             var b = s.split(/\D/);
             return new Date(b[0], --b[1], b[2]);
         }
-        
+
         function showDetails(svg, document, conferences_handler, data_handler, conference) {
             // create Date obj
             var now = new Date();
-            
+
             // new elements are added dynamically on conference visualization click. This means that objects
             // need to be deleted and re-added each time a new conference is clicked. This array and for loop
             //
@@ -92,20 +92,20 @@
                     elem.remove();
                 }
             }
-    
+
             //create a new container that will appear on the left side of the screen
             var container2 = document.createElement("div");
             container2.setAttribute("style","float: left;");
             document.body.appendChild(container2);
-    
+
             var container3 = document.createElement("div2");
             container3.setAttribute("style","float: absolute;");
             container3.style.position = "absolute";
             container3.style.left = 1026 + 'px';
-            container3.style.top = 376 +'px'
+            container3.style.top = 460 +'px';
             container3.style.border = "thin solid" + conference.conf_color;
             document.body.appendChild(container3);
-    
+
             // Header element, will contain Conference Name
             var h1 = document.createElement('h1');
             h1.id = "conferenceName";
@@ -119,21 +119,21 @@
             //h1.style.zIndex = 1;
             container2.appendChild(h1);
             //container2.appendChild(h1);
-    
+
             // Paragraph element, unknown what this will contain
             var p1 = document.createElement('p1');
             p1.id = "mainParagraph";
-            p1.setAttribute("style", "position: absolute; font-size:20px; z-index: 1; left: "+left+"; top: "+top+"; width:250px; height:200px;");
+            p1.setAttribute("style", "white-space: pre; position: absolute; font-size:20px; z-index: 1; left: "+left+"; top: "+top+"; width:710px; height:275px;");
             p1.textContent = "Conference Topic: " + conference.conf_field + "\r\nLocation: " + conference.conf_location + "\r\nSubmission Deadline: " +
-                                data_handler.convertNumToDate(new Date(), conference.submission_deadline) + "\r\nNotification Deadline: " +
-                                data_handler.convertNumToDate(new Date(), conference.notification_deadline) + "\r\nFinal Version Due: " +
-                                data_handler.convertNumToDate(new Date(), conference.decision_deadline);
+                data_handler.convertNumToDate(new Date(), conference.submission_deadline) + "\r\nNotification Deadline: " +
+                data_handler.convertNumToDate(new Date(), conference.notification_deadline) + "\r\nFinal Version Due: " +
+                data_handler.convertNumToDate(new Date(), conference.decision_deadline);
             p1.setAttribute('class', 'note');
             p1.setAttribute('vertical-align', 'baseline');
             p1.style.border = "thick solid #F3EBCE";
             p1.style.backgroundColor = "linen";
             container2.appendChild(p1);
-    
+
             var deleteButton = document.createElement("button");
             deleteButton.innerHTML = "Delete Conference";
             deleteButton.id = "deleteButton";
@@ -142,7 +142,7 @@
             deleteButton.top = "100px";
             deleteButton.left = "20px";
             container3.appendChild(deleteButton);
-    
+
             deleteButton.onclick = function() {
                 conferences_handler.num_confs = VisualizationHandler.delAndUpdate(svg, document, conferences_handler, selected_conf_index, 20, 10);
             };
