@@ -167,9 +167,20 @@
             // Allow for searching conference by URL
             var confURLS = newWindow.document.createElement('confURLS');
             confURLS.setAttribute('style', 'white-space: pre;');
-            confURLS.textContent = "\r\nLoad Conference by WikiCFP URL:\r\n";
+            confURLS.textContent = "\r\nLoad Conference by ";
             confURLS.style.fontWeight = 'bold';
-    
+
+            // Create hyper link for WikiCFP URL
+            var confURLSLink = newWindow.document.createElement("confURLSLink");
+            confURLSLink.href = "http://www.wikicfp.com/cfp/home";
+            confURLSLink.textContent = "WikiCFP URL\r\n";
+            confURLSLink.style.color = "#0000EE";
+            confURLSLink.style.textDecoration = "underline";
+            confURLSLink.onclick = function () {
+                // window refers to the main window, not the popup window
+                window.location = this.href;
+            }
+
             ////////////////////////////////////// OR //////////////////////////////////////
             var Or = newWindow.document.createElement('Or');
             Or.setAttribute('style', 'white-space: pre;');
@@ -181,7 +192,7 @@
             confDet.textContent = "\r\nManually Enter Conference Details";
             confDet.style.fontWeight = 'bold';
             confDet.style.fontSize = '21';
-            confDet.style.color = '#850200';
+            confDet.style.color = '#AD193D';
     
             //Ask user for conference information
             //Ask user for where the conference is taking place
@@ -226,6 +237,12 @@
             dec.textContent = "\r\nPlease Select the Final Version Deadline:";
             dec.style.fontWeight = 'bold';
 
+            //Ask user for notes
+            var notes = newWindow.document.createElement('conf');
+            notes.setAttribute('style', 'white-space: pre;');
+            notes.textContent = "\r\nNotes (Optional):";
+            notes.style.fontWeight = 'bold';
+
             //White space
             var wt = newWindow.document.createElement('wt');
             wt.setAttribute('style', 'white-space: pre;');
@@ -239,11 +256,11 @@
             /////////////////////////// inputs ////////////////////////////////
             //input text box for searching by conference name
             var inputConferenceTitle = newWindow.document.createElement("input");
-            inputConferenceTitle.setAttribute('type', 'text');
+            inputConferenceTitle.type = "search";
             
             //input text box for searching by conference URL
             var inputConferenceURL = newWindow.document.createElement("input");
-            inputConferenceURL.setAttribute('type0', 'text');
+            inputConferenceURL.type = "url";
     
             //input text box for searching by conference name
             var inputConfPlc = newWindow.document.createElement("input");
@@ -257,11 +274,13 @@
             var inputConfStart = newWindow.document.createElement("input");
             inputConfStart.type = "date";
             inputConfStart.style.width = '130px';
+            inputConfStart.style.color = "#AD193D";
 
             //input text box for conference end date
             var inputConfEnd = newWindow.document.createElement("input");
             inputConfEnd.type = "date";
             inputConfEnd.style.width = '130px';
+            inputConfEnd.style.color = "#AD193D";
             
             var inputField = newWindow.document.createElement("input");
             inputField.setAttribute('type', 'text');
@@ -270,16 +289,25 @@
             var inputSub = newWindow.document.createElement("input");
             inputSub.type = "date";
             inputSub.style.width = '130px';
+            inputSub.style.color = "#AD193D";
     
             //input text box for notification deadline
             var inputConferenceNotif = newWindow.document.createElement("input");
             inputConferenceNotif.type = "date";
             inputConferenceNotif.style.width = '130px';
+            inputConferenceNotif.style.color = "#AD193D";
     
             //input text box for decision deadline
             var inputDec = newWindow.document.createElement("input");
             inputDec.type = "date";
             inputDec.style.width = '130px';
+            inputDec.style.color = "#AD193D";
+
+            //input text box for decision deadline
+            var inputNotes = newWindow.document.createElement("input");
+            inputNotes.type = "text";
+            inputNotes.style.width = '155px';
+            inputNotes.style.height = "65px";
     
             /////////////////////////////// SUBMIT /////////////////////////////////
             //create a submit button that will call the function to save inputs
@@ -331,6 +359,9 @@
                 var inEnd = inputConfEnd.value;
                 newConference.push(inEnd);                  //8 conf end date
 
+                //save the new conference notes
+                var inNotes = inputNotes.value;
+                newConference.push(inNotes);                  //9 conf notes
 
                 console.log(newConference);
                 
@@ -378,6 +409,8 @@
             newWindow.document.body.appendChild(inputConferenceTitle);
             newWindow.document.body.appendChild(wt.cloneNode(true));
             newWindow.document.body.appendChild(confURLS);
+            newWindow.document.body.appendChild(confURLSLink);
+            newWindow.document.body.appendChild(wt.cloneNode(true));
             newWindow.document.body.appendChild(inputConferenceURL);
             newWindow.document.body.appendChild(wt.cloneNode(true));
             newWindow.document.body.appendChild(Or);
@@ -400,6 +433,8 @@
             newWindow.document.body.appendChild(inputConferenceNotif);
             newWindow.document.body.appendChild(dec);
             newWindow.document.body.appendChild(inputDec);
+            newWindow.document.body.appendChild(notes);
+            newWindow.document.body.appendChild(inputNotes);
             newWindow.document.body.appendChild(wt.cloneNode(true));
             newWindow.document.body.appendChild(submit_button);
         }
