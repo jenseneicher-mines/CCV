@@ -10,7 +10,13 @@ The goal of this project is to provide a tool for CS researchers to visualize
 and manage their upcoming conference deadlines.
 
 **WEBSITE LOOK/LAYOUT**
-![Alt text](CCV/blob/master/Images/CCVwebsiteImage.PNG "Title")
+
+Homepage of Conference Cycle Visualization Website:
+![Alt text](/Images/CCVwebsiteImage.PNG)
+
+Add Conference Pop-up Window:
+![Alt text](/Images/CCVwebsiteImage2.PNG)
+
 **SETUP/USAGE/HOW TO**
 
 **CUSTOMIZE/ADDITIONAL**
