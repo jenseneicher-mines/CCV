@@ -201,12 +201,12 @@ class VisualizationHandler {
        console.log(converted_date);
        var date_angle = (converted_date/365) * (2*Math.PI);
        console.log(date_angle);
-       var newly_built_date_line = d3.svg.line.radial().angle(date_angle).radius(function(d) { return d; } );
+       var newly_built_date_line = d3.svg.line.radial().angle(date_angle - (Math.PI/2)).radius(function(d) { return d; } );
        console.log(newly_built_date_line);
 
        //MAGIC NUMBER 15 LOOKIN REEEEAAAAAL SHIT
        var date_line = svg.append("line").attr("x1", x).attr("y1", y)
-                                         .attr("x2", x + (r - 15)*Math.cos(date_angle)).attr("y2", y + (r - 15)*Math.sin(date_angle))
+                                         .attr("x2", x + (r - 15)*Math.cos(date_angle - (Math.PI/2))).attr("y2", y + (r - 15)*Math.sin(date_angle - (Math.PI/2)))
                                          .attr("stroke-width", 2).attr("stroke", "black");
        return date_line;
    }
