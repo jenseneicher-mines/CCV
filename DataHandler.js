@@ -3,7 +3,7 @@
 *
 * Class used for any necessary data manipulation
 */
-class dataHandler {
+class DataHandler {
    // no args necessary in creation of dataHandler obj as of yet
    constructor() {}
    
@@ -38,6 +38,49 @@ class dataHandler {
        }
        console.log("grabConferenceData: ", conference_data);
        return conference_data;
+   }
+   
+   exportConferenceDataToUrl(conferences, data_handler) {
+       var text_conferences_data = "";
+       text_conferences_data += conferences.length.toString() + '%0A';
+       
+       var url_count = 0;
+       for (var k = 0; k < conferences.length; k++) {
+           if (conferences[k].conf_url != "") {
+               url_count += 1;
+           }
+       }
+       
+       text_conferences_data += url_count.toString() + '%0A';
+       
+       text_conferences_data += (conferences.length - url_count).toString() + '%0A';
+       
+       for (var i = 0; i < (conferences.length - url_count); i++) {
+           var name = conferences[i].conf_name;
+           var url = conferences[i].conf_url;
+           var field = conferences[i].conf_field;
+           var color = conferences[i].conf_color;
+           var submission_deadline = conferences[i].submission_deadline;
+           var notification_deadline = conferences[i].notification_deadline;
+           var decision_deadline = conferences[i].decision_deadline;
+           var conference_start_date = conferences[i].conferenceStart_date;
+           var conference_end_date = conferences[i].conferenceEnd_date;
+           var location = conferences[i].conf_location;
+           text_conferences_data += name + '%2C' + url + '%2C'+ field + '%2C' + color + '%2C' + submission_deadline + '%2C' +
+                                       notification_deadline + '%2C' + decision_deadline + '%2C' +
+                                       conference_start_date + '%2C' + conference_end_date + '%2C' + location + '%0A';
+       }
+       
+       
+       console.log(text_conferences_data);
+       
+       var text_file = null;
+       var blob_text_conferences_data = new Blob([text_conferences_data], {type:'text/plain'});
+       text_file = window.URL.createObjectURL(blob_text_conferences_data);
+       
+       console.log(text_file);
+       
+       return text_file;
    }
    
    exportConferenceData(conferences, data_handler) {
@@ -100,3 +143,4 @@ class dataHandler {
        return new Date(date.setDate(now_num)); // add the number of days
    }
 }
+module.exports = DataHandler;

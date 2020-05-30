@@ -233,7 +233,9 @@ class VisualizationHandler {
                                                  .outerRadius(190)
                                                  .startAngle(start_angle)
                                                  .endAngle(end_angle);
-
+            
+           var defs = svg.append("defs"); 
+            
            var dropShadowFilter = defs.append('svg:filter')
                .attr('id', 'drop-shadow')
                .attr('filterUnits', "userSpaceOnUse")
@@ -275,3 +277,4 @@ class VisualizationHandler {
        }
    }
 }
+module.exports = VisualizationHandler;
