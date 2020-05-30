@@ -128,17 +128,44 @@ class Conference {
      */
     //Create Conference Visualizations (ring & arc), and add click handlers. TODO: SHOULD CLICK HANDLERS BE TAKEN CARE OF IN THE SAME FUNCTION???
     static createConfRing(svg, document, conferences_handler, data_handler, conference, x, y, radius, color) {
+        var defs = svg.append("defs");
+        
+        var dropShadowFilter = defs.append('svg:filter')
+          .attr('id', 'drop-shadow')
+          .attr('filterUnits', "userSpaceOnUse")
+          .attr('width', '250%')
+          .attr('height', '250%');
+        dropShadowFilter.append('svg:feGaussianBlur')
+          .attr('in', 'SourceGraphic')
+          .attr('stdDeviation', 2)
+          .attr('result', 'blur-out');
+        dropShadowFilter.append('svg:feOffset')
+          .attr('in', 'color-out')
+          .attr('dx', 3)
+          .attr('dy', 3)
+          .attr('result', 'the-shadow');
+        dropShadowFilter.append('svg:feBlend')
+          .attr('in', 'SourceGraphic')
+          .attr('in2', 'the-shadow')
+          .attr('mode', 'normal');
+        
+        
+        
         //init. and append new conference ring to svg
         console.log("createConfRing: ", svg, document);
         var new_conf_ring = svg.append("circle").attr("cx", x).attr("cy", y)
                                                 .attr("r", radius)
                                                 .attr("stroke", color).attr("stroke-width", conference.ring_size)
                                                 .style("fill", "none")
+                                                .style("filter", "url(#drop-shadow)")
                                                 .on("click", function() {
                                                     showDetails(svg, document, conferences_handler, data_handler, conference);
                                                     selected_conf_index = conference.conf_index;
                                                 });
                                                 
+        
+        
+        
         console.log("createConfRing: ", new_conf_ring);
         return new_conf_ring;
     }
@@ -160,14 +187,38 @@ class Conference {
                                               .outerRadius(radius + (conference.arc_size/2))
                                               .startAngle(start_angle)
                                               .endAngle(end_angle);
+       
+       var defs = svg.append("defs");
+                                              
+        var dropShadowFilter = defs.append('svg:filter')
+          .attr('id', 'drop-shadow')
+          .attr('filterUnits', "userSpaceOnUse")
+          .attr('width', '250%')
+          .attr('height', '250%');
+        dropShadowFilter.append('svg:feGaussianBlur')
+          .attr('in', 'SourceGraphic')
+          .attr('stdDeviation', 2)
+          .attr('result', 'blur-out');
+        dropShadowFilter.append('svg:feOffset')
+          .attr('in', 'color-out')
+          .attr('dx', 3)
+          .attr('dy', 3)
+          .attr('result', 'the-shadow');
+        dropShadowFilter.append('svg:feBlend')
+          .attr('in', 'SourceGraphic')
+          .attr('in2', 'the-shadow')
+          .attr('mode', 'normal');
 
-        var new_conf_arc = svg.append("path").attr("d", newly_built_arc).attr("transform", "translate("+x+", "+y+")").style("fill", color)
+        var new_conf_arc = svg.append("path").attr("d", newly_built_arc).attr("transform", "translate("+x+", "+y+")").style("fill", color).style("filter", "url(#drop-shadow)")
                                                 .on("click", function() {
                                                     showDetails(svg, document, conferences_handler, data_handler, conference);
                                                     selected_conf_index = conference.conf_index;
                                                 });
         return new_conf_arc;
     }
+    
+    
+
     
     static createConfDatesArc(svg, document, conferences_handler, data_handler, conference, x, y, radius, start_angle, end_angle) {
         //init. and append new conference arc to svg
