@@ -234,6 +234,26 @@ class VisualizationHandler {
                                                  .startAngle(start_angle)
                                                  .endAngle(end_angle);
 
+           var dropShadowFilter = defs.append('svg:filter')
+               .attr('id', 'drop-shadow')
+               .attr('filterUnits', "userSpaceOnUse")
+               .attr('width', '250%')
+               .attr('height', '250%');
+             dropShadowFilter.append('svg:feGaussianBlur')
+               .attr('in', 'SourceGraphic')
+               .attr('stdDeviation', 2)
+               .attr('result', 'blur-out');
+             dropShadowFilter.append('svg:feOffset')
+               .attr('in', 'color-out')
+               .attr('dx', 3)
+               .attr('dy', 3)
+               .attr('result', 'the-shadow');
+             dropShadowFilter.append('svg:feBlend')
+               .attr('in', 'SourceGraphic')
+               .attr('in2', 'the-shadow')
+               .attr('mode', 'normal');                                      
+                                                 
+           
            var new_month_arc = svg.append("path").attr("id", months[i] + "_arc").attr("d", newly_built_arc).attr("transform", "translate("+x+", "+y+")").style("fill", "#AD193D");
 
 
