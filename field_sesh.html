@@ -498,7 +498,7 @@
                     
                     ////////////////////////////// INITIALIZATION OF VISUALIZATION HAS MOVED HERE //////////////////////////////////////////
                     //create conferences & their visuals and add all info to conferences_handler object
-                    var conferences_handler = new VisualizationHandler(svg, document, svg_width/2, svg_height/2, conferences, num_confs, data_handler);
+                    var conferences_handler = new VisualizationHandler(svg, document, svg_width/2, svg_height/2, conferences, num_confs);
                     console.log("Successfully created conferences_handler: ", conferences_handler);
 
                     //create months ring
@@ -506,7 +506,7 @@
             
                     //create date line
                     var now = new Date();
-                    conferences_handler.createDateLine(svg, data_handler, now, conferences_handler.x, conferences_handler.y, conferences_handler.curr_radius);
+                    conferences_handler.createDateLine(svg, now, conferences_handler.x, conferences_handler.y, conferences_handler.curr_radius);
                 
                     //handle onclick event for enterFields button (if 10 or more conferences made do not allow creation of another)
                     if (conferences_handler.num_confs >= 10) {

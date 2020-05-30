@@ -261,7 +261,8 @@ class Conference {
      *
      * Uses the two previous function to handle all Conference visualization creation
      */
-    static createConfVisuals(svg, document, conferences_handler, data_handler, conf, x, y, radius, start_angle, end_angle, conf_color, conf_start_angle, conf_end_angle) {
+    static createConfVisuals(svg, document, conferences_handler, conf, x, y, radius, start_angle, end_angle, conf_color, conf_start_angle, conf_end_angle) {
+        var data_handler = new DataHandler();
         console.log("createConfVisuals: ", x, y);
         conf.ring = Conference.createConfRing(svg, document, conferences_handler, data_handler, conf, x, y, radius, conf_color);
         conf.arc = Conference.createConfArc(svg, document, conferences_handler, data_handler, conf, x, y, radius, start_angle, end_angle, conf_color);

@@ -27,15 +27,13 @@ class VisualizationHandler {
     * array of conference information (i.e. [["name_1", "field_1"]["field_1", "field_2"]]), then necessary adjustments will be made.
     * If this change is made it should be noted that updating info arrays IS ESSENTIAL
     */
-   constructor(svg, document, x, y, conferences, num_confs, data_handler) {
+   constructor(svg, document, x, y, conferences, num_confs) {
        this.svg = svg;
        this.document = document;
        this.x = x;
        this.y = y;
 
        this.conferences = [];
-       
-       this.data_handler = data_handler;
        
        this.num_confs = num_confs;
        this.names = [];
@@ -88,7 +86,7 @@ class VisualizationHandler {
             this.conf_dates_end_angles.push(((this.conferenceEnd_dates[i])/365) * (2*Math.PI));
             
             // handle single conference creation
-            var conf = this.addConference(svg, document, this, this.data_handler, num_confs, this.names[i], this.urls[i], i, this.x, this.y, this.fields[i], this.colors[i],
+            var conf = this.addConference(svg, document, this, num_confs, this.names[i], this.urls[i], i, this.x, this.y, this.fields[i], this.colors[i],
                                  this.submission_deadlines[i], this.decision_deadlines[i], this.conferenceStart_dates[i], this.conferenceEnd_dates[i],
                                  this.notification_deadlines[i], this.locations[i], this.curr_radius, this.inner_radii[i], this.outer_radii[i],
                                  this.start_angles[i], this.end_angles[i], this.conf_dates_start_angles[i], this.conf_dates_end_angles[i], ring_size, arc_size, this.conferences);
@@ -98,7 +96,7 @@ class VisualizationHandler {
    }
 
    // handles addition of all conference information
-   addConference(svg, document, conferences_handler, data_handler, num_confs, name, conf_url, i, x, y, field, color, submission_deadline, decision_deadline,
+   addConference(svg, document, conferences_handler, num_confs, name, conf_url, i, x, y, field, color, submission_deadline, decision_deadline,
                  conferenceStart_dates, conferenceEnd_dates, notification_deadlines, conf_location, curr_radius, inner_radius, outer_radius,
                  start_angle, end_angle, conf_dates_start_angle, conf_dates_end_angle, ring_size, arc_size, conferences) {
        console.log("Added conference");
@@ -120,7 +118,7 @@ class VisualizationHandler {
        console.log("addConference: ", conf.conf_dates_start_angle, conf.conf_dates_end_angle);
 
        //Create conferences visuals and add to visualization handler arrays 'rings' and 'arcs's
-       Conference.createConfVisuals(svg, document, conferences_handler, data_handler, conf, conf.x, conf.y, conf.radius, conf.start_angle, conf.end_angle, conf.conf_color, conf.conf_dates_start_angle, conf.conf_dates_end_angle);
+       Conference.createConfVisuals(svg, document, conferences_handler, conf, conf.x, conf.y, conf.radius, conf.start_angle, conf.end_angle, conf.conf_color, conf.conf_dates_start_angle, conf.conf_dates_end_angle);
        
        conferences_handler.rings.push(conf.ring);
        conferences_handler.arcs.push(conf.arc);
@@ -195,7 +193,9 @@ class VisualizationHandler {
    }
 
    // creates line on visualization indicating the day
-   createDateLine(svg, data_handler, now, x, y, r) {
+   createDateLine(svg, now, x, y, r) {
+       //Create data handler
+       var data_handler = new DataHandler();
        //handle date conversion for finding correct angle
        var converted_date = data_handler.convertDateToNum(now);
        console.log(converted_date);
