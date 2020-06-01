@@ -279,4 +279,16 @@ async function run() {
    
    //console.log(all_info);
 }
+
+// convert formats of conference data to a CSV string
+function convertConferenceData(conferenceData) {
+    var confDataString;
+    confDataString += conferenceData[i].num_confs + "\n";
+    for(var i = 0; i < conferenceData.length; i++){
+        confDataString += conferenceData[i].conferenceName + ',' + conferenceData[i].url + ','+ conferenceData[i].fieldOfStudy + ',' + conferenceData[i].color + ',' + conferenceData[i].submissionDeadline + ',' +
+            conferenceData[i].notificationDeadline + ',' + conferenceData[i].decision_deadline + ',' +
+            conferenceData[i].conferenceStart_date + ',' + conferenceData[i].conferenceEnd_date + ',' + conferenceData[i].location + '\n';
+    }
+    return confDataString;
+}
 run();
