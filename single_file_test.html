@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Circular Conference Visualization</title>
+    <meta name="description" content="Circular Conference Visualization">
+    <!-- <link rel="stylesheet" href="main.css">
+    <script src="math.js" type="text/javascript"></script>
+-->
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>   
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+    
+
+    <style>
+        .container {
+            float: left;
+        }
+        body {
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+        }
+        html {
+            height: 100%;
+        }
+        div.fixed-rectangle {
+            width: 100%;
+            height: 9%;
+            background-color: #AD193D;
+            box-shadow: inset 2px 0px 15px #34010e;
+        }
+    </style>
+
+</head>
+<body style="background-color:#e8e8e8;">
+
+<div class="container" id="chart1">
+</div>
+
+<div class="fixed-rectangle"></div>
+
+<p style="position: absolute; top: 83.5%; left: 37.6%; line-height: 30px;">Upload or Save Conferences
+    <input type="file" id="file_conference_data" accept=".txt" style="position: absolute; border: thin solid #ad193d; border-bottom-width: 2px; border-right-width: 2px; width: 87px; top: 85%; left: 0%;">
+    <button id="buttonExportConferenceData" style="position: absolute; top: 85%; left: 50%; border: thin solid #ad193d; border-bottom-width: 2px; border-right-width: 2px;">Export Data</button>
+</p>
+
+<a download="info.txt" id="downloadlink" style="display: none; position: absolute; top: 85%; left: 25%;">Download</a>
+
+<p style="position: absolute; font-size:30px; font-style: italic; color: whitesmoke; text-shadow: 1.2px 1.2px 1.2px #34010e; top: 0%; left: 1%;">Conference Cycle Visualization</p>
+
+<button id="buttonEnterFields" style="position: absolute; border: thin solid #ad193d; border-bottom-width: 2px; border-right-width: 2px; top:11%; left:1%;" onclick="enterFields();">Enter A Conference</button>
+<button id="buttonSendEmail" style="position: absolute; border: thin solid #ad193d; border-bottom-width: 2px; border-right-width: 2px; top:13%; left:1%;">Send Email</button>
+<button id="buttonGetData" style="position: absolute; border: thin solid #ad193d; border-bottom-width: 2px; border-right-width: 2px; top:15%; left:1%;">Get Conference Data</button>
+
+    <script>
+        /*
+        * visualizationHandler
+        *
+        * Class handles all necessary functions needed to be performed on the macro visualization
+        */
+        class VisualizationHandler {
+           /*
+            * constructor
+            *
+            * @params svg, document, x, y, conferences, num_confs, names, fields, colors, submission_deadlines, notification_deadlines, decision_deadlines
+            * svg: svg
+            * document: used in creation of Conference object
+            * x: where visualization is centered on the x axis
+            * y: where visualization is centered on the y axis
+            * conferences: array of Conference objects inputted into visualization on start (currently is an empty array, as we have nothing stored)
+            * num_confs: number of conferences
+            * names: conference names
+            * fields: conference fields
+            * colors: conference visualization colors
+            * submission_deadlines: conference submission deadlines
+            * notification_deadlines: conference notification deadlines
+            * decision_deadlines: conference decision deadlines
+            *
+            * This method handles the start-up creation of our visualization. As of now it takes lists of all conference info in order using
+            * separate arrays. For example, for the creation of two conferences you would have names_array = ["name_1", "name_2"],
+            * fields_array = ["field_1", "field_2"], etc. If it is seen that the better way of creating conferences is using a two dimensional
+            * array of conference information (i.e. [["name_1", "field_1"]["field_1", "field_2"]]), then necessary adjustments will be made.
+            * If this change is made it should be noted that updating info arrays IS ESSENTIAL
+            */
+           constructor(svg, document, x, y, conferences, num_confs) {
+               this.svg = svg;
+               this.document = document;
+               this.x = x;
+               this.y = y;
+        
+               this.conferences = [];
+               
+               this.num_confs = num_confs;
+               this.names = [];
+               this.urls = [];
+               this.fields = [];
+               this.colors = [];
+               this.submission_deadlines = [];
+               this.decision_deadlines = [];
+               this.conferenceStart_dates = [];
+               this.conferenceEnd_dates = [];
+               this.notification_deadlines = [];
+               this.locations = [];
+               this.inner_radii = [];
+               this.outer_radii = [];
+               this.start_angles = [];
+               this.end_angles = [];
+               this.conf_dates_start_angles = [];
+               this.conf_dates_end_angles = [];
+               this.rings = [];
+               this.arcs = [];
+               this.self = this;
+        
+               // smallest conference visualization radius
+               this.curr_radius = 200;
+        
+               // variables necessary for visual creation
+               var spacing = 20;
+               var ring_size = 3;
+               var arc_size = 10;
+               
+               // populate conferences array & fill other empty arrays
+               for (var i = 0; i < num_confs; i++) {
+                    this.names.push(conferences[i][0]);
+                    this.urls.push(conferences[i][1]);
+                    this.fields.push(conferences[i][2]);
+                    this.colors.push(conferences[i][3]);
+                    this.submission_deadlines.push(conferences[i][4]);
+                    this.notification_deadlines.push(conferences[i][5]);
+                    this.decision_deadlines.push(conferences[i][6]);
+                    this.conferenceStart_dates.push(conferences[i][7]);
+                    this.conferenceEnd_dates.push(conferences[i][8]);
+                    this.locations.push(conferences[i][9]);
+                   
+                    // add math related translations for arc creation
+                    this.inner_radii.push(this.curr_radius - arc_size/2);
+                    this.outer_radii.push(this.curr_radius + arc_size/2);
+                    this.start_angles.push(((this.submission_deadlines[i])/365) * (2*Math.PI));
+                    this.end_angles.push(((this.decision_deadlines[i])/365) * (2*Math.PI));
+                    this.conf_dates_start_angles.push(((this.conferenceStart_dates[i])/365) * (2*Math.PI));
+                    this.conf_dates_end_angles.push(((this.conferenceEnd_dates[i])/365) * (2*Math.PI));
+                    
+                    // handle single conference creation
+                    var conf = this.addConference(svg, document, this, num_confs, this.names[i], this.urls[i], i, this.x, this.y, this.fields[i], this.colors[i],
+                                         this.submission_deadlines[i], this.decision_deadlines[i], this.conferenceStart_dates[i], this.conferenceEnd_dates[i],
+                                         this.notification_deadlines[i], this.locations[i], this.curr_radius, this.inner_radii[i], this.outer_radii[i],
+                                         this.start_angles[i], this.end_angles[i], this.conf_dates_start_angles[i], this.conf_dates_end_angles[i], ring_size, arc_size, this.conferences);
+               }
+               console.log(this.urls);
+               console.log(this.colors);
+           }
+        
+           // handles addition of all conference information
+           addConference(svg, document, conferences_handler, num_confs, name, conf_url, i, x, y, field, color, submission_deadline, decision_deadline,
+                         conferenceStart_dates, conferenceEnd_dates, notification_deadlines, conf_location, curr_radius, inner_radius, outer_radius,
+                         start_angle, end_angle, conf_dates_start_angle, conf_dates_end_angle, ring_size, arc_size, conferences) {
+               console.log("Added conference");
+               
+               console.log("addConference: ", start_angle, end_angle);
+               
+               console.log(name, i, x, y, field, color, submission_deadline, decision_deadline, conferenceStart_dates, conferenceEnd_dates, notification_deadlines, conf_location,
+                                           curr_radius, inner_radius, outer_radius, start_angle, end_angle, conf_dates_start_angle, conf_dates_end_angle, null, null);
+                                           
+               var conf = new Conference(conferences_handler, name, conf_url, i, x, y, field, color, submission_deadline, decision_deadline, conferenceStart_dates, conferenceEnd_dates, notification_deadlines, conf_location,
+                   curr_radius, inner_radius, outer_radius, start_angle, end_angle, conf_dates_start_angle, conf_dates_end_angle, null, null);
+               
+               console.log("addConference: ", conf.start_angle, conf.end_angle);
+               
+               console.log("addConference: ", conf.x, conf.y);
+               
+               console.log("addConference: ", conf);
+               
+               console.log("addConference: ", conf.conf_dates_start_angle, conf.conf_dates_end_angle);
+        
+               //Create conferences visuals and add to visualization handler arrays 'rings' and 'arcs's
+               Conference.createConfVisuals(svg, document, conferences_handler, conf, conf.x, conf.y, conf.radius, conf.start_angle, conf.end_angle, conf.conf_color, conf.conf_dates_start_angle, conf.conf_dates_end_angle);
+               
+               conferences_handler.rings.push(conf.ring);
+               conferences_handler.arcs.push(conf.arc);
+               conferences_handler.conferences.push(conf);
+               conferences_handler.num_confs += 1;
+               // update curr_radius
+               conferences_handler.curr_radius += 20;
+               return conf;
+           }
+        
+           static delAndUpdate(svg, document, conferences_handler, selected_index, spacing, arc_size) {
+               // remove ring and arc from d3 and svg
+               console.log(conferences_handler, selected_index);
+               
+               conferences_handler.rings[selected_index].remove();       
+               conferences_handler.arcs[selected_index].remove();
+               
+               console.log(conferences_handler.arcs, conferences_handler.rings);
+               
+               // check if you need to update the visualization
+               if (conferences_handler.conferences[selected_index].conf_index < (conferences_handler.num_confs - 1)) {
+                   console.log("Needs updating");
+        
+                   for (var i = selected_index+1; i < conferences_handler.num_confs; i++) {
+                       console.log("Currently updating", i);
+                       
+                       var conference = conferences_handler.conferences[i];
+                       conference.radius = conference.radius - spacing;
+                       //conference.start_angle = 
+                       
+                       
+                       
+                       console.log(conference);
+        
+                       //update ring
+                       conference.conf_index -= 1;
+                       console.log(conferences_handler.rings[i]);
+                       conferences_handler.rings[i].attr("r", conference.radius);
+        
+                       //update arc
+                       // 1) remove current arc
+                       conferences_handler.arcs[i].remove();
+                       conferences_handler.arcs[i] = null;
+                       // 2) create new, updated arc and re-add to conf object
+                       conferences_handler.arcs[i] = Conference.createConfArc(svg, document, conferences_handler, conference, conference.x, conference.y, conference.radius,
+                                                                 conference.start_angle, conference.end_angle, conference.conf_color, arc_size);
+                   }
+               }
+              conferences_handler.conferences = conferences_handler.conferences.slice(0, selected_index).concat(conferences_handler.conferences.slice(selected_index + 1, conferences_handler.conferences.length));
+              
+              conferences_handler.names = conferences_handler.names.slice(0, selected_index).concat(conferences_handler.names.slice(selected_index + 1, conferences_handler.names.length));
+              conferences_handler.fields = conferences_handler.fields.slice(0, selected_index).concat(conferences_handler.fields.slice(selected_index + 1, conferences_handler.fields.length));
+              conferences_handler.colors = conferences_handler.colors.slice(0, selected_index).concat(conferences_handler.colors.slice(selected_index + 1, conferences_handler.colors.length));
+              conferences_handler.submission_deadlines = conferences_handler.submission_deadlines.slice(0, selected_index).concat(conferences_handler.submission_deadlines.slice(selected_index + 1, conferences_handler.submission_deadlines.length));
+              conferences_handler.decision_deadlines = conferences_handler.decision_deadlines.slice(0, selected_index).concat(conferences_handler.decision_deadlines.slice(selected_index + 1, conferences_handler.decision_deadlines.length));
+              conferences_handler.conferenceStart_dates = conferences_handler.conferenceStart_dates.slice(0, selected_index).concat(conferences_handler.conferenceStart_dates.slice(selected_index + 1, conferences_handler.conferenceStart_dates.length));
+              conferences_handler.conferenceEnd_dates = conferences_handler.conferenceEnd_dates.slice(0, selected_index).concat(conferences_handler.conferenceEnd_dates.slice(selected_index + 1, conferences_handler.conferenceEnd_dates.length));
+              conferences_handler.notification_deadlines = conferences_handler.notification_deadlines.slice(0, selected_index).concat(conferences_handler.notification_deadlines.slice(selected_index + 1, conferences_handler.notification_deadlines.length));
+              conferences_handler.locations = conferences_handler.locations.slice(0, selected_index).concat(conferences_handler.locations.slice(selected_index + 1, conferences_handler.locations.length));
+              conferences_handler.inner_radii = conferences_handler.inner_radii.slice(0, selected_index).concat(conferences_handler.inner_radii.slice(selected_index + 1, conferences_handler.inner_radii.length));
+              conferences_handler.outer_radii = conferences_handler.outer_radii.slice(0, selected_index).concat(conferences_handler.outer_radii.slice(selected_index + 1, conferences_handler.outer_radii.length));
+              conferences_handler.start_angles = conferences_handler.start_angles.slice(0, selected_index).concat(conferences_handler.start_angles.slice(selected_index + 1, conferences_handler.start_angles.length));
+              conferences_handler.end_angles = conferences_handler.end_angles.slice(0, selected_index).concat(conferences_handler.end_angles.slice(selected_index + 1, conferences_handler.end_angles.length));
+              conferences_handler.rings = conferences_handler.rings.slice(0, selected_index).concat(conferences_handler.rings.slice(selected_index + 1, conferences_handler.rings.length));
+              conferences_handler.arcs = conferences_handler.arcs.slice(0, selected_index).concat(conferences_handler.arcs.slice(selected_index + 1, conferences_handler.arcs.length));
+        
+              
+              //conferences_handler.
+        
+               // return updated num_confs
+               return conferences_handler.num_confs - 1;
+           }
+        
+           // creates line on visualization indicating the day
+           createDateLine(svg, now, x, y, r) {
+               //Create data handler
+               var data_handler = new DataHandler();
+               //handle date conversion for finding correct angle
+               var converted_date = data_handler.convertDateToNum(now);
+               console.log(converted_date);
+               var date_angle = (converted_date/365) * (2*Math.PI);
+               console.log(date_angle);
+               var newly_built_date_line = d3.svg.line.radial().angle(date_angle - (Math.PI/2)).radius(function(d) { return d; } );
+               console.log(newly_built_date_line);
+        
+               //MAGIC NUMBER 15 LOOKIN REEEEAAAAAL SHIT
+               var date_line = svg.append("line").attr("x1", x).attr("y1", y)
+                                                 .attr("x2", x + (r - 15)*Math.cos(date_angle - (Math.PI/2))).attr("y2", y + (r - 15)*Math.sin(date_angle - (Math.PI/2)))
+                                                 .attr("stroke-width", 2).attr("stroke", "black");
+               return date_line;
+           }
+           
+           // creates 12 month arcs inside the smallest conference radius to show the user how time is alloted in the visualization
+           createMonthsRing(svg, x, y) {
+               // how month names are displayed, change this array if you would like different names to be shown
+               var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        
+               // empty arrays to store the 12 created month arcs
+               var month_arcs = [];
+               var month_text_objs = [];
+        
+               // math portion to properly define size and spacing of arcs
+               var spacing = (0.009*((2*Math.PI)/12));
+               var arc_length = (((2*Math.PI)/12) - (2*spacing));
+               var start_angle = spacing;
+               var end_angle = arc_length - spacing;
+        
+               // begin creation of the 12 month arcs and their accompanying text
+               for (var i = 0; i < 12; i++) {
+                    //init. and append new conference arc to svg
+                   var newly_built_arc = d3.svg.arc().innerRadius(170)
+                                                         .outerRadius(190)
+                                                         .startAngle(start_angle)
+                                                         .endAngle(end_angle);
+                    
+                   var defs = svg.append("defs"); 
+                    
+                   var dropShadowFilter = defs.append('svg:filter')
+                       .attr('id', 'drop-shadow')
+                       .attr('filterUnits', "userSpaceOnUse")
+                       .attr('width', '250%')
+                       .attr('height', '250%');
+                     dropShadowFilter.append('svg:feGaussianBlur')
+                       .attr('in', 'SourceGraphic')
+                       .attr('stdDeviation', 2)
+                       .attr('result', 'blur-out');
+                     dropShadowFilter.append('svg:feOffset')
+                       .attr('in', 'color-out')
+                       .attr('dx', 3)
+                       .attr('dy', 3)
+                       .attr('result', 'the-shadow');
+                     dropShadowFilter.append('svg:feBlend')
+                       .attr('in', 'SourceGraphic')
+                       .attr('in2', 'the-shadow')
+                       .attr('mode', 'normal');                                      
+                                                         
+                   
+                   var new_month_arc = svg.append("path").attr("id", months[i] + "_arc").attr("d", newly_built_arc).attr("transform", "translate("+x+", "+y+")").style("fill", "#AD193D");
+        
+        
+        
+                   //var months_text_arc = svg.append("path").attr("id", "path_text_months").attr("d", "M75,300 A125,125 0 0,1 325,300").attr("fill", "none").style("stroke", "#AAAAAA");
+                   var months_text = svg.append("text").attr("id", months[i])
+                                                       .attr("x", 20)   //Move the text from the start angle of the arc
+                                                       .attr("dy", 18) //Move the text down
+                                                       .style("font-size", 16)
+                                                       .append("textPath").attr("xlink:href", "#"+months[i]+"_arc").style("text-anchor", "right").text(months[i]);
+        
+                   // store the created text and arc (not really necessary as of now, but it's here just in case)
+                   month_arcs.push(new_month_arc);
+                   month_text_objs.push(months_text);
+        
+                   // update start and end angles for the next arc to be created
+                   start_angle += arc_length + 2*spacing;
+                   end_angle += arc_length + 2*spacing;
+               }
+           }
+        }
+        //module.exports = VisualizationHandler;
+    </script>
+    <script>
+        /**
+        * Conference Class
+        */
+       class Conference {
+           // constructor (must include all fields atm)
+           constructor(conferences_handler, conf_name, conf_url, conf_index, x, y, conf_field, conf_color, submission_deadline, decision_deadline,
+                       conferenceStart_date, conferenceEnd_date, notification_deadline, conf_location, radius, inner_radius, outer_radius, start_angle, end_angle,
+                       conf_dates_start_angle, conf_dates_end_angle, ring, arc) {
+               // var. having to do with conference info.
+               this.conferences_handler = conferences_handler;
+               this.conf_name = conf_name;
+               this.conf_url = conf_url;
+               this.conf_index = conf_index;
+               this.conf_field = conf_field;
+               this.conf_color = conf_color;
+       
+               // var. having to do with conference vis.
+               this.x = x;
+               this.y = y;
+               this.radius = radius;
+               this.inner_radius = inner_radius;
+               this.outer_radius = outer_radius;
+               this.conf_dates_start_angle = conf_dates_start_angle;
+               this.conf_dates_end_angle = conf_dates_end_angle;
+               this.start_angle = start_angle;
+               this.end_angle = end_angle;
+       
+               // var. having to do with both conf. vis. & conf. info.
+               this.submission_deadline = submission_deadline;
+               this.decision_deadline = decision_deadline;
+               this.conferenceStart_date = conferenceStart_date;
+               this.conferenceEnd_date = conferenceEnd_date;
+               this.notification_deadline = notification_deadline;
+               this.conf_location = conf_location;
+               
+               // change ring and arc size here
+               this.ring_size = 3;
+               this.arc_size = 10;
+       
+               // conf. shapes
+               this.ring = ring;
+               this.arc = arc;
+           }
+       
+            /**
+            * showDetails
+            * @params document, conference
+            * document: used to append created elements to html
+            * conference: used to grab data necessary to populate created elements
+            *
+            * showDetails is in charge of displaying the data corresponding to each conference.
+            * It is a base template and used for all conferences, as they should all have the same
+            * data fields.
+            */
+           //showDetails(document, conference) {
+           //    // new elements are added dynamically on conference visualization click. This means that objects
+           //    // need to be deleted and re-added each time a new conference is clicked. This array and fo r loop
+           //    //
+           //    // handles conference descriptive element deletions
+           //    var details_element_ids = ["conferenceName", "mainParagraph", "deleteButton"];
+           //    for (var i = 0; i < details_element_ids.length; i++) {
+           //        if (document.getElementById(details_element_ids[i])){
+           //            var elem = document.getElementById(details_element_ids[i]);
+           //            elem.remove();
+           //        }
+           //    }
+           //
+           //    //create a new container that will appear on the left side of the screen
+           //    var container2 = document.createElement("div");
+           //    container2.setAttribute("style","float: left;");
+           //    document.body.appendChild(container2);
+           //
+           //    var container3 = document.createElement("div2");
+           //    container3.setAttribute("style","float: absolute;");
+           //    container3.style.position = "absolute";
+           //    container3.style.left = 1025 + 'px';
+           //    container3.style.top = 175 +'px';
+           //    document.body.appendChild(container3);
+           //
+           //    // Header element, will contain Conference Name
+           //    var h1 = document.createElement('h1');
+           //    h1.id = "conferenceName";
+           //    h1.textContent = conference.conf_name;
+           //    h1.style.color = conference.conf_color;
+           //    var left = document.clientWidth/2;
+           //    var top = document.clientHeight/2;
+           //    //h1.style.left = left;
+           //    //h1.style.top = top;
+           //    //h1.setAttribute("style", "position: left; z-index: 1; left: "+left+"; top: "+top+"; width:200px; height:20px;");
+           //    //h1.style.zIndex = 1;
+           //    container2.appendChild(h1);
+           //    //container2.appendChild(h1);
+           //
+           //    // Paragraph element, unknown what this will contain
+           //    var p1 = document.createElement('p1');
+           //    p1.id = "mainParagraph";
+           //    p1.setAttribute("style", "position: absolute; z-index: 1; left: "+left+"; top: "+top+"; width:190px; height:100px;");
+           //    p1.textContent = "Conference Topic: " + conference.conf_field + "\r\nLocation: " + conference.conf_location + "\r\nSubmission Deadline: " + conference.submission_deadline + "\r\nNotification Deadline: " + conference.notification_deadline + "\r\nFinal Version Due: " + conference.decision_deadline;
+           //    p1.setAttribute('class', 'note');
+           //    p1.setAttribute('vertical-align', 'baseline');
+           //    container2.appendChild(p1);
+           //
+           //    var deleteButton = document.createElement("button");
+           //    deleteButton.innerHTML = "Delete Conference";
+           //    deleteButton.id = "deleteButton";
+           //    deleteButton.width = "20px";
+           //    deleteButton.height = "100px";
+           //    deleteButton.top = "100px";
+           //    deleteButton.left = "20px";
+           //    container3.appendChild(deleteButton);
+           //
+           //    deleteButton.onclick = function() {
+           //        VisualizationHandler.delAndUpdate();
+           //    }
+           //}
+       
+           /**
+            * createConfRing
+            * @params svg, document, conference, x, y, radius, color, ring_size
+            * svg: svg object, used to add created shapes into svg
+            * x, y: Cartesian coordinates of the center of circle or arc to be created on the canvas
+            * radius: the radius of the circle or arc being created
+            * start_angle, end_angle: used to define start and end points if arc is being created
+            * color: color of circle or arc
+            * ring_size: width of stroke for ring
+            *
+            * Creates conference ring
+            */
+           //Create Conference Visualizations (ring & arc), and add click handlers. TODO: SHOULD CLICK HANDLERS BE TAKEN CARE OF IN THE SAME FUNCTION???
+           static createConfRing(svg, document, conferences_handler, data_handler, conference, x, y, radius, color) {
+               var defs = svg.append("defs");
+               
+               var dropShadowFilter = defs.append('svg:filter')
+                 .attr('id', 'drop-shadow')
+                 .attr('filterUnits', "userSpaceOnUse")
+                 .attr('width', '250%')
+                 .attr('height', '250%');
+               dropShadowFilter.append('svg:feGaussianBlur')
+                 .attr('in', 'SourceGraphic')
+                 .attr('stdDeviation', 2)
+                 .attr('result', 'blur-out');
+               dropShadowFilter.append('svg:feOffset')
+                 .attr('in', 'color-out')
+                 .attr('dx', 3)
+                 .attr('dy', 3)
+                 .attr('result', 'the-shadow');
+               dropShadowFilter.append('svg:feBlend')
+                 .attr('in', 'SourceGraphic')
+                 .attr('in2', 'the-shadow')
+                 .attr('mode', 'normal');
+               
+               
+               
+               //init. and append new conference ring to svg
+               console.log("createConfRing: ", svg, document);
+               var new_conf_ring = svg.append("circle").attr("cx", x).attr("cy", y)
+                                                       .attr("r", radius)
+                                                       .attr("stroke", color).attr("stroke-width", conference.ring_size)
+                                                       .style("fill", "none")
+                                                       .style("filter", "url(#drop-shadow)")
+                                                       .on("click", function() {
+                                                           showDetails(svg, document, conferences_handler, data_handler, conference);
+                                                           selected_conf_index = conference.conf_index;
+                                                       });
+                                                       
+               
+               
+               
+               console.log("createConfRing: ", new_conf_ring);
+               return new_conf_ring;
+           }
+       
+           /*
+            * createConfArc
+            * @params: svg, document, conference, x, y, radius, start_angle, end_angle, color, arc_size
+            * svg: svg object, used to add created shapes into svg
+            * x, y: Cartesian coordinates of the center of circle or arc to be created on the canvas
+            * radius: the radius of the circle or arc being created
+            * start_angle, end_angle: used to define start and end points if arc is being created
+            * color: color of circle or arc
+            * arc_size: width of stroke for arc
+            * Creates Conference arc indicating all deadlines
+            */
+           static createConfArc(svg, document, conferences_handler, data_handler, conference, x, y, radius, start_angle, end_angle, color) {
+               //init. and append new conference arc to svg
+               var newly_built_arc = d3.svg.arc().innerRadius(radius - (conference.arc_size/2))
+                                                     .outerRadius(radius + (conference.arc_size/2))
+                                                     .startAngle(start_angle)
+                                                     .endAngle(end_angle);
+              
+              var defs = svg.append("defs");
+                                                     
+               var dropShadowFilter = defs.append('svg:filter')
+                 .attr('id', 'drop-shadow')
+                 .attr('filterUnits', "userSpaceOnUse")
+                 .attr('width', '250%')
+                 .attr('height', '250%');
+               dropShadowFilter.append('svg:feGaussianBlur')
+                 .attr('in', 'SourceGraphic')
+                 .attr('stdDeviation', 2)
+                 .attr('result', 'blur-out');
+               dropShadowFilter.append('svg:feOffset')
+                 .attr('in', 'color-out')
+                 .attr('dx', 3)
+                 .attr('dy', 3)
+                 .attr('result', 'the-shadow');
+               dropShadowFilter.append('svg:feBlend')
+                 .attr('in', 'SourceGraphic')
+                 .attr('in2', 'the-shadow')
+                 .attr('mode', 'normal');
+       
+               var new_conf_arc = svg.append("path").attr("d", newly_built_arc).attr("transform", "translate("+x+", "+y+")").style("fill", color).style("filter", "url(#drop-shadow)")
+                                                       .on("click", function() {
+                                                           showDetails(svg, document, conferences_handler, data_handler, conference);
+                                                           selected_conf_index = conference.conf_index;
+                                                       });
+               return new_conf_arc;
+           }
+           
+           
+       
+           
+           static createConfDatesArc(svg, document, conferences_handler, data_handler, conference, x, y, radius, start_angle, end_angle) {
+               //init. and append new conference arc to svg
+               var newly_built_arc = d3.svg.arc().innerRadius(radius - (conference.arc_size/2))
+                                                     .outerRadius(radius + (conference.arc_size/2))
+                                                     .startAngle(start_angle)
+                                                     .endAngle(end_angle);
+       
+               var new_conf_arc = svg.append("path").attr("d", newly_built_arc).attr("transform", "translate("+x+", "+y+")").style("fill", "#ffffff")
+                                                       .on("click", function() {
+                                                           showDetails(svg, document, conferences_handler, data_handler, conference);
+                                                           selected_conf_index = conference.conf_index;
+                                                       });
+               return new_conf_arc;
+           }
+           
+           static createConfNotificationsDeadlineArc(svg, document, conferences_handler, data_handler, conference, x, y, radius) {
+               //init. and append new conference arc to svg
+               var arc_spacing = (Math.PI/360)*2;
+               
+               var notification_deadline_angle = (((conference.notification_deadline)/365) * (2*Math.PI));
+               
+               var newly_built_arc = d3.svg.arc().innerRadius(radius - (conference.arc_size/2))
+                                                 .outerRadius(radius + (conference.arc_size/2))
+                                                 .startAngle(notification_deadline_angle - arc_spacing)
+                                                 .endAngle(notification_deadline_angle + arc_spacing);
+       
+               var new_conf_arc = svg.append("path").attr("d", newly_built_arc).attr("transform", "translate("+x+", "+y+")").style("fill", "#ffffff")
+                                                       .on("click", function() {
+                                                           showDetails(svg, document, conferences_handler, data_handler, conference);
+                                                           selected_conf_index = conference.conf_index;
+                                                       });
+               return new_conf_arc;
+               
+               
+           }   
+       
+           /*
+            * createConfVisuals
+            *
+            * Uses the two previous function to handle all Conference visualization creation
+            */
+           static createConfVisuals(svg, document, conferences_handler, conf, x, y, radius, start_angle, end_angle, conf_color, conf_start_angle, conf_end_angle) {
+               var data_handler = new DataHandler();
+               console.log("createConfVisuals: ", x, y);
+               conf.ring = Conference.createConfRing(svg, document, conferences_handler, data_handler, conf, x, y, radius, conf_color);
+               conf.arc = Conference.createConfArc(svg, document, conferences_handler, data_handler, conf, x, y, radius, start_angle, end_angle, conf_color);
+               console.log("createConfVisuals: ", conf_start_angle, conf_end_angle);
+               conf.conf_dates_arc = Conference.createConfDatesArc(svg, document, conferences_handler, data_handler, conf, x, y, radius, conf_start_angle, conf_end_angle);
+               
+               if ((conf.notification_deadline != "") && (conf.notification_deadline != null)) {
+                   conf.notification_deadline_arcs = Conference.createConfNotificationsDeadlineArc(svg, document, conferences_handler, data_handler, conf, x, y, radius);
+               }
+           }
+       }
+       //module.exports = Conference;
+    </script>
+    <script>
+        /*
+        * dataHandler
+        *
+        * Class used for any necessary data manipulation
+        */
+        class DataHandler {
+           // no args necessary in creation of dataHandler obj as of yet
+           constructor() {}
+           
+           grabConferenceData(input_file) {
+               var file_lines = input_file.split('\n');
+               
+               var conference_data = [];
+               
+               var num_confs = parseInt(file_lines[0], 10);
+               var num_confs_as_url = parseInt(file_lines[1], 10);
+               var num_confs_as_manual = parseInt(file_lines[2], 10);
+               console.log(num_confs, num_confs_as_url, num_confs_as_manual);
+               
+               for (var i = 3; i < 3 + num_confs_as_url; i++) {
+                   console.log(file_lines[i]);
+                   // ADDING URL TO CODE WILL BE HANDLED HERE AS WELL AS IN ADDING CONFERENCE WITHIN POP UP WINDOW
+               }
+               
+               for (var j = 3+num_confs_as_url; j < 3+num_confs_as_url+num_confs_as_manual; j++) {
+                   var split_line = file_lines[j].split(',');
+                   console.log(split_line.length);
+                   
+                   var conference = [];
+                   for (var k = 0; k < split_line.length; k++) {
+                       if (k <= 3) {
+                           conference.push(split_line[k]);
+                       } else {
+                           conference.push(parseInt(split_line[k], 10));
+                       }
+                   }
+                   conference_data.push(conference);
+               }
+               console.log("grabConferenceData: ", conference_data);
+               return conference_data;
+           }
+           
+           exportConferenceDataToUrl(conferences, data_handler) {
+               var text_conferences_data = "";
+               text_conferences_data += conferences.length.toString() + '%0A';
+               
+               var url_count = 0;
+               for (var k = 0; k < conferences.length; k++) {
+                   if (conferences[k].conf_url != "") {
+                       url_count += 1;
+                   }
+               }
+               
+               text_conferences_data += url_count.toString() + '%0A';
+               
+               text_conferences_data += (conferences.length - url_count).toString() + '%0A';
+               
+               for (var i = 0; i < (conferences.length - url_count); i++) {
+                   var name = conferences[i].conf_name;
+                   var url = conferences[i].conf_url;
+                   var field = conferences[i].conf_field;
+                   var color = conferences[i].conf_color;
+                   var submission_deadline = conferences[i].submission_deadline;
+                   var notification_deadline = conferences[i].notification_deadline;
+                   var decision_deadline = conferences[i].decision_deadline;
+                   var conference_start_date = conferences[i].conferenceStart_date;
+                   var conference_end_date = conferences[i].conferenceEnd_date;
+                   var location = conferences[i].conf_location;
+                   text_conferences_data += name + '%2C' + url + '%2C'+ field + '%2C' + color + '%2C' + submission_deadline + '%2C' +
+                                               notification_deadline + '%2C' + decision_deadline + '%2C' +
+                                               conference_start_date + '%2C' + conference_end_date + '%2C' + location + '%0A';
+               }
+               
+               
+               console.log(text_conferences_data);
+               
+               var text_file = null;
+               var blob_text_conferences_data = new Blob([text_conferences_data], {type:'text/plain'});
+               text_file = window.URL.createObjectURL(blob_text_conferences_data);
+               
+               console.log(text_file);
+               
+               return text_file;
+           }
+           
+           exportConferenceData(conferences, data_handler) {
+               var text_conferences_data = "";
+               text_conferences_data += conferences.length.toString() + '\n';
+               
+               var url_count = 0;
+               for (var k = 0; k < conferences.length; k++) {
+                   if (conferences[k].conf_url != "") {
+                       console.log("dddddddd", conferences[k].conf_url);
+                       url_count += 1;
+                   }
+               }
+               
+               text_conferences_data += url_count.toString() + '\n';
+               
+               text_conferences_data += (conferences.length - url_count).toString() + '\n';
+               
+               for (var i = 0; i < (conferences.length - url_count); i++) {
+                   var name = conferences[i].conf_name;
+                   var url = conferences[i].conf_url;
+                   var field = conferences[i].conf_field;
+                   var color = conferences[i].conf_color;
+                   var submission_deadline = conferences[i].submission_deadline;
+                   var notification_deadline = conferences[i].notification_deadline;
+                   var decision_deadline = conferences[i].decision_deadline;
+                   var conference_start_date = conferences[i].conferenceStart_date;
+                   var conference_end_date = conferences[i].conferenceEnd_date;
+                   var location = conferences[i].conf_location;
+                   text_conferences_data += name + ',' + url + ','+ field + ',' + color + ',' + submission_deadline + ',' +
+                                               notification_deadline + ',' + decision_deadline + ',' +
+                                               conference_start_date + ',' + conference_end_date + ',' + location + '\n';
+               }
+               
+               
+               console.log(text_conferences_data);
+               
+               var text_file = null;
+               var blob_text_conferences_data = new Blob([text_conferences_data], {type:'text/plain'});
+               text_file = window.URL.createObjectURL(blob_text_conferences_data);
+               
+               console.log(text_file);
+               
+               return text_file;
+           }
+        
+           // converts date object to a number to 1 and 366 (considers leap years)
+           convertDateToNum(now) {
+               var start = new Date(now.getFullYear(), 0, 0);
+               var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
+               var oneDay = 1000 * 60 * 60 * 24;
+               var day = Math.round(diff / oneDay);
+               console.log('Day of year: ' + day);
+               return day;
+           }
+        
+           // converts number from 1 to 366 (considering leap years) into a date object
+           convertNumToDate(now, now_num) {
+               var date = new Date(now.getFullYear(), 0); // initialize a date in `year-01-01`
+               return new Date(date.setDate(now_num)); // add the number of days
+           }
+        }
+        //module.exports = DataHandler;
+    </script>
+
+    <script>
+        // declare variable used to keep track of what conference is being looked at currently
+        var selected_conf_index;
+
+        // initialize conferences array that will hold all data about conferences
+        var conferences = [];
+        
+        var port = 8000;
+        
+        function sendEmail(email_list_text) {
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange=function() {
+                if (xmlhttp.readyState == 4) {
+                    console.log("Email sent?");
+                }
+            };
+            xmlhttp.open("GET", "http://localhost:"+port+"/sendEmail", true);
+            xmlhttp.send(email_list_text);
+        }
+        
+        function getScrapedConferenceData() {
+            var text_file_conference_data = [];
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange=function() {
+                console.log("server:", xmlhttp.readyState, xmlhttp.status);
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    text_file_conference_data = xmlhttp.responseText;
+                    console.log("server:", text_file_conference_data);
+                    return text_file_conference_data;
+                }
+                console.log("Error in server request status or state");
+            };
+            xmlhttp.open("GET", "http://localhost:"+port+"/getDataScraper", true);
+            xmlhttp.send();
+        }
+        
+        /////////////////////////// NOT DONE ////////////////////////////////////
+        function getSingleUrlData() {
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange=function() {
+                console.log("server:", xmlhttp.readyState, xmlhttp.status);
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    text_file_conference_data = xmlhttp.responseText;
+                    console.log("server:", text_file_conference_data);
+                    return text_file_conference_data;
+                }
+                console.log("Error in server request status or state");
+            };
+            xmlhttp.open("PUT", "http://localhost:"+port+"/getSingleUrlData", true);
+            xmlhttp.send();
+        }
+        function returnSingleUrlData() {
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange=function() {
+                console.log("server:", xmlhttp.readyState, xmlhttp.status);
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    text_file_conference_data = xmlhttp.responseText;
+                    console.log("server:", text_file_conference_data);
+                    return text_file_conference_data;
+                }
+                console.log("Error in server request status or state");
+            };
+            xmlhttp.open("PUT", "http://localhost:"+port+"/returnSingleUrlData", true);
+            xmlhttp.send();
+        }
+        
+        function getRandomColor() {
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            for (var i = 0; i < 6; i++) {
+              color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+        
+        function parseDate(s) {
+            var b = s.split(/\D/);
+            return new Date(b[0], --b[1], b[2]);
+        }
+
+        function showDetails(svg, document, conferences_handler, data_handler, conference) {
+            // create Date obj
+            var now = new Date();
+
+            // new elements are added dynamically on conference visualization click. This means that objects
+            // need to be deleted and re-added each time a new conference is clicked. This array and for loop
+            //
+            // handles conference descriptive element deletions
+            var details_element_ids = ["conferenceName", "mainParagraph", "deleteButton"];
+            for (var i = 0; i < details_element_ids.length; i++) {
+                if (document.getElementById(details_element_ids[i])){
+                    var elem = document.getElementById(details_element_ids[i]);
+                    elem.remove();
+                }
+            }
+
+            //create a new container that will appear on the left side of the screen
+            var container2 = document.createElement("div");
+            container2.setAttribute("style","float: left;");
+            document.body.appendChild(container2);
+
+            var container3 = document.createElement("div2");
+            container3.setAttribute("style","float: absolute;");
+            container3.style.position = "absolute";
+            container3.style.left = 1026 + 'px';
+            container3.style.top = 462 +'px';
+            document.body.appendChild(container3);
+
+            // Header element, will contain Conference Name
+            var h1 = document.createElement('h1');
+            h1.id = "conferenceName";
+            h1.textContent = conference.conf_name;
+            h1.style.color = conference.conf_color;
+            h1.style.borderBottom = "solid #AD193D";
+            h1.style.textShadow = "1px 1px 1px #000000";
+            var left = document.clientWidth/2;
+            var top = document.clientHeight/2;
+            //h1.style.left = left;
+            //h1.style.top = top;
+            //h1.setAttribute("style", "position: left; z-index: 1; left: "+left+"; top: "+top+"; width:200px; height:20px;");
+            //h1.style.zIndex = 1;
+            container2.appendChild(h1);
+            //container2.appendChild(h1);
+
+            // Paragraph element, unknown what this will contain
+            var p1 = document.createElement('p1');
+            p1.id = "mainParagraph";
+            p1.setAttribute("style", "white-space: pre; position: absolute; font-size:20px; z-index: 1; left: "+left+"; top: "+top+"; width:710px; height:275px;");
+            p1.textContent = "Conference Topic: " + conference.conf_field + "\r\nLocation: " + conference.conf_location + "\r\nSubmission Deadline: " +
+                data_handler.convertNumToDate(new Date(), conference.submission_deadline) + "\r\nNotification Deadline: " +
+                data_handler.convertNumToDate(new Date(), conference.notification_deadline) + "\r\nFinal Version Due: " +
+                data_handler.convertNumToDate(new Date(), conference.decision_deadline);
+            p1.setAttribute('class', 'note');
+            p1.setAttribute('vertical-align', 'baseline');
+            p1.style.border = "thick solid #F3EBCE";
+            p1.style.backgroundColor = "linen";
+            p1.style.borderBottomWidth = "6px";
+            p1.style.borderRightWidth = "5px";
+            p1.style.borderRightColor = "#e3d8c6";
+            p1.style.borderBottomColor = "#e3d8c6";
+            container2.appendChild(p1);
+
+            var deleteButton = document.createElement("button");
+            deleteButton.innerHTML = "Delete Conference";
+            deleteButton.id = "deleteButton";
+            deleteButton.width = "20px";
+            deleteButton.height = "100px";
+            deleteButton.top = "100px";
+            deleteButton.left = "20px";
+            deleteButton.style.border = "thin solid" + conference.conf_color;
+            deleteButton.style.borderRightWidth = "2px";
+            deleteButton.style.borderBottomWidth = "2px";
+            container3.appendChild(deleteButton);
+
+            deleteButton.onclick = function() {
+                conferences_handler.num_confs = VisualizationHandler.delAndUpdate(svg, document, conferences_handler, selected_conf_index, 20, 10);
+            };
+        }
+        
+        
+        
+    
+        // Button click event function for manually creating a conference
+        function enterFields(svg, document, conferences_handler, color) {
+    
+            // Open pop-up window to input manual data
+            let newWindow = window.open("about:blank", "Conference Details", "width=765,height=600");
+            newWindow.document.body.style.lineHeight = "30px";
+            newWindow.document.body.style.backgroundColor = "#e8e8e8";
+    
+            //////////////////////// NON-MANUAL CONFERENCE ENTRY METHODS ////////////////////////
+            // Allow for searching for a conference with it's title and a search bar
+            var confTS = newWindow.document.createElement('confTS');
+            confTS.setAttribute('style', 'white-space: pre;');
+            confTS.textContent = "Search Conference by Title \r\n";
+            confTS.style.fontWeight = 'bold';
+            confTS.style.fontSize = "17";
+            confTS.style.textShadow = "0px 0px 1px #34010e";
+    
+            // Allow for searching conference by URL
+            var confURLS = newWindow.document.createElement('confURLS');
+            confURLS.setAttribute('style', 'white-space: pre;');
+            confURLS.textContent = "\r\nLoad Conference by ";
+            confURLS.style.fontWeight = 'bold';
+            confURLS.style.fontSize = "17";
+            confURLS.style.textShadow = "0px 0px 1px #34010e";
+
+            // Create hyper link for WikiCFP URL
+            var confURLSLink = newWindow.document.createElement("confURLSLink");
+            confURLSLink.href = "http://www.wikicfp.com/cfp/home";
+            confURLSLink.textContent = "WikiCFP URL\r\n";
+            confURLSLink.style.color = "#0000EE";
+            confURLSLink.style.textDecoration = "underline";
+            confURLSLink.onclick = function () {
+                // window refers to the main window, not the popup window
+                window.location = this.href;
+            }
+            
+            //create a submit button that will call the function to save inputs
+            var submit_url_button = newWindow.document.createElement("button");
+            submit_url_button.innerHTML = "Submit URL";
+            submit_url_button.id = "submit_url_button";
+            submit_url_button.width = "20px";
+            submit_url_button.height = "100px";
+            submit_url_button.top = "20px";
+            submit_url_button.left = "20px";
+    
+            /////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//////////// NOT DONE //////////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!///////////////
+            submit_url_button.onclick = function() {
+                getSingleUrlData();
+                newConference = returnSingleUrlData();
+                
+                // ADD CODE TO HERE TO ADD CONFERENCE TO VISUALIZATIONHANDLER
+                var spacing = 20;
+                var ring_size = 3;
+                var arc_size = 10;
+                
+                console.log("parseDate: ", parseDate(newConference[4]), data_handler.convertDateToNum(parseDate(newConference[4])), data_handler.convertDateToNum(parseDate(newConference[6])));
+                
+                conferences_handler.submission_deadlines.push(data_handler.convertDateToNum(parseDate(newConference[4])));
+                conferences_handler.decision_deadlines.push(data_handler.convertDateToNum(parseDate(newConference[6])));
+                
+                console.log("Num", conferences_handler.submission_deadlines[conferences_handler.conferences.length]);
+                
+                console.log((((conferences_handler.submission_deadlines[conferences_handler.conferences.length])/365) * (2*Math.PI)));
+                
+                var updated_inner_radius = conferences_handler.curr_radius - arc_size/2;
+                var updated_outer_radius = conferences_handler.curr_radius + arc_size/2;
+                var updated_start_angle = (((conferences_handler.submission_deadlines[conferences_handler.conferences.length])/365) * (2*Math.PI));
+                var updated_end_angle = (((conferences_handler.decision_deadlines[conferences_handler.conferences.length])/365) * (2*Math.PI));
+                var updated_conf_dates_start_angle = (((conferences_handler.conferenceStart_dates[conferences_handler.conferences.length])/365) * (2*Math.PI));
+                var updated_conf_dates_end_angle = (((conferences_handler.conferenceEnd_dates[conferences_handler.conferences.length])/365) * (2*Math.PI));
+                
+                conferences_handler.addConference(svg, document, conferences_handler, data_handler, conferences_handler.num_confs + 1, newConference[2], newConference[1],
+                                conferences_handler.conferences.length, conferences_handler.x, conferences_handler.y, newConference[3], getRandomColor(),
+                                data_handler.convertDateToNum(parseDate(newConference[4])), data_handler.convertDateToNum(parseDate(newConference[6])), // conf submission, decision deadlines
+                                data_handler.convertDateToNum(parseDate(newConference[7])), data_handler.convertDateToNum(parseDate(newConference[8])), // conf start, end dates
+                                data_handler.convertDateToNum(parseDate(newConference[5])), // conf notification deadline
+                                conferences_handler.curr_radius, updated_inner_radius, updated_outer_radius, updated_start_angle,
+                                updated_end_angle, updated_conf_dates_start_angle, updated_conf_dates_end_angle, 3, 10, conferences_handler.conferences);
+                conferences_handler.num_confs += 1;
+                newWindow.close();
+            };
+            ////////////////////////////////////////////////////////////////////
+            
+            ////////////////////////////////////// OR //////////////////////////////////////
+            var Or = newWindow.document.createElement('Or');
+            Or.setAttribute('style', 'white-space: pre;');
+            Or.textContent = "\r\nOR..";
+            Or.style.fontWeight = 'bold';
+
+            var confDet = newWindow.document.createElement('confDet');
+            confDet.setAttribute('style', 'white-space: pre;');
+            confDet.textContent = "\r\nManually Enter Conference Details";
+            confDet.style.fontWeight = 'bold';
+            confDet.style.fontSize = '21';
+            confDet.style.textShadow = "0px 0px 1px #AD193D";
+            confDet.style.borderBottom = "solid #AD193D";
+    
+            //Ask user for conference information
+            //Ask user for where the conference is taking place
+            var confPlc = newWindow.document.createElement('confPlc');
+            confPlc.setAttribute('style', 'white-space: pre;');
+            confPlc.textContent = "\r\nPlease Enter the Location of your Conference (City,State,Country):";
+            confPlc.style.fontWeight = 'bold';
+
+            //Ask user for start date
+            var confDate = newWindow.document.createElement('confPlc');
+            confDate.setAttribute('style', 'white-space: pre;');
+            confDate.textContent = "\r\nPlease Enter the Start and End Dates of the Conference (Start-End)";
+            confDate.style.fontWeight = 'bold';
+    
+            //ask user for conference name
+            var conf = newWindow.document.createElement('conf');
+            conf.setAttribute('style', 'white-space: pre;');
+            conf.textContent = "\r\nPlease Enter your Conference Name/Title:";
+            conf.style.fontWeight = 'bold';
+            
+            //ask user for conference field
+            var field = newWindow.document.createElement('conf');
+            field.setAttribute('style', 'white-space: pre;');
+            field.textContent = "\r\nPlease Enter your Conference Field:";
+            field.style.fontWeight = 'bold';
+    
+            //Ask User for submission deadline
+            var sub = newWindow.document.createElement('conf');
+            sub.setAttribute('style', 'white-space: pre;');
+            sub.textContent = "\r\nPlease Select the Submission Deadline:";
+            sub.style.fontWeight = 'bold';
+    
+            //Ask the user for a notification deadline
+            var notif = newWindow.document.createElement('notif');
+            notif.setAttribute('style', 'white-space: pre;');
+            notif.textContent = "\r\nPlease Select the Notification Deadline:";
+            notif.style.fontWeight = 'bold';
+    
+            //Ask user for decision deadline
+            var dec = newWindow.document.createElement('conf');
+            dec.setAttribute('style', 'white-space: pre;');
+            dec.textContent = "\r\nPlease Select the Final Version Deadline:";
+            dec.style.fontWeight = 'bold';
+
+            //Ask user for notes
+            var notes = newWindow.document.createElement('conf');
+            notes.setAttribute('style', 'white-space: pre;');
+            notes.textContent = "\r\nNotes (Optional):";
+            notes.style.fontWeight = 'bold';
+
+            //White space
+            var wt = newWindow.document.createElement('wt');
+            wt.setAttribute('style', 'white-space: pre;');
+            wt.textContent = "\r\n";
+
+            //Dash
+            var dash = newWindow.document.createElement('dash');
+            dash.setAttribute('style', 'white-space: pre;');
+            dash.textContent = " - ";
+    
+            /////////////////////////// inputs ////////////////////////////////
+            //input text box for searching by conference name
+            var inputConferenceTitle = newWindow.document.createElement("input");
+            inputConferenceTitle.type = "search";
+            inputConferenceTitle.style.boxShadow = "inset 0px 0px 1px #7b0721";
+            
+            //input text box for searching by conference URL
+            var inputConferenceURL = newWindow.document.createElement("input");
+            inputConferenceURL.type = "url";
+            inputConferenceURL.style.boxShadow = "inset 0px 0px 1px #7b0721";
+    
+            //input text box for searching by conference name
+            var inputConfPlc = newWindow.document.createElement("input");
+            inputConfPlc.setAttribute('type1', 'text');
+            inputConfPlc.style.boxShadow = "inset 0px 0px 1px #7b0721";
+
+            //input text box for conference name
+            var inputConference = newWindow.document.createElement("input");
+            inputConference.setAttribute('type2', 'text');
+            inputConference.style.boxShadow = "inset 0px 0px 1px #7b0721";
+
+            //input text box for conference start date
+            var inputConfStart = newWindow.document.createElement("input");
+            inputConfStart.type = "date";
+            inputConfStart.style.width = '130px';
+            inputConfStart.style.color = "#7b0721";
+            inputConfStart.style.boxShadow = "inset 0px 0px 1px #7b0721";
+
+            //input text box for conference end date
+            var inputConfEnd = newWindow.document.createElement("input");
+            inputConfEnd.type = "date";
+            inputConfEnd.style.width = '130px';
+            inputConfEnd.style.color = "#7b0721";
+            inputConfEnd.style.boxShadow = "inset 0px 0px 1px #7b0721";
+            
+            var inputField = newWindow.document.createElement("input");
+            inputField.setAttribute('type', 'text');
+            inputField.style.boxShadow = "inset 0px 0px 1px #7b0721";
+    
+            //input text box for submission deadline
+            var inputSub = newWindow.document.createElement("input");
+            inputSub.type = "date";
+            inputSub.style.width = '130px';
+            inputSub.style.color = "#7b0721";
+            inputSub.style.boxShadow = "inset 0px 0px 1px #7b0721";
+    
+            //input text box for notification deadline
+            var inputConferenceNotif = newWindow.document.createElement("input");
+            inputConferenceNotif.type = "date";
+            inputConferenceNotif.style.width = '130px';
+            inputConferenceNotif.style.color = "#7b0721";
+            inputConferenceNotif.style.boxShadow = "inset 0px 0px 1px #7b0721";
+    
+            //input text box for decision deadline
+            var inputDec = newWindow.document.createElement("input");
+            inputDec.type = "date";
+            inputDec.style.width = '130px';
+            inputDec.style.color = "#7b0721"
+            inputDec.style.boxShadow = "inset 0px 0px 1px #7b0721";
+
+            //input text box for decision deadline
+            var inputNotes = newWindow.document.createElement("input");
+            inputNotes.type = "text";
+            inputNotes.style.width = '155px';
+            inputNotes.style.height = "65px";
+            inputNotes.style.boxShadow = "inset 0px 0px 1px #7b0721";
+    
+            /////////////////////////////// SUBMIT /////////////////////////////////
+            //create a submit button that will call the function to save inputs
+            var submit_button = newWindow.document.createElement("button");
+            submit_button.innerHTML = "Done";
+            submit_button.id = "submit_button";
+            submit_button.width = "20px";
+            submit_button.height = "100px";
+            submit_button.top = "100px";
+            submit_button.left = "20px";
+    
+            submit_button.onclick = function() {
+                //create an array to append the data entered for a new conference
+                var newConference = [];
+    
+                //save new conference title
+                var inTitle = inputConferenceTitle.value;       
+                newConference.push(inTitle);                //0
+    
+                //save new conference URL
+                var inURL = inputConferenceURL.value;
+                newConference.push(inURL);                  //1 conf url
+    
+                //save new conference name
+                var inConf = inputConference.value;
+                newConference.push(inConf);                 //2 conf name
+                
+                //save new conference field
+                var inField = inputField.value;
+                newConference.push(inField);                //3 conf field
+    
+                //save the new conferences submission deadline
+                var inSub = inputSub.value;
+                newConference.push(inSub);                  //4 submission_deadline
+    
+                //save the notification deadline
+                var inNotif = inputConferenceNotif.value;
+                newConference.push(inNotif);                //5 notification_deadline
+    
+                //save the new conferences decision deadline
+                var inDec = inputDec.value;
+                newConference.push(inDec);                  //6 decision_deadline
+
+                //save the new conference start date
+                var inStart = inputConfStart.value;
+                newConference.push(inStart);                //7 conf start date
+
+                //save the new conference end date
+                var inEnd = inputConfEnd.value;
+                newConference.push(inEnd);                  //8 conf end date
+
+                //save the new conference notes
+                var inNotes = inputNotes.value;
+                newConference.push(inNotes);                  //9 conf notes
+
+                console.log(newConference);
+                
+                /////////////////////////////////////////////////////////////////////////////
+                var spacing = 20;
+                var ring_size = 3;
+                var arc_size = 10;
+                
+                console.log("parseDate: ", parseDate(newConference[4]), data_handler.convertDateToNum(parseDate(newConference[4])), data_handler.convertDateToNum(parseDate(newConference[6])));
+                
+                conferences_handler.submission_deadlines.push(data_handler.convertDateToNum(parseDate(newConference[4])));
+                conferences_handler.decision_deadlines.push(data_handler.convertDateToNum(parseDate(newConference[6])));
+                
+                console.log("Num", conferences_handler.submission_deadlines[conferences_handler.conferences.length]);
+                
+                console.log((((conferences_handler.submission_deadlines[conferences_handler.conferences.length])/365) * (2*Math.PI)));
+                
+                var updated_inner_radius = conferences_handler.curr_radius - arc_size/2;
+                var updated_outer_radius = conferences_handler.curr_radius + arc_size/2;
+                var updated_start_angle = (((conferences_handler.submission_deadlines[conferences_handler.conferences.length])/365) * (2*Math.PI));
+                var updated_end_angle = (((conferences_handler.decision_deadlines[conferences_handler.conferences.length])/365) * (2*Math.PI));
+                var updated_conf_dates_start_angle = (((conferences_handler.conferenceStart_dates[conferences_handler.conferences.length])/365) * (2*Math.PI));
+                var updated_conf_dates_end_angle = (((conferences_handler.conferenceEnd_dates[conferences_handler.conferences.length])/365) * (2*Math.PI));
+                
+                conferences_handler.addConference(svg, document, conferences_handler, data_handler, conferences_handler.num_confs + 1, newConference[2], newConference[1],
+                                conferences_handler.conferences.length, conferences_handler.x, conferences_handler.y, newConference[3], getRandomColor(),
+                                data_handler.convertDateToNum(parseDate(newConference[4])), data_handler.convertDateToNum(parseDate(newConference[6])), // conf submission, decision deadlines
+                                data_handler.convertDateToNum(parseDate(newConference[7])), data_handler.convertDateToNum(parseDate(newConference[8])), // conf start, end dates
+                                data_handler.convertDateToNum(parseDate(newConference[5])), // conf notification deadline
+                                conferences_handler.curr_radius, updated_inner_radius, updated_outer_radius, updated_start_angle,
+                                updated_end_angle, updated_conf_dates_start_angle, updated_conf_dates_end_angle, 3, 10, conferences_handler.conferences);
+                conferences_handler.num_confs += 1;
+                
+                console.log(conferences_handler.conferences);
+                
+                // display array for checking, close window, and return array containing new conference details
+                console.log(newConference);
+                console.log("Done");
+                newWindow.close();
+                return newConference;
+            };
+    
+            //Add all elements to the pop-up window
+            newWindow.document.body.appendChild(confTS);
+            newWindow.document.body.appendChild(inputConferenceTitle);
+            newWindow.document.body.appendChild(wt.cloneNode(true));
+            newWindow.document.body.appendChild(confURLS);
+            newWindow.document.body.appendChild(confURLSLink);
+            newWindow.document.body.appendChild(wt.cloneNode(true));
+            newWindow.document.body.appendChild(inputConferenceURL);
+            newWindow.document.body.appendChild(wt.cloneNode(true));
+            newWindow.document.body.appendChild(Or);
+            newWindow.document.body.appendChild(wt.cloneNode(true));
+            newWindow.document.body.appendChild(confDet);
+            newWindow.document.body.appendChild(wt.cloneNode(true));
+            newWindow.document.body.appendChild(confPlc);
+            newWindow.document.body.appendChild(inputConfPlc);
+            newWindow.document.body.appendChild(confDate);
+            newWindow.document.body.appendChild(inputConfStart);
+            newWindow.document.body.appendChild(dash);
+            newWindow.document.body.appendChild(inputConfEnd);
+            newWindow.document.body.appendChild(conf);
+            newWindow.document.body.appendChild(inputConference);
+            newWindow.document.body.appendChild(field);
+            newWindow.document.body.appendChild(inputField);
+            newWindow.document.body.appendChild(sub);
+            newWindow.document.body.appendChild(inputSub);
+            newWindow.document.body.appendChild(notif);
+            newWindow.document.body.appendChild(inputConferenceNotif);
+            newWindow.document.body.appendChild(dec);
+            newWindow.document.body.appendChild(inputDec);
+            newWindow.document.body.appendChild(notes);
+            newWindow.document.body.appendChild(inputNotes);
+            newWindow.document.body.appendChild(wt.cloneNode(true));
+            newWindow.document.body.appendChild(submit_button);
+        }
+    
+    
+        /*
+         * main function call
+         */
+        function init() {
+            //svg creation
+            var svg_width = document.body.clientWidth / 2;
+            var svg_height = document.body.clientHeight;
+            var svg = d3.select("#chart1").append("svg").attr("width", svg_width)
+                                                     .attr("height", svg_height);
+                                                     
+            // dataHandler object for any functions having to do with data handling (self explanatory)
+            data_handler = new DataHandler();
+            
+            console.log("Successfully created data handler: ", data_handler);
+            
+            // handle grabbing file and populating conferences array with necessary data
+            var finished_processing_data = false;
+            
+            const file_conference_data = document.getElementById('file_conference_data');
+            file_conference_data.addEventListener('change', (event) => {
+                const file_list = event.target.files;
+                
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                    conference_file_text = event.target.result;
+                    conferences = data_handler.grabConferenceData(conference_file_text);
+                    
+                    finished_processing_data = true;
+                    
+                    ////////////////////////////// INITIALIZATION OF VISUALIZATION HAS MOVED HERE //////////////////////////////////////////
+                    //create conferences & their visuals and add all info to conferences_handler object
+                    var conferences_handler = new VisualizationHandler(svg, document, svg_width/2, svg_height/2, conferences, num_confs);
+                    console.log("Successfully created conferences_handler: ", conferences_handler);
+
+                    //create months ring
+                    conferences_handler.createMonthsRing(svg, conferences_handler.x, conferences_handler.y);
+            
+                    //create date line
+                    var now = new Date();
+                    conferences_handler.createDateLine(svg, now, conferences_handler.x, conferences_handler.y, conferences_handler.curr_radius);
+                
+                    //handle onclick event for enterFields button (if 10 or more conferences made do not allow creation of another)
+                    if (conferences_handler.num_confs >= 10) {
+                        console.log("Maximum number of conferences allowed has been reached. " +
+                                    "Please delete a conference before adding a new one.");
+                    } else {
+                        var button_enter_fields = document.getElementById("buttonEnterFields");
+                        button_enter_fields.onclick = function () {
+                            var color = "#AD193D";
+                            var conference_info = enterFields(svg, document, conferences_handler, color);
+                        };
+                    }
+                
+                    //handle onclick event for exportData button
+                    var button_export_data = document.getElementById("buttonExportConferenceData");
+                    button_export_data.onclick = function() {
+                        var download_link = document.getElementById("downloadlink");
+                        download_link.href = data_handler.exportConferenceData(conferences_handler.conferences, data_handler);
+                        download_link.style.display = 'block';
+                    };   
+                };
+                reader.readAsText(file_list[0]);
+            });
+    
+    
+            var button_send_email = document.getElementById("buttonSendEmail");
+            button_send_email.onclick = function() {
+                console.log("buttonSendEmail:", "Attempting to send email.");
+                sendEmail();
+                                 
+                 /////////////////ADD EMAIL STUFF//////////////////
+                 //email_list = ['da.garcia6210@gmail.com'];
+                 //email_handler.sendEmail(email_list);
+            };
+            
+            var button_get_data = document.getElementById("buttonGetData");
+            button_get_data.onclick = function() {
+                text_file_conference_data = getScrapedConferenceData();
+                console.log("buttonGetData:", text_file_conference_data);
+            };
+    
+            // conference temp. variables
+            // having to do with creating visual aspect of conference
+            var num_confs = 3;
+            
+            ////////////////////// NO LONGER NECESSARY, conferences POPULATED ABOVE //////////////
+            //// more conference information
+            //var conferences = [["IEEE CAMAD 2020", "Robotics", "#f08950", 24, 32, 48, 5, 9],
+            //                   ["RAI--Ei and Scopus 2020", "AI", "#9ce490", 46, 80, 102, 6, 10],
+            //                   ["IWSMR 2020", "Physics", "#90c6e4", 52, 96, 256, 5, 11]];
+            //
+            //
+            ////var conf_names = ["IEEE CAMAD 2020", "RAI--Ei and Scopus 2020", "IWSMR 2020"];
+            ////var conf_locations = ["Denver,CO,US", "Boston,MA,US", "Pittsburgh,PA,US"];
+            ////var conf_fields = ["Robotics", "AI", "Physics"];
+            ////var conf_colors = ["#f08950", "#9ce490", "#90c6e4"];
+            ////var conferenceStart_dates = [5, 6, 5];
+            ////var conferenceEnd_dates = [9, 10, 11];
+            ////var notification_deadlines = [1, 4, 17];
+            ////var submission_deadlines = [24, 46, 52];
+            ////var decision_deadlines = [48, 102, 256];
+    
+            //TESTING, can be deleted if necessary
+            //console.log(conferences_handler.names);
+    
+            // UNDER CONSTRUCTION
+            // STILL NEED TO REMOVE CONFERENCE FROM conferences, AND CHECK IF I NEED TO DO ANYTHING ELSE FOR DELETION
+            //num_confs = Conference.delAndUpdateConfVis(svg, conferences[2], num_confs, spacing, conferences, document, arc_size);
+        }
+    
+        //calls main function using
+        $(document).ready(function() {
+            console.log("Start");
+            init();
+        });
+    
+    </script>
+
+
+</body>
+</html>
