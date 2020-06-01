@@ -239,6 +239,7 @@ async function run() {
    var single_url_data = "";
    
    const getSingleUrlData = function(req, res) {
+      console.log(req.body);
       single_url_data = scrapeConferenceDataUsingCheerio(req);
    }
    app.put("/getSingleUrlData", getSingleUrlData);
