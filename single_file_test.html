@@ -920,7 +920,9 @@
             container3.appendChild(deleteButton);
 
             deleteButton.onclick = function() {
-                conferences_handler.num_confs = VisualizationHandler.delAndUpdate(svg, document, conferences_handler, selected_conf_index, 20, 10);
+                if (window.confirm("Would you Like to Delete the Selected Conference?")) {
+                    conferences_handler.num_confs = VisualizationHandler.delAndUpdate(svg, document, conferences_handler, selected_conf_index, 20, 10);
+                }
             };
         }
         
@@ -928,8 +930,8 @@
         
     
         // Button click event function for manually creating a conference
-        function enterFields(svg, document, conferences_handler, color) {
-    
+        function enterFields(svg, document, conferences_handler, color, wasOpen) {
+
             // Open pop-up window to input manual data
             let newWindow = window.open("about:blank", "Conference Details", "width=765,height=600");
             newWindow.document.body.style.lineHeight = "30px";
@@ -960,7 +962,7 @@
             confURLSLink.style.textDecoration = "underline";
             confURLSLink.onclick = function () {
                 // window refers to the main window, not the popup window
-                window.location = this.href;
+                window.open(this.href);
             }
             
             //create a submit button that will call the function to save inputs
