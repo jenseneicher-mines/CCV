@@ -112,6 +112,8 @@
                this.conf_dates_end_angles = [];
                this.rings = [];
                this.arcs = [];
+               this.notification_arcs = [];
+               this.conf_dates_arcs = [];
                this.self = this;
         
                // smallest conference visualization radius
@@ -165,7 +167,7 @@
                                            curr_radius, inner_radius, outer_radius, start_angle, end_angle, conf_dates_start_angle, conf_dates_end_angle, null, null);
                                            
                var conf = new Conference(conferences_handler, name, conf_url, i, x, y, field, color, submission_deadline, decision_deadline, conferenceStart_dates, conferenceEnd_dates, notification_deadlines, conf_location,
-                   curr_radius, inner_radius, outer_radius, start_angle, end_angle, conf_dates_start_angle, conf_dates_end_angle, null, null);
+                   curr_radius, inner_radius, outer_radius, start_angle, end_angle, conf_dates_start_angle, conf_dates_end_angle, null, null, null, null);
                
                console.log("addConference: ", conf.start_angle, conf.end_angle);
                
@@ -180,6 +182,8 @@
                
                conferences_handler.rings.push(conf.ring);
                conferences_handler.arcs.push(conf.arc);
+               conferences_handler.notification_arcs.push(conf.notification_arc);
+               conferences_handler.conf_dates_arcs.push(conf.conf_dates_arc);
                conferences_handler.conferences.push(conf);
                conferences_handler.num_confs += 1;
                // update curr_radius
@@ -188,11 +192,14 @@
            }
         
            static delAndUpdate(svg, document, conferences_handler, selected_index, spacing, arc_size) {
+                var data_handler = new DataHandler();
                // remove ring and arc from d3 and svg
                console.log(conferences_handler, selected_index);
                
                conferences_handler.rings[selected_index].remove();       
                conferences_handler.arcs[selected_index].remove();
+               conferences_handler.notification_arcs[selected_index].remove();
+               conferences_handler.conf_dates_arcs[selected_index].remove();
                
                console.log(conferences_handler.arcs, conferences_handler.rings);
                
@@ -204,12 +211,13 @@
                        console.log("Currently updating", i);
                        
                        var conference = conferences_handler.conferences[i];
-                       conference.radius = conference.radius - spacing;
+                       console.log(conference);
+                       conference.radius -= 20;
                        //conference.start_angle = 
                        
                        
                        
-                       console.log(conference);
+                       console.log("asdasdsdasdasd",conference);
         
                        //update ring
                        conference.conf_index -= 1;
@@ -223,6 +231,27 @@
                        // 2) create new, updated arc and re-add to conf object
                        conferences_handler.arcs[i] = Conference.createConfArc(svg, document, conferences_handler, conference, conference.x, conference.y, conference.radius,
                                                                  conference.start_angle, conference.end_angle, conference.conf_color, arc_size);
+                       
+                       
+                       //update notification arc
+                        // 1) remove current arc
+                       conferences_handler.notification_arcs[i].remove();
+                       conferences_handler.notification_arcs[i] = null;
+                       
+                       // 2) create new, updated arc and re-add to conf object
+                       conferences_handler.notification_arcs[i] = Conference.createConfNotificationsDeadlineArc(svg, document, conferences_handler,
+                                                                                data_handler, conference, conference.x, conference.y, conference.radius);
+                       
+                       
+                       //update conference dates arc
+                        // 1) remove current arc
+                       conferences_handler.conf_dates_arcs[i].remove();
+                       conferences_handler.conf_dates_arcs[i] = null;
+                       
+                       // 2) create new, updated arc and re-add to conf object
+                       conferences_handler.conf_dates_arcs[i] = Conference.createConfDatesArc(svg, document, conferences_handler, data_handler,
+                                                                                conference, conference.x, conference.y, conference.radius,
+                                                                                conference.conf_dates_start_angle, conference.conf_dates_end_angle);
                    }
                }
               conferences_handler.conferences = conferences_handler.conferences.slice(0, selected_index).concat(conferences_handler.conferences.slice(selected_index + 1, conferences_handler.conferences.length));
@@ -345,7 +374,7 @@
            // constructor (must include all fields atm)
            constructor(conferences_handler, conf_name, conf_url, conf_index, x, y, conf_field, conf_color, submission_deadline, decision_deadline,
                        conferenceStart_date, conferenceEnd_date, notification_deadline, conf_location, radius, inner_radius, outer_radius, start_angle, end_angle,
-                       conf_dates_start_angle, conf_dates_end_angle, ring, arc) {
+                       conf_dates_start_angle, conf_dates_end_angle, ring, arc, notification_arc, conf_dates_arc) {
                // var. having to do with conference info.
                this.conferences_handler = conferences_handler;
                this.conf_name = conf_name;
@@ -380,6 +409,8 @@
                // conf. shapes
                this.ring = ring;
                this.arc = arc;
+               this.notification_arc = notification_arc;
+               this.conf_dates_arc = conf_dates_arc;
            }
        
             /**
@@ -549,7 +580,7 @@
                  .attr('in2', 'the-shadow')
                  .attr('mode', 'normal');
        
-               var new_conf_arc = svg.append("path").attr("d", newly_built_arc).attr("transform", "translate("+x+", "+y+")").style("fill", color).style("filter", "url(#drop-shadow)")
+               var new_conf_arc = svg.append("path").attr("d", newly_built_arc).attr("transform", "translate("+x+", "+y+")").style("fill", color)/*.style("filter", "url(#drop-shadow)")*/
                                                        .on("click", function() {
                                                            showDetails(svg, document, conferences_handler, data_handler, conference);
                                                            selected_conf_index = conference.conf_index;
@@ -579,7 +610,7 @@
                //init. and append new conference arc to svg
                var arc_spacing = (Math.PI/360)*2;
                
-               var notification_deadline_angle = (((conference.notification_deadline)/365) * (2*Math.PI));
+               var notification_deadline_angle = (((conference.notification_deadline)/365) * (2*Math.PI));// - arc_spacing*30;
                
                var newly_built_arc = d3.svg.arc().innerRadius(radius - (conference.arc_size/2))
                                                  .outerRadius(radius + (conference.arc_size/2))
@@ -610,7 +641,7 @@
                conf.conf_dates_arc = Conference.createConfDatesArc(svg, document, conferences_handler, data_handler, conf, x, y, radius, conf_start_angle, conf_end_angle);
                
                if ((conf.notification_deadline != "") && (conf.notification_deadline != null)) {
-                   conf.notification_deadline_arcs = Conference.createConfNotificationsDeadlineArc(svg, document, conferences_handler, data_handler, conf, x, y, radius);
+                   conf.notification_arc = Conference.createConfNotificationsDeadlineArc(svg, document, conferences_handler, data_handler, conf, x, y, radius);
                }
            }
        }
@@ -774,16 +805,16 @@
         
         var port = 8000;
         
-        function sendEmail(email_list_text) {
-            var xmlhttp = new XMLHttpRequest();
-            xmlhttp.onreadystatechange=function() {
-                if (xmlhttp.readyState == 4) {
-                    console.log("Email sent?");
-                }
-            };
-            xmlhttp.open("GET", "http://localhost:"+port+"/sendEmail", true);
-            xmlhttp.send(email_list_text);
-        }
+        //function sendEmail(email_list_text) {
+        //    var xmlhttp = new XMLHttpRequest();
+        //    xmlhttp.onreadystatechange=function() {
+        //        if (xmlhttp.readyState == 4) {
+        //            console.log("Email sent?");
+        //        }
+        //    };
+        //    xmlhttp.open("GET", "http://localhost:"+port+"/sendEmail", true);
+        //    xmlhttp.send(email_list_text);
+        //}
         
         function getScrapedConferenceData() {
             var text_file_conference_data = [];
@@ -802,32 +833,38 @@
         }
         
         /////////////////////////// NOT DONE ////////////////////////////////////
-        function getSingleUrlData() {
+        function getSingleUrlData(conf_url) {
+            var newConference;
+            
             var xmlhttp = new XMLHttpRequest();
             xmlhttp.onreadystatechange=function() {
                 console.log("server:", xmlhttp.readyState, xmlhttp.status);
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                    text_file_conference_data = xmlhttp.responseText;
-                    console.log("server:", text_file_conference_data);
-                    return text_file_conference_data;
+                    console.log("getSingleUrlData:", "Successfully completed server put");
+                    newConference = returnSingleUrlData();
+                    return newConference;
                 }
                 console.log("Error in server request status or state");
             };
-            xmlhttp.open("PUT", "http://localhost:"+port+"/getSingleUrlData", true);
-            xmlhttp.send();
+            xmlhttp.open("POST", "http://localhost:"+port+"/getSingleUrlData", true);
+            xmlhttp.setRequestHeader("Content-Type", "text/plain");
+            console.log(conf_url);
+            xmlhttp.send(conf_url);
         }
         function returnSingleUrlData() {
+            var newConference;
+            
             var xmlhttp = new XMLHttpRequest();
             xmlhttp.onreadystatechange=function() {
                 console.log("server:", xmlhttp.readyState, xmlhttp.status);
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                    text_file_conference_data = xmlhttp.responseText;
-                    console.log("server:", text_file_conference_data);
-                    return text_file_conference_data;
+                    newConference = xmlhttp.responseText;
+                    console.log("server:", newConference);
+                    return newConference;
                 }
                 console.log("Error in server request status or state");
             };
-            xmlhttp.open("PUT", "http://localhost:"+port+"/returnSingleUrlData", true);
+            xmlhttp.open("GET", "http://localhost:"+port+"/returnSingleUrlData", true);
             xmlhttp.send();
         }
         
@@ -971,43 +1008,47 @@
             submit_url_button.id = "submit_url_button";
             submit_url_button.width = "20px";
             submit_url_button.height = "100px";
-            submit_url_button.top = "20px";
-            submit_url_button.left = "20px";
+            submit_url_button.top = "100px";
+            submit_url_button.left = "120px";
     
             /////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//////////// NOT DONE //////////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!///////////////
             submit_url_button.onclick = function() {
-                getSingleUrlData();
-                newConference = returnSingleUrlData();
+                //save new conference URL
+                var inURL = inputConferenceURL.value;
+                
+                newConference = getSingleUrlData(inURL);
+                console.log("submit_url_button","server request done",newConference);
+                
                 
                 // ADD CODE TO HERE TO ADD CONFERENCE TO VISUALIZATIONHANDLER
                 var spacing = 20;
                 var ring_size = 3;
                 var arc_size = 10;
                 
-                console.log("parseDate: ", parseDate(newConference[4]), data_handler.convertDateToNum(parseDate(newConference[4])), data_handler.convertDateToNum(parseDate(newConference[6])));
-                
-                conferences_handler.submission_deadlines.push(data_handler.convertDateToNum(parseDate(newConference[4])));
-                conferences_handler.decision_deadlines.push(data_handler.convertDateToNum(parseDate(newConference[6])));
-                
-                console.log("Num", conferences_handler.submission_deadlines[conferences_handler.conferences.length]);
-                
-                console.log((((conferences_handler.submission_deadlines[conferences_handler.conferences.length])/365) * (2*Math.PI)));
-                
-                var updated_inner_radius = conferences_handler.curr_radius - arc_size/2;
-                var updated_outer_radius = conferences_handler.curr_radius + arc_size/2;
-                var updated_start_angle = (((conferences_handler.submission_deadlines[conferences_handler.conferences.length])/365) * (2*Math.PI));
-                var updated_end_angle = (((conferences_handler.decision_deadlines[conferences_handler.conferences.length])/365) * (2*Math.PI));
-                var updated_conf_dates_start_angle = (((conferences_handler.conferenceStart_dates[conferences_handler.conferences.length])/365) * (2*Math.PI));
-                var updated_conf_dates_end_angle = (((conferences_handler.conferenceEnd_dates[conferences_handler.conferences.length])/365) * (2*Math.PI));
-                
-                conferences_handler.addConference(svg, document, conferences_handler, data_handler, conferences_handler.num_confs + 1, newConference[2], newConference[1],
-                                conferences_handler.conferences.length, conferences_handler.x, conferences_handler.y, newConference[3], getRandomColor(),
-                                data_handler.convertDateToNum(parseDate(newConference[4])), data_handler.convertDateToNum(parseDate(newConference[6])), // conf submission, decision deadlines
-                                data_handler.convertDateToNum(parseDate(newConference[7])), data_handler.convertDateToNum(parseDate(newConference[8])), // conf start, end dates
-                                data_handler.convertDateToNum(parseDate(newConference[5])), // conf notification deadline
-                                conferences_handler.curr_radius, updated_inner_radius, updated_outer_radius, updated_start_angle,
-                                updated_end_angle, updated_conf_dates_start_angle, updated_conf_dates_end_angle, 3, 10, conferences_handler.conferences);
-                conferences_handler.num_confs += 1;
+                //console.log("parseDate: ", parseDate(newConference[4]), data_handler.convertDateToNum(parseDate(newConference[4])), data_handler.convertDateToNum(parseDate(newConference[6])));
+                //
+                //conferences_handler.submission_deadlines.push(data_handler.convertDateToNum(parseDate(newConference[4])));
+                //conferences_handler.decision_deadlines.push(data_handler.convertDateToNum(parseDate(newConference[6])));
+                //
+                //console.log("Num", conferences_handler.submission_deadlines[conferences_handler.conferences.length]);
+                //
+                //console.log((((conferences_handler.submission_deadlines[conferences_handler.conferences.length])/365) * (2*Math.PI)));
+                //
+                //var updated_inner_radius = conferences_handler.curr_radius - arc_size/2;
+                //var updated_outer_radius = conferences_handler.curr_radius + arc_size/2;
+                //var updated_start_angle = (((conferences_handler.submission_deadlines[conferences_handler.conferences.length])/365) * (2*Math.PI));
+                //var updated_end_angle = (((conferences_handler.decision_deadlines[conferences_handler.conferences.length])/365) * (2*Math.PI));
+                //var updated_conf_dates_start_angle = (((conferences_handler.conferenceStart_dates[conferences_handler.conferences.length])/365) * (2*Math.PI));
+                //var updated_conf_dates_end_angle = (((conferences_handler.conferenceEnd_dates[conferences_handler.conferences.length])/365) * (2*Math.PI));
+                //
+                //conferences_handler.addConference(svg, document, conferences_handler, data_handler, conferences_handler.num_confs + 1, newConference[2], newConference[1],
+                //                conferences_handler.conferences.length, conferences_handler.x, conferences_handler.y, newConference[3], getRandomColor(),
+                //                data_handler.convertDateToNum(parseDate(newConference[4])), data_handler.convertDateToNum(parseDate(newConference[6])), // conf submission, decision deadlines
+                //                data_handler.convertDateToNum(parseDate(newConference[7])), data_handler.convertDateToNum(parseDate(newConference[8])), // conf start, end dates
+                //                data_handler.convertDateToNum(parseDate(newConference[5])), // conf notification deadline
+                //                conferences_handler.curr_radius, updated_inner_radius, updated_outer_radius, updated_start_angle,
+                //                updated_end_angle, updated_conf_dates_start_angle, updated_conf_dates_end_angle, 3, 10, conferences_handler.conferences);
+                //conferences_handler.num_confs += 1;
                 newWindow.close();
             };
             ////////////////////////////////////////////////////////////////////
@@ -1202,9 +1243,12 @@
                 var inEnd = inputConfEnd.value;
                 newConference.push(inEnd);                  //8 conf end date
 
+                var inConfPlc = inputConfPlc.value;         //9 conf location
+                newConference.push(inConfPlc);
+                
                 //save the new conference notes
                 var inNotes = inputNotes.value;
-                newConference.push(inNotes);                  //9 conf notes
+                newConference.push(inNotes);                //10 conf notes
 
                 console.log(newConference);
                 
@@ -1217,6 +1261,9 @@
                 
                 conferences_handler.submission_deadlines.push(data_handler.convertDateToNum(parseDate(newConference[4])));
                 conferences_handler.decision_deadlines.push(data_handler.convertDateToNum(parseDate(newConference[6])));
+                conferences_handler.conferenceStart_dates.push(data_handler.convertDateToNum(parseDate(newConference[7])));
+                conferences_handler.conferenceEnd_dates.push(data_handler.convertDateToNum(parseDate(newConference[8])));
+
                 
                 console.log("Num", conferences_handler.submission_deadlines[conferences_handler.conferences.length]);
                 
@@ -1229,11 +1276,14 @@
                 var updated_conf_dates_start_angle = (((conferences_handler.conferenceStart_dates[conferences_handler.conferences.length])/365) * (2*Math.PI));
                 var updated_conf_dates_end_angle = (((conferences_handler.conferenceEnd_dates[conferences_handler.conferences.length])/365) * (2*Math.PI));
                 
-                conferences_handler.addConference(svg, document, conferences_handler, data_handler, conferences_handler.num_confs + 1, newConference[2], newConference[1],
+                console.log("Updated start date angles", updated_conf_dates_start_angle, updated_conf_dates_end_angle);
+                
+                conferences_handler.addConference(svg, document, conferences_handler, conferences_handler.num_confs + 1, newConference[2], newConference[1],
                                 conferences_handler.conferences.length, conferences_handler.x, conferences_handler.y, newConference[3], getRandomColor(),
                                 data_handler.convertDateToNum(parseDate(newConference[4])), data_handler.convertDateToNum(parseDate(newConference[6])), // conf submission, decision deadlines
                                 data_handler.convertDateToNum(parseDate(newConference[7])), data_handler.convertDateToNum(parseDate(newConference[8])), // conf start, end dates
                                 data_handler.convertDateToNum(parseDate(newConference[5])), // conf notification deadline
+                                newConference[9],                                           // conf location
                                 conferences_handler.curr_radius, updated_inner_radius, updated_outer_radius, updated_start_angle,
                                 updated_end_angle, updated_conf_dates_start_angle, updated_conf_dates_end_angle, 3, 10, conferences_handler.conferences);
                 conferences_handler.num_confs += 1;
@@ -1280,6 +1330,7 @@
             newWindow.document.body.appendChild(inputNotes);
             newWindow.document.body.appendChild(wt.cloneNode(true));
             newWindow.document.body.appendChild(submit_button);
+            newWindow.document.body.appendChild(submit_url_button);
         }
     
     
