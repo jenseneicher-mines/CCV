@@ -42,7 +42,6 @@ const port = 8000;
 
 var html_file;
 
-<<<<<<< HEAD
 function getRandomColor() {
     var letters = '0123456789ABCDEF';
     var color = '#';
@@ -51,11 +50,7 @@ function getRandomColor() {
     }
     return color;
 }
-
-function scrapeConferenceDataUsingCheerio(conferenceURL) {
-=======
 async function scrapeConferenceDataUsingCheerio(conferenceURL) {
->>>>>>> d71b1a7fe4364ae54575f3e03969bb699087ab74
     console.log("Attempting to scrape conference data from", conferenceURL);
 
     // this Object will be updated and returned later
