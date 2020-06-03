@@ -42,6 +42,7 @@ const port = 8000;
 
 var html_file;
 
+<<<<<<< HEAD
 function getRandomColor() {
     var letters = '0123456789ABCDEF';
     var color = '#';
@@ -52,6 +53,9 @@ function getRandomColor() {
 }
 
 function scrapeConferenceDataUsingCheerio(conferenceURL) {
+=======
+async function scrapeConferenceDataUsingCheerio(conferenceURL) {
+>>>>>>> d71b1a7fe4364ae54575f3e03969bb699087ab74
     console.log("Attempting to scrape conference data from", conferenceURL);
 
     // this Object will be updated and returned later
@@ -124,7 +128,7 @@ function scrapeConferenceDataUsingCheerio(conferenceURL) {
       }
    });
     //console.log("Scraping using Cheerio results within scraping function: ", conferenceData);
-    return conferenceData;
+        return conferenceData;
 }
 
 async function grabTopFiveUrls(conf_url) {
@@ -195,7 +199,7 @@ function exportConferenceData(conferences) {
 }
 
 async function grabHTML() {
-   fs.readFile('single_file_test.html', function(err, html) {
+   fs.readFile('client_side.html', function(err, html) {
       if (err) {
          throw err; 
       }
@@ -218,6 +222,16 @@ function convertDateStringToDateObj(date_string) {
     var date = new Date(secs);
     return date;
 }
+
+// convert conference data text file to a CSV string
+function confToString(file) {
+    var confDataString = "";
+    confDataString += fs.readFileSync(file);
+    console.log(confDataString);
+    var confDataStringLine = confDataString.split("\n");
+    return confDataString;
+}
+
            
 // convert formats of conference data to a CSV string
 function convertConferenceData(conferenceData) {
@@ -233,8 +247,7 @@ function convertConferenceData(conferenceData) {
 
         conferenceData[i].submissionDeadline = convertDateToNum(convertDateStringToDateObj(conferenceData[i].submissionDeadline));
         conferenceData[i].notificationDeadline = convertDateToNum(convertDateStringToDateObj(conferenceData[i].notificationDeadline));
-        conferenceData[i].abstractDeadline = convertDateToNum(convertDateStringToDateObj(conferenceData[i].abstractDeadline));
-    //    
+        conferenceData[i].abstractDeadline = convertDateToNum(convertDateStringToDateObj(conferenceData[i].abstractDeadline));    
         var conf_start_date = "";
         var conf_end_date = "";
         var finished_grabbing_start = false;
@@ -266,7 +279,7 @@ function convertConferenceData(conferenceData) {
         //        console.log("and change");
         //    }
         //}
-        
+
         confDataString += conferenceData[i].conferenceName + ',' + conferenceData[i].url + ','+ conferenceData[i].fieldOfStudy + ',' + conferenceData[i].color + ',' +
             conferenceData[i].submissionDeadline + ',' + conferenceData[i].abstractDeadline + ',' + conferenceData[i].notificationDeadline + ',' +
             conf_start_date + ',' + conf_end_date + ',' + conferenceData[i].location + '\n';
@@ -300,7 +313,7 @@ async function run() {
    
    const getSingleUrlData = async function(req, res) {
       console.log("getSingleUrlData:","conf_url", req.text);
-      single_url_data = scrapeConferenceDataUsingCheerio(req.text);
+      single_url_data = await scrapeConferenceDataUsingCheerio(req.text);
       console.log("getSingleUrlData:","conf_data", single_url_data);
       res.end();
    };
@@ -343,8 +356,10 @@ async function run() {
    
    const downloadConferenceDataFile = function(req, res) {
       console.log("Attempting to download conference data file");
-      const file = '${__dirname}/conference_data.txt';
-      res.download(file);
+      const file = 'conference_data.txt';
+      var stringConferences = confToString(file);
+      res.end(stringConferences);
+      console.log(stringConferences);
    };
    app.get("/files", downloadConferenceDataFile);
    
