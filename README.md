@@ -62,10 +62,9 @@ conveniently.
 **CONTACTS, TROUBLESHOOTING, FAQS, AND OTHER INFORMATION**
 
 DEVELOPERS:
-  jenseneicher@aol.com
-  .
-  .
+- Jensen Eicher (jenseneicher@aol.com)
+- Benjamin Jessing
+- Daniel Garcia
   
  OWNER/PA:
-
-
+- TODO
