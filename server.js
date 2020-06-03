@@ -42,12 +42,23 @@ const port = 8000;
 
 var html_file;
 
+function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
 function scrapeConferenceDataUsingCheerio(conferenceURL) {
     console.log("Attempting to scrape conference data from", conferenceURL);
 
     // this Object will be updated and returned later
     var conferenceData = {
        conferenceName: undefined,
+       url: undefined,
+       color: undefined,
        location: undefined,
        submissionDeadline: undefined,
        notificationDeadline: undefined,
@@ -72,12 +83,17 @@ function scrapeConferenceDataUsingCheerio(conferenceURL) {
 
          // scrape conference name
          conferenceData.conferenceName = $('title').text().trim();
-
+         conferenceData.url = conferenceURL;
+         conferenceData.color = getRandomColor();
+         
          // scrape data that is clearly labeled on WikiCFP
          conferenceData.location = extractNextElementText(tableCells, 'Where');
          conferenceData.submissionDeadline = extractNextElementText(tableCells, 'Submission Deadline');
          conferenceData.notificationDeadline = extractNextElementText(tableCells, 'Notification Due');
          conferenceData.abstractDeadline = extractNextElementText(tableCells, 'Abstract Registration Due');
+         if (conferenceData.abstractDeadline == undefined) {
+            conferenceData.abstractDeadline = conferenceData.submissionDeadline;
+         }
          conferenceData.notificationDeadline = extractNextElementText(tableCells, 'Notification Due');
          conferenceData.conferenceDates = extractNextElementText(tableCells, 'When');
          conferenceData.fieldOfStudy = extractNextElementText(categories, 'Categories');
@@ -206,16 +222,19 @@ function convertDateStringToDateObj(date_string) {
 // convert formats of conference data to a CSV string
 function convertConferenceData(conferenceData) {
     var confDataString = "";
+    
     confDataString += conferenceData.length.toString() + "\n";
     confDataString += conferenceData.length.toString() + "\n";
     confDataString += 0 + "\n";
     
     for(var i = 0; i < conferenceData.length; i++){
-        
+        console.log("convertConferenceData:", "notificationDeadline before manipulation:", conferenceData[i].notificationDeadline)
+        console.log("convertConferenceData:", "submissionDeadline before manipulation:", conferenceData[i].submissionDeadline)
+
         conferenceData[i].submissionDeadline = convertDateToNum(convertDateStringToDateObj(conferenceData[i].submissionDeadline));
         conferenceData[i].notificationDeadline = convertDateToNum(convertDateStringToDateObj(conferenceData[i].notificationDeadline));
         conferenceData[i].abstractDeadline = convertDateToNum(convertDateStringToDateObj(conferenceData[i].abstractDeadline));
-        
+    //    
         var conf_start_date = "";
         var conf_end_date = "";
         var finished_grabbing_start = false;
@@ -236,10 +255,20 @@ function convertConferenceData(conferenceData) {
         conf_start_date = convertDateToNum(convertDateStringToDateObj(conf_start_date));
         conf_end_date = convertDateToNum(convertDateStringToDateObj(conf_end_date));
         console.log("convertConferenceData:", "conference start & end dates:", conf_start_date, conf_end_date);
+        console.log("convertConferenceData:", "notificationDeadline:", conferenceData[i].notificationDeadline);
+        console.log(conferenceData[i].conferenceName);
+        conferenceData[i].conferenceName = conferenceData[i].conferenceName.replace(/,/g, ';');
+        console.log(conferenceData[i].conferenceName);
+        //for (var k = 0; k < conferenceData[i].conferenceName.length; k++) {
+        //    console.log("boom",conferenceData[i].conferenceName[k]);
+        //    if (conferenceData[i].conferenceName[k] === ',') {
+        //        conferenceData[i].conferenceName[k] = ';';
+        //        console.log("and change");
+        //    }
+        //}
         
-                
-        confDataString += conferenceData[i].conferenceName + ',' + conferenceData[i].url + ','+ conferenceData[i].fieldOfStudy + ',' + conferenceData[i].color + ',' + conferenceData[i].submissionDeadline + ',' +
-            conferenceData[i].submissionDeadline + ',' + conferenceData[i].notificationDeadline + ',' + conferenceData[i].decision_deadline + ',' +
+        confDataString += conferenceData[i].conferenceName + ',' + conferenceData[i].url + ','+ conferenceData[i].fieldOfStudy + ',' + conferenceData[i].color + ',' +
+            conferenceData[i].submissionDeadline + ',' + conferenceData[i].abstractDeadline + ',' + conferenceData[i].notificationDeadline + ',' +
             conf_start_date + ',' + conf_end_date + ',' + conferenceData[i].location + '\n';
     }
     return confDataString;
