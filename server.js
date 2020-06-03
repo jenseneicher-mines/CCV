@@ -187,7 +187,22 @@ async function grabHTML() {
       console.log(html_file);
    });
 }
+// converts date object to a number to 1 and 366 (considers leap years)
+function convertDateToNum(now) {
+    var start = new Date(now.getFullYear(), 0, 0);
+    var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
+    var oneDay = 1000 * 60 * 60 * 24;
+    var day = Math.round(diff / oneDay);
+    console.log('Day of year: ' + day);
+    return day;
+}
 
+function convertDateStringToDateObj(date_string) {
+    var secs = date_string;
+    var date = new Date(secs);
+    return date;
+}
+           
 // convert formats of conference data to a CSV string
 function convertConferenceData(conferenceData) {
     var confDataString = "";
@@ -196,9 +211,36 @@ function convertConferenceData(conferenceData) {
     confDataString += 0 + "\n";
     
     for(var i = 0; i < conferenceData.length; i++){
+        
+        conferenceData[i].submissionDeadline = convertDateToNum(convertDateStringToDateObj(conferenceData[i].submissionDeadline));
+        conferenceData[i].notificationDeadline = convertDateToNum(convertDateStringToDateObj(conferenceData[i].notificationDeadline));
+        conferenceData[i].abstractDeadline = convertDateToNum(convertDateStringToDateObj(conferenceData[i].abstractDeadline));
+        
+        var conf_start_date = "";
+        var conf_end_date = "";
+        var finished_grabbing_start = false;
+        for (var j = 0; j < conferenceData[i].conferenceDates.length; j++) {
+            if (!finished_grabbing_start) {
+              if (conferenceData[i].conferenceDates[j] != '-') {
+                conf_start_date += conferenceData[i].conferenceDates[j];
+              } else {
+                finished_grabbing_start = true;
+              }
+            } else {
+              conf_end_date += conferenceData[i].conferenceDates[j];
+            }
+        }
+        conf_start_date = conf_start_date.trim();
+        conf_end_date = conf_end_date.trim();
+        
+        conf_start_date = convertDateToNum(convertDateStringToDateObj(conf_start_date));
+        conf_end_date = convertDateToNum(convertDateStringToDateObj(conf_end_date));
+        console.log("convertConferenceData:", "conference start & end dates:", conf_start_date, conf_end_date);
+        
+                
         confDataString += conferenceData[i].conferenceName + ',' + conferenceData[i].url + ','+ conferenceData[i].fieldOfStudy + ',' + conferenceData[i].color + ',' + conferenceData[i].submissionDeadline + ',' +
-            conferenceData[i].notificationDeadline + ',' + conferenceData[i].decision_deadline + ',' +
-            conferenceData[i].conferenceStart_date + ',' + conferenceData[i].conferenceEnd_date + ',' + conferenceData[i].location + '\n';
+            conferenceData[i].submissionDeadline + ',' + conferenceData[i].notificationDeadline + ',' + conferenceData[i].decision_deadline + ',' +
+            conf_start_date + ',' + conf_end_date + ',' + conferenceData[i].location + '\n';
     }
     return confDataString;
 }
@@ -229,7 +271,7 @@ async function run() {
    
    const getSingleUrlData = async function(req, res) {
       console.log("getSingleUrlData:","conf_url", req.text);
-      single_url_data = await scrapeConferenceDataUsingCheerio(req.text);
+      single_url_data = scrapeConferenceDataUsingCheerio(req.text);
       console.log("getSingleUrlData:","conf_data", single_url_data);
       res.end();
    };
