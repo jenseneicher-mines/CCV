@@ -47,8 +47,17 @@ whenever needed to make changes. Remember to save your work by exporting
 a file when using the app! Edits will not be saved unless they are
 exported in a text file like so.
 
-**CUSTOMIZE/ADDITIONAL**
+**CUSTOMIZE/ADDITIONAL/IMPORTANT TIPS**
 
+The calendar icon is an excellent way to set date information 
+manually using a graphical user interface. Simply click the square
+icon beside any date field while editing a conference to change its
+date using the GUI.
+
+The blue underlined "WikiCFP URL" hyperlink above the "Load Conference"
+field is clickable--selecting this text will open WikiCFP in your web
+browser. Use this site to find the URL of a conference/CFP easily and
+conveniently.
 
 **CONTACTS, TROUBLESHOOTING, FAQS, AND OTHER INFORMATION**
 
