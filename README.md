@@ -22,7 +22,16 @@ Add Conference Pop-up Window:
 To load conference rings into the visualization, click the "Choose File" button and select the text file you want to import. The text file in this repository named "conference_data.txt" is an example of a file that can
 be imported.
 
-Paragraph #2...
+Whenever you want to add a conference to the visualization, simply click
+the "Enter a Conference" button at the top-left of the view window.
+Once clicked, a pop-up window will appear. Either enter a conference
+title in the "Search by Title" field, a URL of a CFP/conference from 
+WikiCFP, or manually enter the conference's details. You may edit the
+automatically scraped data in the fields listed under "Manually
+Enter Conference Details". There you may add optional notes also. When
+finished, click the "Done" button at the bottom to add the conference
+to the visualization on the home screen. A new ring will appear with
+a distinct color.
 
 **CUSTOMIZE/ADDITIONAL**
 
