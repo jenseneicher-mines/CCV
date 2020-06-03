@@ -19,7 +19,10 @@ Add Conference Pop-up Window:
 
 **SETUP/USAGE/HOW TO**
 
-Test message.
+To load conference rings into the visualization, click the "Choose File" button and select the text file you want to import. The text file in this repository named "conference_data.txt" is an example of a file that can
+be imported.
+
+Paragraph #2...
 
 **CUSTOMIZE/ADDITIONAL**
 
