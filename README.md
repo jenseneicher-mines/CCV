@@ -62,9 +62,12 @@ conveniently.
 **CONTACTS, TROUBLESHOOTING, FAQS, AND OTHER INFORMATION**
 
 DEVELOPERS:
-- Jensen Eicher (jenseneicher@aol.com)
-- Benjamin Jessing
-- Daniel Garcia
+- Jensen Eicher (jeicher@mines.edu)
+- Benjamin Jessing (bjessing@mines.edu)
+- Daniel Garcia (drgarcia@mines.edu)
   
- OWNER/PA:
-- TODO
+OWNER:
+- Dr. Tom Williams (twilliams@mines.edu)
+
+PROJECT ADVISOR:
+- Dr. Jeffrey Paone (jpaone@mines.edu)
