@@ -42,7 +42,7 @@ const port = 8000;
 
 var html_file;
 
-function scrapeConferenceDataUsingCheerio(conferenceURL) {
+async function scrapeConferenceDataUsingCheerio(conferenceURL) {
     console.log("Attempting to scrape conference data from", conferenceURL);
 
     // this Object will be updated and returned later
@@ -108,7 +108,7 @@ function scrapeConferenceDataUsingCheerio(conferenceURL) {
       }
    });
     //console.log("Scraping using Cheerio results within scraping function: ", conferenceData);
-    return conferenceData;
+        return conferenceData;
 }
 
 async function grabTopFiveUrls(conf_url) {
@@ -179,7 +179,7 @@ function exportConferenceData(conferences) {
 }
 
 async function grabHTML() {
-   fs.readFile('single_file_test.html', function(err, html) {
+   fs.readFile('client_side.html', function(err, html) {
       if (err) {
          throw err; 
       }
@@ -202,6 +202,16 @@ function convertDateStringToDateObj(date_string) {
     var date = new Date(secs);
     return date;
 }
+
+// convert conference data text file to a CSV string
+function confToString(file) {
+    var confDataString = "";
+    confDataString += fs.readFileSync(file);
+    console.log(confDataString);
+    var confDataStringLine = confDataString.split("\n");
+    return confDataString;
+}
+
            
 // convert formats of conference data to a CSV string
 function convertConferenceData(conferenceData) {
@@ -216,26 +226,26 @@ function convertConferenceData(conferenceData) {
         conferenceData[i].notificationDeadline = convertDateToNum(convertDateStringToDateObj(conferenceData[i].notificationDeadline));
         conferenceData[i].abstractDeadline = convertDateToNum(convertDateStringToDateObj(conferenceData[i].abstractDeadline));
         
-        var conf_start_date = "";
-        var conf_end_date = "";
-        var finished_grabbing_start = false;
-        for (var j = 0; j < conferenceData[i].conferenceDates.length; j++) {
-            if (!finished_grabbing_start) {
-              if (conferenceData[i].conferenceDates[j] != '-') {
-                conf_start_date += conferenceData[i].conferenceDates[j];
-              } else {
-                finished_grabbing_start = true;
-              }
-            } else {
-              conf_end_date += conferenceData[i].conferenceDates[j];
-            }
-        }
-        conf_start_date = conf_start_date.trim();
-        conf_end_date = conf_end_date.trim();
-        
-        conf_start_date = convertDateToNum(convertDateStringToDateObj(conf_start_date));
-        conf_end_date = convertDateToNum(convertDateStringToDateObj(conf_end_date));
-        console.log("convertConferenceData:", "conference start & end dates:", conf_start_date, conf_end_date);
+        // var conf_start_date = "";
+        // var conf_end_date = "";
+        // var finished_grabbing_start = false;
+        // for (var j = 0; j < conferenceData[i].conferenceDates.length; j++) {
+        //     if (!finished_grabbing_start) {
+        //       if (conferenceData[i].conferenceDates[j] != '-') {
+        //         conf_start_date += conferenceData[i].conferenceDates[j];
+        //       } else {
+        //         finished_grabbing_start = true;
+        //       }
+        //     } else {
+        //       conf_end_date += conferenceData[i].conferenceDates[j];
+        //     }
+        // }
+        // conf_start_date = conf_start_date.trim();
+        // conf_end_date = conf_end_date.trim();
+        //
+        // conf_start_date = convertDateToNum(convertDateStringToDateObj(conf_start_date));
+        // conf_end_date = convertDateToNum(convertDateStringToDateObj(conf_end_date));
+        //console.log("convertConferenceData:", "conference start & end dates:", conf_start_date, conf_end_date);
         
                 
         confDataString += conferenceData[i].conferenceName + ',' + conferenceData[i].url + ','+ conferenceData[i].fieldOfStudy + ',' + conferenceData[i].color + ',' + conferenceData[i].submissionDeadline + ',' +
@@ -271,7 +281,7 @@ async function run() {
    
    const getSingleUrlData = async function(req, res) {
       console.log("getSingleUrlData:","conf_url", req.text);
-      single_url_data = scrapeConferenceDataUsingCheerio(req.text);
+      single_url_data = await scrapeConferenceDataUsingCheerio(req.text);
       console.log("getSingleUrlData:","conf_data", single_url_data);
       res.end();
    };
@@ -314,8 +324,10 @@ async function run() {
    
    const downloadConferenceDataFile = function(req, res) {
       console.log("Attempting to download conference data file");
-      const file = '${__dirname}/conference_data.txt';
-      res.download(file);
+      const file = 'conference_data.txt';
+      var stringConferences = confToString(file);
+      res.end(stringConferences);
+      console.log(stringConferences);
    };
    app.get("/files", downloadConferenceDataFile);
    

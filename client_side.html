@@ -862,6 +862,24 @@
             return newConference;
         }
 
+        function returnConfString() {
+            var confString;
+
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange=function() {
+                console.log("server:", xmlhttp.readyState, xmlhttp.status);
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    confString = xmlhttp.responseText;
+                    console.log("server:", confString);
+                    return confString;
+                }
+                console.log("Error in server request status or state");
+            };
+            xmlhttp.open("GET", "http://localhost:"+port+"/files", true);
+            xmlhttp.send();
+            return confString;
+        }
+
         
         function getRandomColor() {
             var letters = '0123456789ABCDEF';
@@ -1338,6 +1356,8 @@
             var svg_height = document.body.clientHeight;
             var svg = d3.select("#chart1").append("svg").attr("width", svg_width)
                                                      .attr("height", svg_height);
+            var returnString = returnConfString();
+            console.log(returnString);
                                                      
             // dataHandler object for any functions having to do with data handling (self explanatory)
             data_handler = new DataHandler();
@@ -1346,15 +1366,8 @@
             
             // handle grabbing file and populating conferences array with necessary data
             var finished_processing_data = false;
-            
-            const file_conference_data = document.getElementById('file_conference_data');
-            file_conference_data.addEventListener('change', (event) => {
-                const file_list = event.target.files;
-                
-                var reader = new FileReader();
-                reader.onload = function(event) {
-                    conference_file_text = event.target.result;
-                    confs_and_num_confs = data_handler.grabConferenceData(conference_file_text);
+
+                    confs_and_num_confs = data_handler.grabConferenceData(returnString);
                     conferences = confs_and_num_confs[0];
                     num_confs = confs_and_num_confs[1];
                     
@@ -1390,10 +1403,7 @@
                         var download_link = document.getElementById("downloadlink");
                         download_link.href = data_handler.exportConferenceData(conferences_handler.conferences, data_handler);
                         download_link.style.display = 'block';
-                    };   
-                };
-                reader.readAsText(file_list[0]);
-            });
+                    };
             
             var button_get_data = document.getElementById("buttonGetData");
             button_get_data.onclick = function() {
