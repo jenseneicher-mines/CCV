@@ -39,6 +39,14 @@ button that appears beneath the description box on the right side of
 the home screen. Once pressed, the conference will be removed from the 
 visualization as expected.
 
+To export the conference data you have built using this app, simply
+click the "Export Data" button at the bottom of the home screen.
+This button creates a text file that contains the preferences you have
+set up in the app. This text file can be imported into the app again
+whenever needed to make changes. Remember to save your work by exporting
+a file when using the app! Edits will not be saved unless they are
+exported in a text file like so.
+
 **CUSTOMIZE/ADDITIONAL**
 
 
