@@ -41,71 +41,26 @@ const host = 'localhost';
 const port = 8000;
 
 var html_file;
-var text_conferences_data = "";
 
-
-const nodemailer = require('nodemailer');
-function sendEmailUsingNodemailer(email_list) {
-   console.log("Attempting to send email using Nodemailer");
-   const transport = nodemailer.createTransport({
-       service: 'Gmail',
-       auth: {
-         type: 'OAuth2',
-         user: 'no.reply.ccv@gmail.com',
-         //pass: 'hal9000!',
-       },
-   });
-   
-   for (var i = 0; i < email_list.length; i++) {
-       const mailOptions = {
-       from: 'no.reply.ccv@gmail.com',
-       to: email_list[i],
-       subject: 'hello world!',
-       html: 'hello world!',
-       };
-       transport.sendMail(mailOptions, (error, info) => {
-           if (error) {
-               console.log(error);
-           }
-           console.log(`Message sent: ${info.response}`);
-       });
-   }
-}
-async function grabEmailList(filename) {
-   var email_list = [];
-   
-   const file_stream = fs.createReadStream(filename);
-   const rl = readline.createInterface({
-      input: file_stream,
-      crlfDelay: Infinity
-   })
-   
-   for await (const line of rl) {
-      email_list.push(line);
-   }
-   console.log(email_list);
-   return email_list;
-}
-
-async function scrapeConferenceDataUsingCheerio(conferenceURL) {
+function scrapeConferenceDataUsingCheerio(conferenceURL) {
     console.log("Attempting to scrape conference data from", conferenceURL);
 
-
-
-    await request(conferenceURL, function(error, response, html) {
-       // this Object will be updated and returned later
-      var conferenceData = {
-         conferenceName: undefined,
-         location: undefined,
-         submissionDeadline: undefined,
-         notificationDeadline: undefined,
-         abstractDeadline: undefined,
-         authorFeedbackRebuttalWindow: undefined,
-         conferenceDates: undefined,
-         fieldOfStudy: undefined,
-         cameraReadyDeadline: undefined
-      }
-      
+    // this Object will be updated and returned later
+    var conferenceData = {
+       conferenceName: undefined,
+       location: undefined,
+       submissionDeadline: undefined,
+       notificationDeadline: undefined,
+       abstractDeadline: undefined,
+       authorFeedbackRebuttalWindow: undefined,
+       conferenceDates: undefined,
+       fieldOfStudy: undefined,
+       cameraReadyDeadline: undefined
+    };
+    
+    console.log("Beginning asynchronous function");
+    request(conferenceURL, function(error, response, html) {
+  
       if (!error) {
         console.log("Scraping conference data from", conferenceURL);
          // load HTML
@@ -146,16 +101,14 @@ async function scrapeConferenceDataUsingCheerio(conferenceURL) {
          //console.log('This is the fully-loaded conference data Object:');
          //console.log('(Some information might be undefined because it was not provided on WikiCFP.)');
          console.log(conferenceData);
-         return conferenceData;
       } else {
          // this outputs to the console if the URL does not exist
          console.log(error);
          console.log('Error: URL does not exist.');
-         return undefined;
       }
    });
-   //console.log("Scraping using Cheerio results within scraping function: ", conferenceData);
-   //return conferenceData;
+    //console.log("Scraping using Cheerio results within scraping function: ", conferenceData);
+    return conferenceData;
 }
 
 async function grabTopFiveUrls(conf_url) {
@@ -184,8 +137,8 @@ async function grabTopFiveUrls(conf_url) {
 
 function exportConferenceData(conferences) {
    var text_conferences_data = "";
-   text_conferences_data += conferences.length.toString() + '\n';
-   
+   text_conferences_data += conferences.length + '\n';
+   console.log("exportConferenceData:", text_conferences_data);
    var url_count = 0;
    for (var k = 0; k < conferences.length; k++) {
        if (conferences[k].conf_url != "") {
@@ -237,8 +190,10 @@ async function grabHTML() {
 
 // convert formats of conference data to a CSV string
 function convertConferenceData(conferenceData) {
-    var confDataString;
-    confDataString += conferenceData.length + "\n";
+    var confDataString = "";
+    confDataString += conferenceData.length.toString() + "\n";
+    confDataString += conferenceData.length.toString() + "\n";
+    confDataString += 0 + "\n";
     
     for(var i = 0; i < conferenceData.length; i++){
         confDataString += conferenceData[i].conferenceName + ',' + conferenceData[i].url + ','+ conferenceData[i].fieldOfStudy + ',' + conferenceData[i].color + ',' + conferenceData[i].submissionDeadline + ',' +
@@ -252,6 +207,8 @@ function convertConferenceData(conferenceData) {
 async function run() {
    //var all_info = await grabTopFiveUrls('http://www.wikicfp.com/cfp/');
    html_file = await grabHTML();
+   var result = await scrapeConferenceDataUsingCheerio("http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=99543&copyownerid=692&skip=1");
+   console.log("Test result:", result);
    console.log("--------------------");
    
    
@@ -274,16 +231,17 @@ async function run() {
       console.log("getSingleUrlData:","conf_url", req.text);
       single_url_data = await scrapeConferenceDataUsingCheerio(req.text);
       console.log("getSingleUrlData:","conf_data", single_url_data);
-   }
+      res.end();
+   };
    app.post("/getSingleUrlData", getSingleUrlData);
    
    const returnSingleUrlData = function(req, res) {
-      console.log(single_url_data);
+      console.log("returnSingleUrlData:", single_url_data);
       list_single_url_data = [];
       list_single_url_data.push(single_url_data);
       converted_data = convertConferenceData(list_single_url_data);
       res.end(converted_data);
-   }
+   };
    app.get("/returnSingleUrlData", returnSingleUrlData);
    ///////////////////////////////////////////////////////////////////////////////////////////
    
@@ -316,7 +274,7 @@ async function run() {
       console.log("Attempting to download conference data file");
       const file = '${__dirname}/conference_data.txt';
       res.download(file);
-   }
+   };
    app.get("/files", downloadConferenceDataFile);
    
    const server = app.listen(port);
