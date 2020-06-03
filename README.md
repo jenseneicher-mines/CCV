@@ -33,6 +33,12 @@ finished, click the "Done" button at the bottom to add the conference
 to the visualization on the home screen. A new ring will appear with
 a distinct color.
 
+Deleting conferences is easy; simply click a ring, identify it is the
+conference you intend to delete, and click the "Delete Conference"
+button that appears beneath the description box on the right side of
+the home screen. Once pressed, the conference will be removed from the 
+visualization as expected.
+
 **CUSTOMIZE/ADDITIONAL**
 
 
