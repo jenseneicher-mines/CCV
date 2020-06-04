@@ -50,7 +50,7 @@ function getRandomColor() {
     }
     return color;
 }
-async function scrapeConferenceDataUsingCheerio(conferenceURL) {
+function scrapeConferenceDataUsingCheerio(conferenceURL) {
     console.log("Attempting to scrape conference data from", conferenceURL);
 
     // this Object will be updated and returned later
