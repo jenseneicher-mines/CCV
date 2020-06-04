@@ -194,7 +194,7 @@ function exportConferenceData(conferences) {
 }
 
 async function grabHTML() {
-   fs.readFile('client_side.html', function(err, html) {
+   fs.readFile('single_file_test.html', function(err, html) {
       if (err) {
          throw err; 
       }
