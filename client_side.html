@@ -818,7 +818,7 @@
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange=function() {
             console.log("server:", xmlhttp.readyState, xmlhttp.status);
-            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            if (xmlhttp.readyState == 1 && xmlhttp.status == 0) {
                 confString = xmlhttp.responseText;
                 console.log("server:", confString);
                 return confString;
@@ -874,12 +874,7 @@
         h1.style.textShadow = "1px 1px 1px #000000";
         var left = document.clientWidth/2;
         var top = document.clientHeight/2;
-        //h1.style.left = left;
-        //h1.style.top = top;
-        //h1.setAttribute("style", "position: left; z-index: 1; left: "+left+"; top: "+top+"; width:200px; height:20px;");
-        //h1.style.zIndex = 1;
         container2.appendChild(h1);
-        //container2.appendChild(h1);
 
         // Paragraph element, unknown what this will contain
         var p1 = document.createElement('p1');
@@ -942,31 +937,7 @@
                     if (conferences_handler.num_confs >= 10) {
                         console.log("Maximum number of conferences allowed has been reached. " +
                                     "Please delete a conference before adding a new one.");
-                    } else {
-                        var button_enter_fields = document.getElementById("buttonEnterFields");
-                        button_enter_fields.onclick = function () {
-                            var color = "#AD193D";
-                            var conference_info = enterFields(svg, document, conferences_handler, color);
-                        };
                     }
-
-                    //handle onclick event for exportData button
-                    var button_export_data = document.getElementById("buttonExportConferenceData");
-                    button_export_data.onclick = function() {
-                        var download_link = document.getElementById("downloadlink");
-                        download_link.href = data_handler.exportConferenceData(conferences_handler.conferences, data_handler);
-                        download_link.style.display = 'block';
-                    };
-
-            var button_get_data = document.getElementById("buttonGetData");
-            button_get_data.onclick = function() {
-                text_file_conference_data = getScrapedConferenceData();
-                console.log("buttonGetData:", text_file_conference_data);
-                confs_and_num_confs = data_handler.grabConferenceData(text_file_conference_data);
-                conferences = confs_and_num_confs[0];
-                num_confs = confs_and_num_confs[1];
-                conferences_handler = new VisualizationHandler(svg, document, svg_width/2, svg_height/2, conferences, num_confs);
-            };
 
             // conference temp. variables
             // having to do with creating visual aspect of conference
