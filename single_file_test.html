@@ -1384,6 +1384,7 @@
             
             var userWouldLikeToGrabConferencesFromWiki = true;
             if (userWouldLikeToGrabConferencesFromWiki) {
+                console.log("Attempting to grab conferences from wiki");
                 text_file_conference_data = getScrapedConferenceData();
                 console.log("buttonGetData:", text_file_conference_data);
                 confs_and_num_confs = data_handler.grabConferenceData(text_file_conference_data);
@@ -1497,34 +1498,6 @@
                 console.log("Successfully recreated conferences_handler: ", conferences_handler);
 
             };
-    
-            // conference temp. variables
-            // having to do with creating visual aspect of conference
-            //var num_confs = 3;
-            
-            ////////////////////// NO LONGER NECESSARY, conferences POPULATED ABOVE //////////////
-            //// more conference information
-            //var conferences = [["IEEE CAMAD 2020", "Robotics", "#f08950", 24, 32, 48, 5, 9],
-            //                   ["RAI--Ei and Scopus 2020", "AI", "#9ce490", 46, 80, 102, 6, 10],
-            //                   ["IWSMR 2020", "Physics", "#90c6e4", 52, 96, 256, 5, 11]];
-            //
-            //
-            ////var conf_names = ["IEEE CAMAD 2020", "RAI--Ei and Scopus 2020", "IWSMR 2020"];
-            ////var conf_locations = ["Denver,CO,US", "Boston,MA,US", "Pittsburgh,PA,US"];
-            ////var conf_fields = ["Robotics", "AI", "Physics"];
-            ////var conf_colors = ["#f08950", "#9ce490", "#90c6e4"];
-            ////var conferenceStart_dates = [5, 6, 5];
-            ////var conferenceEnd_dates = [9, 10, 11];
-            ////var abstract_deadlines = [1, 4, 17];
-            ////var submission_deadlines = [24, 46, 52];
-            ////var decision_deadlines = [48, 102, 256];
-    
-            //TESTING, can be deleted if necessary
-            //console.log(conferences_handler.names);
-    
-            // UNDER CONSTRUCTION
-            // STILL NEED TO REMOVE CONFERENCE FROM conferences, AND CHECK IF I NEED TO DO ANYTHING ELSE FOR DELETION
-            //num_confs = Conference.delAndUpdateConfVis(svg, conferences[2], num_confs, spacing, conferences, document, arc_size);
         }
     
         //calls main function using
