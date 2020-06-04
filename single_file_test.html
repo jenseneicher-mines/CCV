@@ -1381,10 +1381,8 @@
             // dataHandler object for any functions having to do with data handling (self explanatory)
             data_handler = new DataHandler();
             console.log("Successfully created data handler: ", data_handler);
-            
-            var userWouldLikeToGrabConferencesFromWiki = true;
-            if (userWouldLikeToGrabConferencesFromWiki) {
-                console.log("Attempting to grab conferences from wiki");
+
+            if (confirm("Do you have a conference configuration file?")) {
                 text_file_conference_data = getScrapedConferenceData();
                 console.log("buttonGetData:", text_file_conference_data);
                 confs_and_num_confs = data_handler.grabConferenceData(text_file_conference_data);
@@ -1398,18 +1396,18 @@
                 //                                         .attr("height", svg_height);
                 conferences_handler = new VisualizationHandler(svg, document, svg_width/2, svg_height/2, conferences, num_confs);
                 console.log("Successfully recreated conferences_handler: ", conferences_handler);
-                
+
                 //create months ring
                 conferences_handler.createMonthsRing(svg, conferences_handler.x, conferences_handler.y);
-        
+
                 //create date line
                 var now = new Date();
                 conferences_handler.createDateLine(svg, now, conferences_handler.x, conferences_handler.y, conferences_handler.curr_radius);
-            
+
                 //handle onclick event for enterFields button (if 10 or more conferences made do not allow creation of another)
                 if (conferences_handler.num_confs >= 10) {
                     console.log("Maximum number of conferences allowed has been reached. " +
-                                "Please delete a conference before adding a new one.");
+                        "Please delete a conference before adding a new one.");
                 } else {
                     var button_enter_fields = document.getElementById("buttonEnterFields");
                     button_enter_fields.onclick = function () {
@@ -1417,49 +1415,50 @@
                         var conference_info = enterFields(svg, document, conferences_handler, color);
                     };
                 }
-            
+
                 //handle onclick event for exportData button
                 var button_export_data = document.getElementById("buttonExportConferenceData");
                 button_export_data.onclick = function() {
                     var download_link = document.getElementById("downloadlink");
                     download_link.href = data_handler.exportConferenceData(conferences_handler.conferences, data_handler);
                     download_link.style.display = 'block';
-                };   
-            } else {
+                };
+            }
+            else{
                 //tell user to choose file
-                
+
                 // handle grabbing file and populating conferences array with necessary data
                 var finished_processing_data = false;
-                
+
                 const file_conference_data = document.getElementById('file_conference_data');
                 file_conference_data.addEventListener('change', (event) => {
                     const file_list = event.target.files;
-                    
+
                     var reader = new FileReader();
                     reader.onload = function(event) {
                         conference_file_text = event.target.result;
                         confs_and_num_confs = data_handler.grabConferenceData(conference_file_text);
                         conferences = confs_and_num_confs[0];
                         num_confs = conferences.length;
-                        
+
                         finished_processing_data = true;
-                        
+
                         ////////////////////////////// INITIALIZATION OF VISUALIZATION HAS MOVED HERE //////////////////////////////////////////
                         //create conferences & their visuals and add all info to conferences_handler object
                         var conferences_handler = new VisualizationHandler(svg, document, svg_width/2, svg_height/2, conferences, num_confs);
                         console.log("Successfully created conferences_handler: ", conferences_handler);
-    
+
                         //create months ring
                         conferences_handler.createMonthsRing(svg, conferences_handler.x, conferences_handler.y);
-                
+
                         //create date line
                         var now = new Date();
                         conferences_handler.createDateLine(svg, now, conferences_handler.x, conferences_handler.y, conferences_handler.curr_radius);
-                    
+
                         //handle onclick event for enterFields button (if 10 or more conferences made do not allow creation of another)
                         if (conferences_handler.num_confs >= 10) {
                             console.log("Maximum number of conferences allowed has been reached. " +
-                                        "Please delete a conference before adding a new one.");
+                                "Please delete a conference before adding a new one.");
                         } else {
                             var button_enter_fields = document.getElementById("buttonEnterFields");
                             button_enter_fields.onclick = function () {
@@ -1467,19 +1466,18 @@
                                 var conference_info = enterFields(svg, document, conferences_handler, color);
                             };
                         }
-                    
+
                         //handle onclick event for exportData button
                         var button_export_data = document.getElementById("buttonExportConferenceData");
                         button_export_data.onclick = function() {
                             var download_link = document.getElementById("downloadlink");
                             download_link.href = data_handler.exportConferenceData(conferences_handler.conferences, data_handler);
                             download_link.style.display = 'block';
-                        };   
+                        };
                     };
                     reader.readAsText(file_list[0]);
                 });
             }
-
             
             var button_get_data = document.getElementById("buttonGetData");
             button_get_data.onclick = function() {
