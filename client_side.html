@@ -812,6 +812,23 @@
         return newConference;
     }
 
+    function returnConfString() {
+        var confString;
+
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange=function() {
+            console.log("server:", xmlhttp.readyState, xmlhttp.status);
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                confString = xmlhttp.responseText;
+                console.log("server:", confString);
+                return confString;
+            }
+            console.log("Error in server request status or state");
+        };
+        xmlhttp.open("GET", "http://localhost:"+port+"/files", true);
+        xmlhttp.send();
+        return confString;
+    }
 
     function getRandomColor() {
         var letters = '0123456789ABCDEF';
