@@ -870,13 +870,14 @@
                 console.log("server:", xmlhttp.readyState, xmlhttp.status);
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                     confString = xmlhttp.responseText;
-                    console.log("server:", confString);
+                    console.log("server:","confString", confString);
                     return confString;
                 }
                 console.log("Error in server request status or state");
             };
-            xmlhttp.open("GET", "http://localhost:"+port+"/files", true);
+            xmlhttp.open("GET", "http://localhost:"+port+"/files", false);
             xmlhttp.send();
+            console.log("outer server:", "confString", confString);
             return confString;
         }
 
