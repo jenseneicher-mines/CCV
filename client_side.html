@@ -643,93 +643,6 @@
             return conf_data_and_num_confs;
         }
 
-        exportConferenceDataToUrl(conferences, data_handler) {
-            var text_conferences_data = "";
-            text_conferences_data += conferences.length.toString() + '%0A';
-
-            var url_count = 0;
-            for (var k = 0; k < conferences.length; k++) {
-                if (conferences[k].conf_url != "") {
-                    url_count += 1;
-                }
-            }
-
-            text_conferences_data += url_count.toString() + '%0A';
-
-            text_conferences_data += (conferences.length - url_count).toString() + '%0A';
-
-            for (var i = 0; i < (conferences.length - url_count); i++) {
-                var name = conferences[i].conf_name;
-                var url = conferences[i].conf_url;
-                var field = conferences[i].conf_field;
-                var color = conferences[i].conf_color;
-                var submission_deadline = conferences[i].submission_deadline;
-                var abstract_deadline = conferences[i].abstract_deadline;
-                var decision_deadline = conferences[i].decision_deadline;
-                var conference_start_date = conferences[i].conferenceStart_date;
-                var conference_end_date = conferences[i].conferenceEnd_date;
-                var location = conferences[i].conf_location;
-                text_conferences_data += name + '%2C' + url + '%2C'+ field + '%2C' + color + '%2C' + submission_deadline + '%2C' +
-                    abstract_deadline + '%2C' + decision_deadline + '%2C' +
-                    conference_start_date + '%2C' + conference_end_date + '%2C' + location + '%0A';
-            }
-
-
-            console.log(text_conferences_data);
-
-            var text_file = null;
-            var blob_text_conferences_data = new Blob([text_conferences_data], {type:'text/plain'});
-            text_file = window.URL.createObjectURL(blob_text_conferences_data);
-
-            console.log(text_file);
-
-            return text_file;
-        }
-
-        exportConferenceData(conferences, data_handler) {
-            var text_conferences_data = "";
-            text_conferences_data += conferences.length.toString() + '\n';
-
-            var url_count = 0;
-            for (var k = 0; k < conferences.length; k++) {
-                if (conferences[k].conf_url != "") {
-                    console.log("dddddddd", conferences[k].conf_url);
-                    url_count += 1;
-                }
-            }
-
-            text_conferences_data += url_count.toString() + '\n';
-
-            text_conferences_data += (conferences.length - url_count).toString() + '\n';
-
-            for (var i = 0; i < (conferences.length - url_count); i++) {
-                var name = conferences[i].conf_name;
-                var url = conferences[i].conf_url;
-                var field = conferences[i].conf_field;
-                var color = conferences[i].conf_color;
-                var submission_deadline = conferences[i].submission_deadline;
-                var abstract_deadline = conferences[i].abstract_deadline;
-                var decision_deadline = conferences[i].decision_deadline;
-                var conference_start_date = conferences[i].conferenceStart_date;
-                var conference_end_date = conferences[i].conferenceEnd_date;
-                var location = conferences[i].conf_location;
-                text_conferences_data += name + ',' + url + ','+ field + ',' + color + ',' + submission_deadline + ',' +
-                    abstract_deadline + ',' + decision_deadline + ',' +
-                    conference_start_date + ',' + conference_end_date + ',' + location + '\n';
-            }
-
-
-            console.log(text_conferences_data);
-
-            var text_file = null;
-            var blob_text_conferences_data = new Blob([text_conferences_data], {type:'text/plain'});
-            text_file = window.URL.createObjectURL(blob_text_conferences_data);
-
-            console.log(text_file);
-
-            return text_file;
-        }
-
         // converts date object to a number to 1 and 366 (considers leap years)
         convertDateToNum(now) {
             var start = new Date(now.getFullYear(), 0, 0);
@@ -758,60 +671,6 @@
 
     var port = 8000;
 
-    function getScrapedConferenceData() {
-        var text_file_conference_data = [];
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange=function() {
-            console.log("server:", xmlhttp.readyState, xmlhttp.status);
-            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                text_file_conference_data = xmlhttp.responseText;
-                console.log("server:", text_file_conference_data);
-                return text_file_conference_data;
-            }
-            console.log("Error in server request status or state");
-        };
-        xmlhttp.open("GET", "http://localhost:"+port+"/getDataScraper", false);
-        xmlhttp.send();
-        return text_file_conference_data;
-    }
-
-    /////////////////////////// NOT DONE ////////////////////////////////////
-    function returnSingleUrlData() {
-        var newConference;
-
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange=function() {
-            console.log("server:", xmlhttp.readyState, xmlhttp.status);
-            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                newConference = xmlhttp.responseText;
-                console.log("server:", newConference);
-                return newConference;
-            }
-            console.log("Error in server request status or state");
-        };
-        xmlhttp.open("GET", "http://localhost:"+port+"/returnSingleUrlData", true);
-        xmlhttp.send();
-        return newConference;
-    }
-    function getSingleUrlData(conf_url) {
-        var newConference;
-
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange=function() {
-            console.log("getSingleUrlData:", xmlhttp.readyState, xmlhttp.status);
-            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                console.log("getSingleUrlData:", "Successfully completed server put");
-                newConference = returnSingleUrlData();
-                return newConference;
-            }
-        };
-        xmlhttp.open("POST", "http://localhost:"+port+"/getSingleUrlData", false);
-        xmlhttp.setRequestHeader("Content-Type", "text/plain");
-        console.log(conf_url);
-        xmlhttp.send(conf_url);
-        return newConference;
-    }
-
     function returnConfString() {
         var confString;
 
@@ -828,20 +687,6 @@
         xmlhttp.open("GET", "http://localhost:"+port+"/files", true);
         xmlhttp.send();
         return confString;
-    }
-
-    function getRandomColor() {
-        var letters = '0123456789ABCDEF';
-        var color = '#';
-        for (var i = 0; i < 6; i++) {
-            color += letters[Math.floor(Math.random() * 16)];
-        }
-        return color;
-    }
-
-    function parseDate(s) {
-        var b = s.split(/\D/);
-        return new Date(b[0], --b[1], b[2]);
     }
 
     function showDetails(svg, document, conferences_handler, data_handler, conference) {
