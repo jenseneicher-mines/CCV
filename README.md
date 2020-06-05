@@ -9,7 +9,17 @@ papers for those conferences are due, when they’ll get notifications of accept
 The goal of this project is to provide a tool for CS researchers to visualize
 and manage their upcoming conference deadlines.
 
-**WEBSITE LOOK/LAYOUT**
+**ADMIN AND NON-ADMIN APPS**
+
+Two apps are set forth by this project--a side that faces admin users and a side that faces non-admin users. Admin users will be able to 
+customize the visualization using the admin-facing app. Non-admin users
+will be able to view the visualization without customization. The 
+sections of this README marked with (Admin) apply to the admin-facing
+app. The non-admin-facing app is the same except it lacks add, edit,
+delete, import, and export functionality; it is read-only, in other
+words, and lacks customization ability.
+
+**(ADMIN) WEBSITE LOOK/LAYOUT**
 
 Homepage of Conference Cycle Visualization Website:
 ![Alt text](/Images/CCVwebsiteImage.PNG)
@@ -17,7 +27,7 @@ Homepage of Conference Cycle Visualization Website:
 Add Conference Pop-up Window:
 ![Alt text](/Images/CCVwebsiteImage2.PNG)
 
-**SETUP/USAGE/HOW TO**
+**(ADMIN) SETUP/USAGE/HOW TO**
 
 To load conference rings into the visualization, click the "Choose File" button and select the text file you want to import. The text file in this repository named "conference_data.txt" is an example of a file that can
 be imported.
@@ -47,7 +57,7 @@ whenever needed to make changes. Remember to save your work by exporting
 a file when using the app! Edits will not be saved unless they are
 exported in a text file like so.
 
-**CUSTOMIZE/ADDITIONAL/IMPORTANT TIPS**
+**(ADMIN) CUSTOMIZE/ADDITIONAL/IMPORTANT TIPS**
 
 The calendar icon is an excellent way to set date information 
 manually using a graphical user interface. Simply click the square
@@ -59,7 +69,7 @@ field is clickable--selecting this text will open WikiCFP in your web
 browser. Use this site to find the URL of a conference/CFP easily and
 conveniently.
 
-**CONTACTS, TROUBLESHOOTING, FAQS, AND OTHER INFORMATION**
+**CONTACTS**
 
 DEVELOPERS:
 - Jensen Eicher (jeicher@mines.edu)
