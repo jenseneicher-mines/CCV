@@ -935,11 +935,11 @@
 
             //create a new container that will appear on the left side of the screen
             var container2 = document.createElement("div");
-            container2.setAttribute("style","float: left;");
+            container2.setAttribute("style","float: left; z-index: 1;");
             document.body.appendChild(container2);
 
             var container3 = document.createElement("div2");
-            container3.setAttribute("style","float: absolute;");
+            container3.setAttribute("style","float: absolute; z-index: 2;");
             container3.style.position = "absolute";
             container3.style.left = 1026 + 'px';
             container3.style.top = 462 +'px';
@@ -997,9 +997,7 @@
                 }
             };
         }
-        
-        
-        
+
     
         // Button click event function for manually creating a conference
         function enterFields(svg, document, conferences_handler, color, wasOpen) {
