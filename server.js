@@ -41,71 +41,36 @@ const host = 'localhost';
 const port = 8000;
 
 var html_file;
-var text_conferences_data = "";
 
-
-const nodemailer = require('nodemailer');
-function sendEmailUsingNodemailer(email_list) {
-   console.log("Attempting to send email using Nodemailer");
-   const transport = nodemailer.createTransport({
-       service: 'Gmail',
-       auth: {
-         type: 'OAuth2',
-         user: 'no.reply.ccv@gmail.com',
-         //pass: 'hal9000!',
-       },
-   });
-   
-   for (var i = 0; i < email_list.length; i++) {
-       const mailOptions = {
-       from: 'no.reply.ccv@gmail.com',
-       to: email_list[i],
-       subject: 'hello world!',
-       html: 'hello world!',
-       };
-       transport.sendMail(mailOptions, (error, info) => {
-           if (error) {
-               console.log(error);
-           }
-           console.log(`Message sent: ${info.response}`);
-       });
-   }
+function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
 }
-async function grabEmailList(filename) {
-   var email_list = [];
-   
-   const file_stream = fs.createReadStream(filename);
-   const rl = readline.createInterface({
-      input: file_stream,
-      crlfDelay: Infinity
-   })
-   
-   for await (const line of rl) {
-      email_list.push(line);
-   }
-   console.log(email_list);
-   return email_list;
-}
-
-async function scrapeConferenceDataUsingCheerio(conferenceURL) {
+function scrapeConferenceDataUsingCheerio(conferenceURL) {
     console.log("Attempting to scrape conference data from", conferenceURL);
 
-
-
-    await request(conferenceURL, function(error, response, html) {
-       // this Object will be updated and returned later
-      var conferenceData = {
-         conferenceName: undefined,
-         location: undefined,
-         submissionDeadline: undefined,
-         notificationDeadline: undefined,
-         abstractDeadline: undefined,
-         authorFeedbackRebuttalWindow: undefined,
-         conferenceDates: undefined,
-         fieldOfStudy: undefined,
-         cameraReadyDeadline: undefined
-      }
-      
+    // this Object will be updated and returned later
+    var conferenceData = {
+       conferenceName: undefined,
+       url: undefined,
+       color: undefined,
+       location: undefined,
+       submissionDeadline: undefined,
+       notificationDeadline: undefined,
+       abstractDeadline: undefined,
+       authorFeedbackRebuttalWindow: undefined,
+       conferenceDates: undefined,
+       fieldOfStudy: undefined,
+       cameraReadyDeadline: undefined
+    };
+    
+    console.log("Beginning asynchronous function");
+    request(conferenceURL, function(error, response, html) {
+  
       if (!error) {
         console.log("Scraping conference data from", conferenceURL);
          // load HTML
@@ -117,12 +82,17 @@ async function scrapeConferenceDataUsingCheerio(conferenceURL) {
 
          // scrape conference name
          conferenceData.conferenceName = $('title').text().trim();
-
+         conferenceData.url = conferenceURL;
+         conferenceData.color = getRandomColor();
+         
          // scrape data that is clearly labeled on WikiCFP
          conferenceData.location = extractNextElementText(tableCells, 'Where');
          conferenceData.submissionDeadline = extractNextElementText(tableCells, 'Submission Deadline');
          conferenceData.notificationDeadline = extractNextElementText(tableCells, 'Notification Due');
          conferenceData.abstractDeadline = extractNextElementText(tableCells, 'Abstract Registration Due');
+         if (conferenceData.abstractDeadline == undefined) {
+            conferenceData.abstractDeadline = conferenceData.submissionDeadline;
+         }
          conferenceData.notificationDeadline = extractNextElementText(tableCells, 'Notification Due');
          conferenceData.conferenceDates = extractNextElementText(tableCells, 'When');
          conferenceData.fieldOfStudy = extractNextElementText(categories, 'Categories');
@@ -146,16 +116,32 @@ async function scrapeConferenceDataUsingCheerio(conferenceURL) {
          //console.log('This is the fully-loaded conference data Object:');
          //console.log('(Some information might be undefined because it was not provided on WikiCFP.)');
          console.log(conferenceData);
-         return conferenceData;
       } else {
          // this outputs to the console if the URL does not exist
          console.log(error);
          console.log('Error: URL does not exist.');
-         return undefined;
       }
    });
-   //console.log("Scraping using Cheerio results within scraping function: ", conferenceData);
-   //return conferenceData;
+    //console.log("Scraping using Cheerio results within scraping function: ", conferenceData);
+    return conferenceData;
+}
+
+async function grabSingleUrlData(conf_url) {
+  var all_info = [];
+
+   // connect to the website and open an invisible browsing tab
+   const browser = await puppeteer.launch();
+   const page = await browser.newPage();
+   await page.goto(conf_url);
+
+   //loop through popular links, follow them and grab the conference info, then push info into all_info array
+    all_info.push(scrapeConferenceDataUsingCheerio(page.url()));
+    await page.goBack();
+
+   // DEBUG SUCCESS: wait for the last conference to load its data before returning
+   await page.waitFor(500);
+   
+   return all_info;
 }
 
 async function grabTopFiveUrls(conf_url) {
@@ -184,8 +170,8 @@ async function grabTopFiveUrls(conf_url) {
 
 function exportConferenceData(conferences) {
    var text_conferences_data = "";
-   text_conferences_data += conferences.length.toString() + '\n';
-   
+   text_conferences_data += conferences.length + '\n';
+   console.log("exportConferenceData:", text_conferences_data);
    var url_count = 0;
    for (var k = 0; k < conferences.length; k++) {
        if (conferences[k].conf_url != "") {
@@ -234,16 +220,82 @@ async function grabHTML() {
       console.log(html_file);
    });
 }
+// converts date object to a number to 1 and 366 (considers leap years)
+function convertDateToNum(now) {
+    var start = new Date(now.getFullYear(), 0, 0);
+    var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
+    var oneDay = 1000 * 60 * 60 * 24;
+    var day = Math.round(diff / oneDay);
+    console.log('Day of year: ' + day);
+    return day;
+}
 
+function convertDateStringToDateObj(date_string) {
+    var secs = date_string;
+    var date = new Date(secs);
+    return date;
+}
+
+// convert conference data text file to a CSV string
+function confToString(file) {
+    var confDataString = "";
+    confDataString += fs.readFileSync(file);
+    console.log(confDataString);
+    var confDataStringLine = confDataString.split("\n");
+    return confDataString;
+}
+
+           
 // convert formats of conference data to a CSV string
 function convertConferenceData(conferenceData) {
-    var confDataString;
-    confDataString += conferenceData.length + "\n";
+    var confDataString = "";
+    
+    confDataString += conferenceData.length.toString() + "\n";
+    confDataString += conferenceData.length.toString() + "\n";
+    confDataString += 0 + "\n";
     
     for(var i = 0; i < conferenceData.length; i++){
-        confDataString += conferenceData[i].conferenceName + ',' + conferenceData[i].url + ','+ conferenceData[i].fieldOfStudy + ',' + conferenceData[i].color + ',' + conferenceData[i].submissionDeadline + ',' +
-            conferenceData[i].notificationDeadline + ',' + conferenceData[i].decision_deadline + ',' +
-            conferenceData[i].conferenceStart_date + ',' + conferenceData[i].conferenceEnd_date + ',' + conferenceData[i].location + '\n';
+        console.log("convertConferenceData:", "notificationDeadline before manipulation:", conferenceData[i].notificationDeadline)
+        console.log("convertConferenceData:", "submissionDeadline before manipulation:", conferenceData[i].submissionDeadline)
+
+        conferenceData[i].submissionDeadline = convertDateToNum(convertDateStringToDateObj(conferenceData[i].submissionDeadline));
+        conferenceData[i].notificationDeadline = convertDateToNum(convertDateStringToDateObj(conferenceData[i].notificationDeadline));
+        conferenceData[i].abstractDeadline = convertDateToNum(convertDateStringToDateObj(conferenceData[i].abstractDeadline));    
+        var conf_start_date = "";
+        var conf_end_date = "";
+        var finished_grabbing_start = false;
+        for (var j = 0; j < conferenceData[i].conferenceDates.length; j++) {
+            if (!finished_grabbing_start) {
+              if (conferenceData[i].conferenceDates[j] != '-') {
+                conf_start_date += conferenceData[i].conferenceDates[j];
+              } else {
+                finished_grabbing_start = true;
+              }
+            } else {
+              conf_end_date += conferenceData[i].conferenceDates[j];
+            }
+        }
+        conf_start_date = conf_start_date.trim();
+        conf_end_date = conf_end_date.trim();
+        
+        conf_start_date = convertDateToNum(convertDateStringToDateObj(conf_start_date));
+        conf_end_date = convertDateToNum(convertDateStringToDateObj(conf_end_date));
+        console.log("convertConferenceData:", "conference start & end dates:", conf_start_date, conf_end_date);
+        console.log("convertConferenceData:", "notificationDeadline:", conferenceData[i].notificationDeadline);
+        console.log(conferenceData[i].conferenceName);
+        conferenceData[i].conferenceName = conferenceData[i].conferenceName.replace(/,/g, ';');
+        console.log(conferenceData[i].conferenceName);
+        //for (var k = 0; k < conferenceData[i].conferenceName.length; k++) {
+        //    console.log("boom",conferenceData[i].conferenceName[k]);
+        //    if (conferenceData[i].conferenceName[k] === ',') {
+        //        conferenceData[i].conferenceName[k] = ';';
+        //        console.log("and change");
+        //    }
+        //}
+
+        confDataString += conferenceData[i].conferenceName + ',' + conferenceData[i].url + ','+ conferenceData[i].fieldOfStudy + ',' + conferenceData[i].color + ',' +
+            conferenceData[i].submissionDeadline + ',' + conferenceData[i].abstractDeadline + ',' + conferenceData[i].notificationDeadline + ',' +
+            conf_start_date + ',' + conf_end_date + ',' + conferenceData[i].location + '\n';
     }
     return confDataString;
 }
@@ -252,6 +304,8 @@ function convertConferenceData(conferenceData) {
 async function run() {
    //var all_info = await grabTopFiveUrls('http://www.wikicfp.com/cfp/');
    html_file = await grabHTML();
+   var result = await scrapeConferenceDataUsingCheerio("http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=99543&copyownerid=692&skip=1");
+   console.log("Test result:", result);
    console.log("--------------------");
    
    
@@ -272,18 +326,23 @@ async function run() {
    
    const getSingleUrlData = async function(req, res) {
       console.log("getSingleUrlData:","conf_url", req.text);
-      single_url_data = await scrapeConferenceDataUsingCheerio(req.text);
+      single_url_data = await grabSingleUrlData(req.text);
       console.log("getSingleUrlData:","conf_data", single_url_data);
-   }
+      
+      converted_data = convertConferenceData(single_url_data);
+      console.log("getSingleUrlData:", "converted_data", converted_data);
+      
+      res.end(converted_data);
+   };
    app.post("/getSingleUrlData", getSingleUrlData);
    
    const returnSingleUrlData = function(req, res) {
-      console.log(single_url_data);
+      console.log("returnSingleUrlData:", single_url_data);
       list_single_url_data = [];
       list_single_url_data.push(single_url_data);
       converted_data = convertConferenceData(list_single_url_data);
       res.end(converted_data);
-   }
+   };
    app.get("/returnSingleUrlData", returnSingleUrlData);
    ///////////////////////////////////////////////////////////////////////////////////////////
    
@@ -314,9 +373,11 @@ async function run() {
    
    const downloadConferenceDataFile = function(req, res) {
       console.log("Attempting to download conference data file");
-      const file = '${__dirname}/conference_data.txt';
-      res.download(file);
-   }
+      const file = 'conference_data.txt';
+      var stringConferences = confToString(file);
+      res.end(stringConferences);
+      console.log(stringConferences);
+   };
    app.get("/files", downloadConferenceDataFile);
    
    const server = app.listen(port);

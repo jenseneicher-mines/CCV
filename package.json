@@ -4,14 +4,21 @@
   "description": "",
   "main": "webScraper.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.19.2",
+    "chai": "^4.2.0",
     "cheerio": "^1.0.0-rc.3",
+    "cors": "^2.8.5",
+    "d3": "^5.16.0",
+    "express": "^4.17.1",
+    "jsdom": "^16.2.2",
+    "puppeteer": "^3.3.0",
+    "request": "^2.88.2",
     "response": "^0.18.0"
   }
 }
