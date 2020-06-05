@@ -123,7 +123,25 @@ function scrapeConferenceDataUsingCheerio(conferenceURL) {
       }
    });
     //console.log("Scraping using Cheerio results within scraping function: ", conferenceData);
-        return conferenceData;
+    return conferenceData;
+}
+
+async function grabSingleUrlData(conf_url) {
+  var all_info = [];
+
+   // connect to the website and open an invisible browsing tab
+   const browser = await puppeteer.launch();
+   const page = await browser.newPage();
+   await page.goto(conf_url);
+
+   //loop through popular links, follow them and grab the conference info, then push info into all_info array
+    all_info.push(scrapeConferenceDataUsingCheerio(page.url()));
+    await page.goBack();
+
+   // DEBUG SUCCESS: wait for the last conference to load its data before returning
+   await page.waitFor(500);
+   
+   return all_info;
 }
 
 async function grabTopFiveUrls(conf_url) {
@@ -308,9 +326,13 @@ async function run() {
    
    const getSingleUrlData = async function(req, res) {
       console.log("getSingleUrlData:","conf_url", req.text);
-      single_url_data = await scrapeConferenceDataUsingCheerio(req.text);
+      single_url_data = await grabSingleUrlData(req.text);
       console.log("getSingleUrlData:","conf_data", single_url_data);
-      res.end();
+      
+      converted_data = convertConferenceData(single_url_data);
+      console.log("getSingleUrlData:", "converted_data", converted_data);
+      
+      res.end(converted_data);
    };
    app.post("/getSingleUrlData", getSingleUrlData);
    
