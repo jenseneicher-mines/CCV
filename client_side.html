@@ -707,7 +707,7 @@
 
         //create a new container that will appear on the left side of the screen
         var container2 = document.createElement("div");
-        container2.setAttribute("style","float: left;");
+        container2.setAttribute("style","float: left; width = 710px; z-index: 1;");
         document.body.appendChild(container2);
 
         // Header element, will contain Conference Name
@@ -719,6 +719,7 @@
         h1.style.textShadow = "1px 1px 1px #000000";
         var left = document.clientWidth/2;
         var top = document.clientHeight/2;
+        h1.style.width = "710px";
         container2.appendChild(h1);
 
         // Paragraph element, unknown what this will contain
