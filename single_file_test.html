@@ -117,7 +117,7 @@
                this.self = this;
         
                // smallest conference visualization radius
-               this.curr_radius = 200;
+               this.curr_radius = 150;
         
                // variables necessary for visual creation
                var spacing = 20;
@@ -308,7 +308,7 @@
                var month_text_objs = [];
         
                // math portion to properly define size and spacing of arcs
-               var spacing = (0.009*((2*Math.PI)/12));
+               var spacing = (0.005*((2*Math.PI)/12));
                var arc_length = (((2*Math.PI)/12) - (2*spacing));
                var start_angle = spacing;
                var end_angle = arc_length - spacing;
@@ -316,8 +316,8 @@
                // begin creation of the 12 month arcs and their accompanying text
                for (var i = 0; i < 12; i++) {
                     //init. and append new conference arc to svg
-                   var newly_built_arc = d3.svg.arc().innerRadius(170)
-                                                         .outerRadius(190)
+                   var newly_built_arc = d3.svg.arc().innerRadius(120)
+                                                         .outerRadius(140)
                                                          .startAngle(start_angle)
                                                          .endAngle(end_angle);
                     
@@ -349,9 +349,11 @@
         
                    //var months_text_arc = svg.append("path").attr("id", "path_text_months").attr("d", "M75,300 A125,125 0 0,1 325,300").attr("fill", "none").style("stroke", "#AAAAAA");
                    var months_text = svg.append("text").attr("id", months[i])
-                                                       .attr("x", 20)   //Move the text from the start angle of the arc
+                                                       .attr("x", 15)   //Move the text from the start angle of the arc
                                                        .attr("dy", 18) //Move the text down
-                                                       .style("font-size", 16)
+                                                       .style("font-size", 12)
+                                                       .style("fill", "#ffffff")
+                                                       .style("font-style", "italic")
                                                        .append("textPath").attr("xlink:href", "#"+months[i]+"_arc").style("text-anchor", "right").text(months[i]);
         
                    // store the created text and arc (not really necessary as of now, but it's here just in case)
@@ -412,78 +414,6 @@
                this.abstract_arc = abstract_arc;
                this.conf_dates_arc = conf_dates_arc;
            }
-       
-            /**
-            * showDetails
-            * @params document, conference
-            * document: used to append created elements to html
-            * conference: used to grab data necessary to populate created elements
-            *
-            * showDetails is in charge of displaying the data corresponding to each conference.
-            * It is a base template and used for all conferences, as they should all have the same
-            * data fields.
-            */
-           //showDetails(document, conference) {
-           //    // new elements are added dynamically on conference visualization click. This means that objects
-           //    // need to be deleted and re-added each time a new conference is clicked. This array and fo r loop
-           //    //
-           //    // handles conference descriptive element deletions
-           //    var details_element_ids = ["conferenceName", "mainParagraph", "deleteButton"];
-           //    for (var i = 0; i < details_element_ids.length; i++) {
-           //        if (document.getElementById(details_element_ids[i])){
-           //            var elem = document.getElementById(details_element_ids[i]);
-           //            elem.remove();
-           //        }
-           //    }
-           //
-           //    //create a new container that will appear on the left side of the screen
-           //    var container2 = document.createElement("div");
-           //    container2.setAttribute("style","float: left;");
-           //    document.body.appendChild(container2);
-           //
-           //    var container3 = document.createElement("div2");
-           //    container3.setAttribute("style","float: absolute;");
-           //    container3.style.position = "absolute";
-           //    container3.style.left = 1025 + 'px';
-           //    container3.style.top = 175 +'px';
-           //    document.body.appendChild(container3);
-           //
-           //    // Header element, will contain Conference Name
-           //    var h1 = document.createElement('h1');
-           //    h1.id = "conferenceName";
-           //    h1.textContent = conference.conf_name;
-           //    h1.style.color = conference.conf_color;
-           //    var left = document.clientWidth/2;
-           //    var top = document.clientHeight/2;
-           //    //h1.style.left = left;
-           //    //h1.style.top = top;
-           //    //h1.setAttribute("style", "position: left; z-index: 1; left: "+left+"; top: "+top+"; width:200px; height:20px;");
-           //    //h1.style.zIndex = 1;
-           //    container2.appendChild(h1);
-           //    //container2.appendChild(h1);
-           //
-           //    // Paragraph element, unknown what this will contain
-           //    var p1 = document.createElement('p1');
-           //    p1.id = "mainParagraph";
-           //    p1.setAttribute("style", "position: absolute; z-index: 1; left: "+left+"; top: "+top+"; width:190px; height:100px;");
-           //    p1.textContent = "Conference Topic: " + conference.conf_field + "\r\nLocation: " + conference.conf_location + "\r\nSubmission Deadline: " + conference.submission_deadline + "\r\nAbstract Deadline: " + conference.abstract_deadline + "\r\nFinal Version Due: " + conference.decision_deadline;
-           //    p1.setAttribute('class', 'note');
-           //    p1.setAttribute('vertical-align', 'baseline');
-           //    container2.appendChild(p1);
-           //
-           //    var deleteButton = document.createElement("button");
-           //    deleteButton.innerHTML = "Delete Conference";
-           //    deleteButton.id = "deleteButton";
-           //    deleteButton.width = "20px";
-           //    deleteButton.height = "100px";
-           //    deleteButton.top = "100px";
-           //    deleteButton.left = "20px";
-           //    container3.appendChild(deleteButton);
-           //
-           //    deleteButton.onclick = function() {
-           //        VisualizationHandler.delAndUpdate();
-           //    }
-           //}
        
            /**
             * createConfRing
@@ -558,29 +488,8 @@
                                                      .outerRadius(radius + (conference.arc_size/2))
                                                      .startAngle(start_angle)
                                                      .endAngle(end_angle);
-              
-              var defs = svg.append("defs");
-                                                     
-               var dropShadowFilter = defs.append('svg:filter')
-                 .attr('id', 'drop-shadow')
-                 .attr('filterUnits', "userSpaceOnUse")
-                 .attr('width', '250%')
-                 .attr('height', '250%');
-               dropShadowFilter.append('svg:feGaussianBlur')
-                 .attr('in', 'SourceGraphic')
-                 .attr('stdDeviation', 2)
-                 .attr('result', 'blur-out');
-               dropShadowFilter.append('svg:feOffset')
-                 .attr('in', 'color-out')
-                 .attr('dx', 3)
-                 .attr('dy', 3)
-                 .attr('result', 'the-shadow');
-               dropShadowFilter.append('svg:feBlend')
-                 .attr('in', 'SourceGraphic')
-                 .attr('in2', 'the-shadow')
-                 .attr('mode', 'normal');
        
-               var new_conf_arc = svg.append("path").attr("d", newly_built_arc).attr("transform", "translate("+x+", "+y+")").style("fill", color)/*.style("filter", "url(#drop-shadow)")*/
+               var new_conf_arc = svg.append("path").attr("d", newly_built_arc).attr("transform", "translate("+x+", "+y+")").style("fill", color)
                                                        .on("click", function() {
                                                            showDetails(svg, document, conferences_handler, data_handler, conference);
                                                            selected_conf_index = conference.conf_index;
@@ -733,49 +642,6 @@
                return conf_data_and_num_confs;
            }
            
-           exportConferenceDataToUrl(conferences, data_handler) {
-               var text_conferences_data = "";
-               text_conferences_data += conferences.length.toString() + '%0A';
-               
-               var url_count = 0;
-               for (var k = 0; k < conferences.length; k++) {
-                   if (conferences[k].conf_url != "") {
-                       url_count += 1;
-                   }
-               }
-               
-               text_conferences_data += url_count.toString() + '%0A';
-               
-               text_conferences_data += (conferences.length - url_count).toString() + '%0A';
-               
-               for (var i = 0; i < (conferences.length - url_count); i++) {
-                   var name = conferences[i].conf_name;
-                   var url = conferences[i].conf_url;
-                   var field = conferences[i].conf_field;
-                   var color = conferences[i].conf_color;
-                   var submission_deadline = conferences[i].submission_deadline;
-                   var abstract_deadline = conferences[i].abstract_deadline;
-                   var decision_deadline = conferences[i].decision_deadline;
-                   var conference_start_date = conferences[i].conferenceStart_date;
-                   var conference_end_date = conferences[i].conferenceEnd_date;
-                   var location = conferences[i].conf_location;
-                   text_conferences_data += name + '%2C' + url + '%2C'+ field + '%2C' + color + '%2C' + submission_deadline + '%2C' +
-                                               abstract_deadline + '%2C' + decision_deadline + '%2C' +
-                                               conference_start_date + '%2C' + conference_end_date + '%2C' + location + '%0A';
-               }
-               
-               
-               console.log(text_conferences_data);
-               
-               var text_file = null;
-               var blob_text_conferences_data = new Blob([text_conferences_data], {type:'text/plain'});
-               text_file = window.URL.createObjectURL(blob_text_conferences_data);
-               
-               console.log(text_file);
-               
-               return text_file;
-           }
-           
            exportConferenceData(conferences, data_handler) {
                var text_conferences_data = "";
                text_conferences_data += conferences.length.toString() + '\n';
@@ -846,62 +712,67 @@
         // initialize conferences array that will hold all data about conferences
         var conferences = [];
         
+        // define which port will be used to handle server requests (currently only for debugging, admin should later switch to using url in server)
         var port = 8000;
         
-        function getScrapedConferenceData() {
-            var text_file_conference_data = [];
-            var xmlhttp = new XMLHttpRequest();
-            xmlhttp.onreadystatechange=function() {
-                console.log("server:", xmlhttp.readyState, xmlhttp.status);
-                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                    text_file_conference_data = xmlhttp.responseText;
-                    console.log("server:", text_file_conference_data);
-                    return text_file_conference_data;
-                }
-                console.log("Error in server request status or state");
-            };
-            xmlhttp.open("GET", "http://localhost:"+port+"/getDataScraper", false);
-            xmlhttp.send();
-            return text_file_conference_data;
-        }
+        //////////////////////////////////////////////////////// Server calls //////////////////////////////////////////////////////
+        // used to grab top five conferences from wikicfp
+        function getScrapedConferenceData() {                                                                                    ///
+            var text_file_conference_data = [];                                                                                  ///
+            var xmlhttp = new XMLHttpRequest();                                                                                  ///
+            xmlhttp.onreadystatechange=function() {                                                                              ///
+                console.log("server:", xmlhttp.readyState, xmlhttp.status);                                                      ///
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {                                                          ///
+                    text_file_conference_data = xmlhttp.responseText;                                                            ///
+                    console.log("server:", text_file_conference_data);                                                           ///
+                    return text_file_conference_data;                                                                            ///
+                }                                                                                                                ///
+                console.log("Error in server request status or state");                                                          ///
+            };                                                                                                                   ///
+            xmlhttp.open("GET", "http://localhost:"+port+"/getDataScraper", false);                                              ///
+            xmlhttp.send();                                                                                                      ///
+            return text_file_conference_data;                                                                                    ///
+        }                                                                                                                        ///
+                                                                                                                                 ///
+        function getSearchData(search) {                                                                                         ///
+            var newConference;                                                                                                   ///
+                                                                                                                                 ///
+            var xmlhttp = new XMLHttpRequest();                                                                                  ///
+            xmlhttp.onreadystatechange=function() {                                                                              ///
+                console.log("getSearchData:", xmlhttp.readyState, xmlhttp.status);                                               ///
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {                                                          ///
+                    console.log("getSearchData:", "Successfully completed server put");                                          ///
+                    newConference = xmlhttp.responseText;                                                                        ///
+                    return newConference;                                                                                        ///
+                }                                                                                                                ///
+            };                                                                                                                   ///
+            xmlhttp.open("POST", "http://localhost:"+port+"/getDataBySearch", false);                                            ///
+            xmlhttp.setRequestHeader("Content-Type", "text/plain");                                                              ///
+            console.log(search);                                                                                                 ///
+            xmlhttp.send(search);                                                                                                ///
+            return newConference;                                                                                                ///
+        }                                                                                                                        ///
+                                                                                                                                 ///
+        function getSingleUrlData(conf_url) {                                                                                    ///
+            var newConference;                                                                                                   ///
+                                                                                                                                 ///
+            var xmlhttp = new XMLHttpRequest();                                                                                  ///
+            xmlhttp.onreadystatechange=function() {                                                                              ///
+                console.log("getSingleUrlData:", xmlhttp.readyState, xmlhttp.status);                                            ///
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {                                                          ///
+                    console.log("getSingleUrlData:", "Successfully completed server put");                                       ///
+                    newConference = xmlhttp.responseText;                                                                        ///
+                    return newConference;                                                                                        ///
+                }                                                                                                                ///
+            };                                                                                                                   ///
+            xmlhttp.open("POST", "http://localhost:"+port+"/getSingleUrlData", false);                                           ///
+            xmlhttp.setRequestHeader("Content-Type", "text/plain");                                                              ///
+            console.log(conf_url);                                                                                               ///
+            xmlhttp.send(conf_url);                                                                                              ///
+            return newConference;                                                                                                ///
+        }                                                                                                                        ///
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         
-        /////////////////////////// NOT DONE ////////////////////////////////////
-        function returnSingleUrlData() {
-            var newConference;
-            
-            var xmlhttp = new XMLHttpRequest();
-            xmlhttp.onreadystatechange=function() {
-                console.log("server:", xmlhttp.readyState, xmlhttp.status);
-                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                    newConference = xmlhttp.responseText;
-                    console.log("server:", newConference);
-                    return newConference;
-                }
-                console.log("Error in server request status or state");
-            };
-            xmlhttp.open("GET", "http://localhost:"+port+"/returnSingleUrlData", true);
-            xmlhttp.send();
-            return newConference;
-        }
-        function getSingleUrlData(conf_url) {
-            var newConference;
-            
-            var xmlhttp = new XMLHttpRequest();
-            xmlhttp.onreadystatechange=function() {
-                console.log("getSingleUrlData:", xmlhttp.readyState, xmlhttp.status);
-                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                    console.log("getSingleUrlData:", "Successfully completed server put");
-                    newConference = xmlhttp.responseText;
-                    return newConference;
-                }
-            };
-            xmlhttp.open("POST", "http://localhost:"+port+"/getSingleUrlData", false);
-            xmlhttp.setRequestHeader("Content-Type", "text/plain");
-            console.log(conf_url);
-            xmlhttp.send(conf_url);
-            return newConference;
-        }
-
         
         function getRandomColor() {
             var letters = '0123456789ABCDEF';
@@ -1038,6 +909,67 @@
             }
             
             //create a submit button that will call the function to save inputs
+            var submit_search_button = newWindow.document.createElement("button");
+            submit_search_button.innerHTML = "Submit Search";
+            submit_search_button.id = "submit_url_button";
+            submit_search_button.width = "20px";
+            submit_search_button.height = "100px";
+            submit_search_button.top = "100px";
+            submit_search_button.left = "180px";
+            
+            submit_search_button.onclick = function() {
+                //save new conference URL
+                var inSearch = inputConferenceTitle.value;
+                
+                newConference = getSearchData(inSearch);
+                console.log("submit_search_button","server request done",newConference);
+                
+                newConference = data_handler.grabConferenceData(newConference);
+                console.log("submit_search_button", "newConference after converting to conference array", newConference);
+                
+                newConference = newConference[0][0];
+                
+                
+                // ADD CODE TO HERE TO ADD CONFERENCE TO VISUALIZATIONHANDLER
+                var spacing = 20;
+                var ring_size = 3;
+                var arc_size = 10;
+                
+                //console.log("parseDate: ", parseDate(newConference[4]), data_handler.convertDateToNum(parseDate(newConference[4])), data_handler.convertDateToNum(parseDate(newConference[6])));
+                
+                conferences_handler.submission_deadlines.push(newConference[4]);
+                conferences_handler.decision_deadlines.push(newConference[6]);
+                conferences_handler.conferenceStart_dates.push(newConference[7]);
+                conferences_handler.conferenceEnd_dates.push(newConference[8]);
+
+                
+                console.log("Num", conferences_handler.submission_deadlines[conferences_handler.conferences.length]);
+                
+                console.log((((conferences_handler.submission_deadlines[conferences_handler.conferences.length])/365) * (2*Math.PI)));
+                
+                var updated_inner_radius = conferences_handler.curr_radius - arc_size/2;
+                var updated_outer_radius = conferences_handler.curr_radius + arc_size/2;
+                var updated_start_angle = (((conferences_handler.submission_deadlines[conferences_handler.conferences.length])/365) * (2*Math.PI));
+                var updated_end_angle = (((conferences_handler.decision_deadlines[conferences_handler.conferences.length])/365) * (2*Math.PI));
+                var updated_conf_dates_start_angle = (((conferences_handler.conferenceStart_dates[conferences_handler.conferences.length])/365) * (2*Math.PI));
+                var updated_conf_dates_end_angle = (((conferences_handler.conferenceEnd_dates[conferences_handler.conferences.length])/365) * (2*Math.PI));
+                
+                console.log("Updated start date angles", updated_conf_dates_start_angle, updated_conf_dates_end_angle);
+                
+                conferences_handler.addConference(svg, document, conferences_handler, conferences_handler.num_confs + 1, newConference[2], newConference[1],
+                                conferences_handler.conferences.length, conferences_handler.x, conferences_handler.y, newConference[3], getRandomColor(),
+                                newConference[4], newConference[6], // conf submission, decision deadlines
+                                newConference[7], newConference[8], // conf start, end dates
+                                newConference[5], // conf abstract deadline
+                                newConference[9],                                           // conf location
+                                conferences_handler.curr_radius, updated_inner_radius, updated_outer_radius, updated_start_angle,
+                                updated_end_angle, updated_conf_dates_start_angle, updated_conf_dates_end_angle, 3, 10, conferences_handler.conferences);
+                conferences_handler.num_confs += 1;
+                
+                newWindow.close();
+            }
+            
+            //create a submit button that will call the function to save inputs
             var submit_url_button = newWindow.document.createElement("button");
             submit_url_button.innerHTML = "Submit URL";
             submit_url_button.id = "submit_url_button";
@@ -1095,9 +1027,18 @@
                                 conferences_handler.curr_radius, updated_inner_radius, updated_outer_radius, updated_start_angle,
                                 updated_end_angle, updated_conf_dates_start_angle, updated_conf_dates_end_angle, 3, 10, conferences_handler.conferences);
                 conferences_handler.num_confs += 1;
+                
                 newWindow.close();
             };
             ////////////////////////////////////////////////////////////////////
+            
+            
+            
+            
+            
+            
+            
+            
             
             ////////////////////////////////////// OR //////////////////////////////////////
             var Or = newWindow.document.createElement('Or');
@@ -1377,6 +1318,7 @@
             newWindow.document.body.appendChild(wt.cloneNode(true));
             newWindow.document.body.appendChild(submit_button);
             newWindow.document.body.appendChild(submit_url_button);
+            newWindow.document.body.appendChild(submit_search_button);
         }
     
     
