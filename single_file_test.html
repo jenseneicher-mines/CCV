@@ -639,33 +639,12 @@
            grabConferenceData(input_file) {
                var file_lines = input_file.split('\n');
                
-               var conf_data_and_num_confs = [];
-               
                var conference_data = [];
                
                var num_confs = parseInt(file_lines[0], 10);
-               var num_confs_as_url = parseInt(file_lines[1], 10);
-               var num_confs_as_manual = parseInt(file_lines[2], 10);
-               console.log("grabConferenceData:", num_confs, num_confs_as_url, num_confs_as_manual);
+               console.log("grabConferenceData:", num_confs);
                
-               for (var i = 3; i < 3 + num_confs_as_url; i++) {
-                   var split_line = file_lines[i].split(',');
-                   console.log(split_line.length);
-                   
-                   var conference = [];
-                   for (var k = 0; k < split_line.length; k++) {
-                       if (k <= 8) {
-                           conference.push(split_line[k]);
-                       } else {
-                           conference.push(parseInt(split_line[k], 10));
-                       }
-                   }
-                   console.log("grabConferenceData:", conference);
-                   conference_data.push(conference);
-                   // ADDING URL TO CODE WILL BE HANDLED HERE AS WELL AS IN ADDING CONFERENCE WITHIN POP UP WINDOW
-               }
-               
-               for (var j = 3+num_confs_as_url; j < 3+num_confs_as_url+num_confs_as_manual; j++) {
+               for (var j = 1; j < 1+num_confs; j++) {
                    var split_line = file_lines[j].split(',');
                    console.log(split_line.length);
                    
@@ -680,9 +659,8 @@
                    console.log("grabConferenceData:", conference);
                    conference_data.push(conference);
                }
-               console.log("grabConferenceData:", conference_data);
-               conf_data_and_num_confs = [conference_data, conference_data.length];
-               return conf_data_and_num_confs;
+               console.log("grabConferenceData:", "conference_data:", conference_data);
+               return conference_data;
            }
            
            exportConferenceData(conferences, data_handler) {
@@ -691,32 +669,20 @@
                
                var url_count = 0;
                for (var k = 0; k < conferences.length; k++) {
-                   if (conferences[k].conf_url != "") {
-                       console.log("dddddddd", conferences[k].conf_url);
-                       url_count += 1;
-                   }
-               }
-               
-               text_conferences_data += url_count.toString() + '\n';
-               
-               text_conferences_data += (conferences.length - url_count).toString() + '\n';
-               
-               for (var i = 0; i < (conferences.length - url_count); i++) {
-                   var name = conferences[i].conf_name;
-                   var url = conferences[i].conf_url;
-                   var field = conferences[i].conf_field;
-                   var color = conferences[i].conf_color;
-                   var submission_deadline = conferences[i].submission_deadline;
-                   var abstract_deadline = conferences[i].abstract_deadline;
-                   var decision_deadline = conferences[i].decision_deadline;
-                   var conference_start_date = conferences[i].conferenceStart_date;
-                   var conference_end_date = conferences[i].conferenceEnd_date;
-                   var location = conferences[i].conf_location;
+                   var name = conferences[k].conf_name;
+                   var url = conferences[k].conf_url;
+                   var field = conferences[k].conf_field;
+                   var color = conferences[k].conf_color;
+                   var submission_deadline = conferences[k].submission_deadline;
+                   var abstract_deadline = conferences[k].abstract_deadline;
+                   var decision_deadline = conferences[k].decision_deadline;
+                   var conference_start_date = conferences[k].conferenceStart_date;
+                   var conference_end_date = conferences[k].conferenceEnd_date;
+                   var location = conferences[k].conf_location;
                    text_conferences_data += name + ',' + url + ','+ field + ',' + color + ',' + submission_deadline + ',' +
                                                abstract_deadline + ',' + decision_deadline + ',' +
                                                conference_start_date + ',' + conference_end_date + ',' + location + '\n';
                }
-               
                
                console.log(text_conferences_data);
                
@@ -758,20 +724,19 @@
         //////////////////////////////////////////////////////// Server calls //////////////////////////////////////////////////////
         // used to grab top five conferences from wikicfp
         function getScrapedConferenceData() {                                                                                    ///
-            var text_file_conference_data = [];                                                                                  ///
+            var top_five_conferences_data = [];                                                                                  ///
             var xmlhttp = new XMLHttpRequest();                                                                                  ///
             xmlhttp.onreadystatechange=function() {                                                                              ///
                 console.log("server:", xmlhttp.readyState, xmlhttp.status);                                                      ///
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {                                                          ///
-                    text_file_conference_data = xmlhttp.responseText;                                                            ///
-                    console.log("server:", text_file_conference_data);                                                           ///
-                    return text_file_conference_data;                                                                            ///
+                    top_five_conferences_data = xmlhttp.responseText;                                                            ///
+                    console.log("getScrapedConferenceData:", "top_five_conferences_data", top_five_conferences_data);            ///
+                    return top_five_conferences_data;                                                                            ///
                 }                                                                                                                ///
-                console.log("Error in server request status or state");                                                          ///
             };                                                                                                                   ///
             xmlhttp.open("GET", "http://localhost:"+port+"/getDataScraper", false);                                              ///
             xmlhttp.send();                                                                                                      ///
-            return text_file_conference_data;                                                                                    ///
+            return top_five_conferences_data;                                                                                    ///
         }                                                                                                                        ///
                                                                                                                                  ///
         // used to send search call and return most relevant wikicfp conference data                                             ///
@@ -788,8 +753,7 @@
                 }                                                                                                                ///
             };                                                                                                                   ///
             xmlhttp.open("POST", "http://localhost:"+port+"/getDataBySearch", false);                                            ///
-            xmlhttp.setRequestHeader("Content-Type", "text/plain");                                                              ///
-            console.log(search);                                                                                                 ///
+            xmlhttp.setRequestHeader("Content-Type", "text/plain");                                                              ///                                   ///
             xmlhttp.send(search);                                                                                                ///
             return newConference;                                                                                                ///
         }                                                                                                                        ///
@@ -815,23 +779,25 @@
         }                                                                                                                        ///
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         
-        // creates random 6 digit color hex code (used mostly in creation or addition of new conferences to visualization)
-        function getRandomColor() {
-            var letters = '0123456789ABCDEF';
-            var color = '#';
-            for (var i = 0; i < 6; i++) {
-              color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        }
+        ////// creates random 6 digit color hex code (used mostly in creation or addition of new conferences to visualization) /////
+        function getRandomColor() {                                                                                               //
+            var letters = '0123456789ABCDEF';                                                                                     //
+            var color = '#';                                                                                                      //
+            for (var i = 0; i < 6; i++) {                                                                                         //
+              color += letters[Math.floor(Math.random() * 16)];                                                                   //
+            }                                                                                                                     //
+            return color;                                                                                                         //
+        }                                                                                                                         //
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         
-        // used to convert date objects to numbers
-        function parseDate(s) {
-            var b = s.split(/\D/);
-            return new Date(b[0], --b[1], b[2]);
-        }
+        ///////////////////////////////////////// used to convert date objects to numbers //////////////////////////////////////////
+        function parseDate(s) {                                                                                                   //
+            var b = s.split(/\D/);                                                                                                //
+            return new Date(b[0], --b[1], b[2]);                                                                                  //
+        }                                                                                                                         //
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         
-        ///////////////////////////////////////////////////////// UI Functions ////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////// UI Functions ////////////////////////////////////////////////////////
         // creates and populates UI and plain text objects used to provide user with stored conference data
         function showDetails(svg, document, conferences_handler, data_handler, conference) {
             // create Date obj
@@ -956,7 +922,7 @@
             //create a submit button that will call the function to save inputs
             var submit_search_button = newWindow.document.createElement("button");
             submit_search_button.innerHTML = "Submit Search";
-            submit_search_button.id = "submit_url_button";
+            submit_search_button.id = "submit_search_button";
             submit_search_button.width = "20px";
             submit_search_button.height = "100px";
             submit_search_button.top = "100px";
@@ -972,7 +938,7 @@
                 newConference = data_handler.grabConferenceData(newConference);
                 console.log("submit_search_button", "newConference after converting to conference array", newConference);
                 
-                newConference = newConference[0][0];
+                newConference = newConference[0];
                 
                 
                 // ADD CODE TO HERE TO ADD CONFERENCE TO VISUALIZATIONHANDLER
@@ -1036,7 +1002,7 @@
                 newConference = data_handler.grabConferenceData(newConference);
                 console.log("submit_url_button", "newConference after converting to conference array", newConference);
                 
-                newConference = newConference[0][0];
+                newConference = newConference[0];
                 
                 conferences_handler.addConference(svg, document, conferences_handler, newConference, conferences_handler.x, conferences_handler.y);
 
@@ -1337,7 +1303,7 @@
             }                                                                                               //
             //////////////////////////////////////////////////////////////////////////////////////////////////
             
-            ////////////////////// create conferences array and conferences_handler //////////////////////////
+            //////////////////////// create conferences array and conferences_handler ////////////////////////
             // initialize conferences array that will hold all data about conferences                       //
             var conferences = [];                                                                           //
                                                                                                             //
@@ -1357,13 +1323,14 @@
             
             //// if user has no configuration file pull the top five conferences from wikicfp as example /////
             if (confirm("Do you have a conference configuration file?")) {
-                text_file_conference_data = getScrapedConferenceData();
-                console.log("buttonGetData:", text_file_conference_data);
-                confs_and_num_confs = data_handler.grabConferenceData(text_file_conference_data);
-                conferences = confs_and_num_confs[0];
+                // call server request and return the top five conferences currently on wikicfp
+                top_five_conferences_data = getScrapedConferenceData();
+                console.log("init:", "top_five_conferences_data:", top_five_conferences_data);
+                
+                conferences = data_handler.grabConferenceData(text_file_conference_data);
                 num_confs = conferences.length;
 
-                console.log("conferences data:", conferences);
+                console.log("init", "conferences data:", conferences);
                 
                 conferences_handler.addMultipleConferences(svg, document, conferences_handler, conferences, conferences_handler.x, conferences_handler.y);
 
@@ -1397,20 +1364,12 @@
                     var reader = new FileReader();
                     reader.onload = function(event) {
                         conference_file_text = event.target.result;
-                        confs_and_num_confs = data_handler.grabConferenceData(conference_file_text);
-                        conferences = confs_and_num_confs[0];
+                        conferences = data_handler.grabConferenceData(conference_file_text);
                         num_confs = conferences.length;
                         
+                        console.log("init:","conferences:", conferences);
+                        
                         conferences_handler.addMultipleConferences(svg, document, conferences_handler, conferences, conferences_handler.x, conferences_handler.y);
-                        
-                        
-
-                        //create months ring
-                        //conferences_handler.createMonthsRing(svg, conferences_handler.x, conferences_handler.y);
-
-                        //create date line
-                        //var now = new Date();
-                        //conferences_handler.createDateLine(svg, now, conferences_handler.x, conferences_handler.y, conferences_handler.curr_radius);
 
                         //handle onclick event for enterFields button (if 10 or more conferences made do not allow creation of another)
                         if (conferences_handler.num_confs >= 10) {
@@ -1440,8 +1399,7 @@
             button_get_data.onclick = function() {
                 text_file_conference_data = getScrapedConferenceData();
                 console.log("buttonGetData:", text_file_conference_data);
-                confs_and_num_confs = data_handler.grabConferenceData(text_file_conference_data);
-                conferences = confs_and_num_confs[0];
+                conferences = data_handler.grabConferenceData(text_file_conference_data);
                 num_confs = conferences.length;
                 conferences_handler = null;
                 //svg creation  (necessary here to clear previous visualization atm)

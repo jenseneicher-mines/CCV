@@ -229,20 +229,8 @@ async function grabTopFiveUrls(conf_url) {
 function exportConferenceData(conferences) {
    var text_conferences_data = "";
    text_conferences_data += conferences.length + '\n';
-   console.log("exportConferenceData:", text_conferences_data);
-   var url_count = 0;
-   for (var k = 0; k < conferences.length; k++) {
-       if (conferences[k].conf_url != "") {
-           console.log("dddddddd", conferences[k].conf_url);
-           url_count += 1;
-       }
-   }
    
-   text_conferences_data += url_count.toString() + '\n';
-   
-   text_conferences_data += (conferences.length - url_count).toString() + '\n';
-   
-   for (var i = 0; i < (conferences.length - url_count); i++) {
+   for (var i = 0; i < conferences.length; i++) {
        var name = conferences[i].conf_name;
        var url = conferences[i].conf_url;
        var field = conferences[i].conf_field;
@@ -309,8 +297,6 @@ function convertConferenceData(conferenceData) {
     var confDataString = "";
     
     confDataString += conferenceData.length.toString() + "\n";
-    confDataString += conferenceData.length.toString() + "\n";
-    confDataString += 0 + "\n";
     
     for(var i = 0; i < conferenceData.length; i++){
         console.log("convertConferenceData:", "notificationDeadline before manipulation:", conferenceData[i].notificationDeadline)
