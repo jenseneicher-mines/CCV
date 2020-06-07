@@ -119,35 +119,35 @@
         
                // smallest conference visualization radius
                this.curr_radius = 150;
-               
+
                var now = new Date();
                this.initVisualization(this, svg, now, x, y, this.curr_radius);
-               
+
                // populate conferences array & fill other empty arrays
                this.addMultipleConferences(svg, document, this, conferences_data, x, y);
            }
-           
+
            initVisualization(conferences_handler, svg, now, x, y, r) {
                 conferences_handler.createDateLine(svg, now, x, y, r);
                 conferences_handler.createMonthsRing(svg, x, y);
            }
-           
-           addMultipleConferences(svg, document, conferences_handler, conferences_data, x, y) {               
+
+           addMultipleConferences(svg, document, conferences_handler, conferences_data, x, y) {
                 // populate conferences array & fill other empty arrays
                 for (var i = 0; i < conferences_data.length; i++) {
                     // handle single conference creation
                     conferences_handler.addConference(svg, document, conferences_handler, conferences_data[i], x, y);
                 }
            }
-        
+
            // handles addition of all conference information
            addConference(svg, document, conferences_handler, conference, x, y) {
-                
+
                 // variables necessary for visuals creation
                 var spacing = 20;
                 var ring_size = 3;
                 var arc_size = 10;
-                
+
                 ///////////////// create variables for conference information and add to visualization conf arrays //////////////
                 var conf_name = conference[0];                                                                                 //
                 var conf_url = conference[1];                                                                                  //
@@ -173,7 +173,7 @@
                 conferences_handler.locations.push(conf_location);                                                             //
                 conferences_handler.notes.push(conf_notes);                                                                    //
                 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                
+
                 ////////// create variables for conference visualization creation and add to visualization conf arrays //////////
                 var inner_radius = conferences_handler.curr_radius - arc_size/2;                                               //
                 var outer_radius = conferences_handler.curr_radius + arc_size/2;                                               //
@@ -189,10 +189,10 @@
                 conferences_handler.conf_dates_start_angles.push(conf_dates_start_angle);                                      //
                 conferences_handler.conf_dates_end_angles.push(conf_dates_end_angle);                                          //
                 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                
+
                 console.log("addConference:", "Added conference");
                 console.log("addConference:", "start & end angles", deadline_start_angle, deadline_end_angle);
-                
+
                 // create conference
                 var conf = new Conference(conferences_handler, conf_name, conf_url, conferences_handler.conferences.length,
                                          x, y, conf_field, conf_color,
@@ -206,7 +206,7 @@
                 console.log("addConference:", "conf x & y:", conf.x, conf.y);
                 console.log("addConference:", "conference object:", conf);
                 console.log("addConference:", conf.conf_dates_start_angle, conf.conf_dates_end_angle);
-               
+
                ///////////////////// create conf visualization objects and add to visualization conf arrays /////////////////////
                //Create conferences visuals                                                                                    //
                Conference.createConfVisuals(svg, document, conferences_handler, conf, conf.x, conf.y, conf.radius,             //
@@ -221,15 +221,15 @@
                
                // finally, push the conference object itself to the visualization handler
                conferences_handler.conferences.push(conf);
-               
+
                // update num_confs count
                conferences_handler.num_confs += 1;
                // update curr_radius
                conferences_handler.curr_radius += 20;
-               
+
                var now = new Date();
                conferences_handler.createDateLine(svg, now, x, y, conferences_handler.curr_radius);
-               
+
                return conf;
            }
         
@@ -446,7 +446,7 @@
                this.abstract_deadline = abstract_deadline;
                this.conf_location = conf_location;
                this.notes = notes;
-               
+
                // change ring and arc size here
                this.ring_size = 3;
                this.arc_size = 10;
@@ -887,7 +887,7 @@
         function enterFields(svg, document, conferences_handler, color, wasOpen) {
 
             // Open pop-up window to input manual data
-            let newWindow = window.open("about:blank", "Conference Details", "width=765,height=600");
+            let newWindow = window.open("about:blank", "Conference Details", "width=765,height=660");
             newWindow.document.body.style.lineHeight = "30px";
             newWindow.document.body.style.backgroundColor = "#e8e8e8";
     
@@ -929,6 +929,13 @@
             submit_search_button.left = "180px";
             
             submit_search_button.onclick = function() {
+
+                if(inputConferenceTitle.value == ""){
+                    alert("Conference title was not specified");
+                    newWindow.close();
+                    return null;
+                }
+
                 //save new conference URL
                 var inSearch = inputConferenceTitle.value;
                 
@@ -992,7 +999,13 @@
             /////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//////////// NOT DONE //////////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!///////////////
             submit_url_button.onclick = function() {
                 var data_handler = new DataHandler();
-                
+
+                //check if URL was entered
+                if(inputConferenceURL.value == ""){
+                    alert("URL Not Found");
+                    newWindow.close();
+                    return null;
+                }
                 //save new conference URL
                 var inURL = inputConferenceURL.value;
                 
@@ -1006,11 +1019,11 @@
                 
                 conferences_handler.addConference(svg, document, conferences_handler, newConference, conferences_handler.x, conferences_handler.y);
 
-                
+
                 newWindow.close();
             };
             ////////////////////////////////////////////////////////////////////
-            
+
             ////////////////////////////////////// OR //////////////////////////////////////
             var Or = newWindow.document.createElement('Or');
             Or.setAttribute('style', 'white-space: pre;');
@@ -1165,13 +1178,21 @@
                 //create an array to append the data entered for a new conference
                 var newConference = [];
 
+                if(inputConference.value == "" || inputField.value == "" || inputSub.value == ""){
+                    alert("For manual conference entry please provide conference name, field, and submission deadline");
+                    newWindow.close();
+                    return null;
+                }
+
+                //save new conference title
+
                 //store new conference search in inTitle (NOT ADDED TO newConference)
-                var inTitle = inputConferenceTitle.value;       
+                var inTitle = inputConferenceTitle.value;
 
                 //save new conference name
                 var inConf = inputConference.value;
                 newConference.push(inConf);                 //0 conf name
-                
+
                 //save new conference URL
                 var inURL = inputConferenceURL.value;
                 newConference.push(inURL);                  //1 conf url
@@ -1179,7 +1200,7 @@
                 //save new conference field
                 var inField = inputField.value;
                 newConference.push(inField);                //2 conf field
-                
+
                 newConference.push(getRandomColor());       //3 conf color
     
                 //save the new conferences submission deadline
@@ -1220,13 +1241,13 @@
                 newConference[6] = data_handler.convertDateToNum(parseDate(newConference[6]));
                 newConference[7] = data_handler.convertDateToNum(parseDate(newConference[7]));
                 newConference[8] = data_handler.convertDateToNum(parseDate(newConference[8]));
-                
+
                 
                 conferences_handler.addConference(svg, document, conferences_handler, newConference, conferences_handler.x, conferences_handler.y);
                 
                 console.log("submit_button", conferences_handler.conferences);
                 console.log("submit_button", "Done");
-                
+
                 newWindow.close();
             };
     
@@ -1234,10 +1255,14 @@
             newWindow.document.body.appendChild(confTS);
             newWindow.document.body.appendChild(inputConferenceTitle);
             newWindow.document.body.appendChild(wt.cloneNode(true));
+            newWindow.document.body.appendChild(submit_search_button);
+            newWindow.document.body.appendChild(wt.cloneNode(true));
             newWindow.document.body.appendChild(confURLS);
             newWindow.document.body.appendChild(confURLSLink);
             newWindow.document.body.appendChild(wt.cloneNode(true));
             newWindow.document.body.appendChild(inputConferenceURL);
+            newWindow.document.body.appendChild(wt.cloneNode(true));
+            newWindow.document.body.appendChild(submit_url_button);
             newWindow.document.body.appendChild(wt.cloneNode(true));
             newWindow.document.body.appendChild(Or);
             newWindow.document.body.appendChild(wt.cloneNode(true));
@@ -1263,8 +1288,6 @@
             newWindow.document.body.appendChild(inputNotes);
             newWindow.document.body.appendChild(wt.cloneNode(true));
             newWindow.document.body.appendChild(submit_button);
-            newWindow.document.body.appendChild(submit_url_button);
-            newWindow.document.body.appendChild(submit_search_button);
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
@@ -1288,7 +1311,7 @@
                 console.log("init:", "Could not create svg obj");                                           //
             }                                                                                               //
             //////////////////////////////////////////////////////////////////////////////////////////////////
-            
+
             //// dataHandler object for any functions having to do with data handling (self explanatory) /////
             var data_handler = null;                                                                        //
                                                                                                             //
@@ -1303,7 +1326,7 @@
             }                                                                                               //
             //////////////////////////////////////////////////////////////////////////////////////////////////
             
-            //////////////////////// create conferences array and conferences_handler ////////////////////////
+            ////////////////////// create conferences array and conferences_handler //////////////////////////
             // initialize conferences array that will hold all data about conferences                       //
             var conferences = [];                                                                           //
                                                                                                             //
@@ -1320,17 +1343,15 @@
                 console.log("init:", "Could not create Visualizationhandler class obj");                    //
             }                                                                                               //
             //////////////////////////////////////////////////////////////////////////////////////////////////
-            
+
             //// if user has no configuration file pull the top five conferences from wikicfp as example /////
             if (confirm("Do you have a conference configuration file?")) {
                 // call server request and return the top five conferences currently on wikicfp
                 top_five_conferences_data = getScrapedConferenceData();
                 console.log("init:", "top_five_conferences_data:", top_five_conferences_data);
-                
-                conferences = data_handler.grabConferenceData(text_file_conference_data);
                 num_confs = conferences.length;
 
-                console.log("init", "conferences data:", conferences);
+                console.log("init:", "conferences data:", conferences);
                 
                 conferences_handler.addMultipleConferences(svg, document, conferences_handler, conferences, conferences_handler.x, conferences_handler.y);
 
