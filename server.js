@@ -126,9 +126,67 @@ function scrapeConferenceDataUsingCheerio(conferenceURL) {
     return conferenceData;
 }
 
+function findConferenceUrlBySearch(title) {
+   // setup
+   const request = require('request');
+   const cheerio = require('cheerio');
+
+   // build the URL that shows the results of the title search
+   const searchURL = 'http://www.wikicfp.com/cfp/servlet/tool.search?q=' +
+      title.replace(/ /g, '+') + '&year=a';
+   console.log('Search URL: ' + searchURL);
+
+   request(searchURL, function(error, response, html) {
+      if(!error) {
+         // load HTML
+         const $ = cheerio.load(html);
+
+         // scrape the top (most-matching) conference result's URL and return it
+         var result = $('*').find('table').find('table').find('tbody').
+            find('a').attr('href').trim();
+         console.log('Found this URL: ' + result);
+         console.log("findConferenceUrlBySearch:", "result", "http://www.wikicfp.com" + result);
+         result = "http://www.wikicfp.com" + result;
+         console.log("findConferenceUrlBySearch:", "result", result);
+         return result;
+      } else {
+         console.log('No results for this search; try a different title.');
+         return undefined;
+      }
+   });
+}
+
+async function grabSingleSearchData(search) {
+  var all_info = [];
+
+   // connect to the website and open an invisible browsing tab
+   const browser = await puppeteer.launch();
+   const page = await browser.newPage();
+   //await page.goto(search);
+
+   var conf_url = findConferenceUrlBySearch(search);
+   
+   
+   await page.waitFor(2000);
+   
+   //loop through popular links, follow them and grab the conference info, then push info into all_info array
+    all_info.push(scrapeConferenceDataUsingCheerio(conf_url));
+    //await page.goBack();
+
+    
+    console.log("grabSingleSearchData", "returned result:", all_info);
+    
+   // DEBUG SUCCESS: wait for the last conference to load its data before returning
+   await page.waitFor(500);
+   
+   return all_info;
+}
+
 async function grabSingleUrlData(conf_url) {
   var all_info = [];
 
+  console.log("grabSingleUrlData:", "conf_url:", conf_url);
+  
    // connect to the website and open an invisible browsing tab
    const browser = await puppeteer.launch();
    const page = await browser.newPage();
@@ -280,8 +338,10 @@ function convertConferenceData(conferenceData) {
         
         conf_start_date = convertDateToNum(convertDateStringToDateObj(conf_start_date));
         conf_end_date = convertDateToNum(convertDateStringToDateObj(conf_end_date));
+        
         console.log("convertConferenceData:", "conference start & end dates:", conf_start_date, conf_end_date);
         console.log("convertConferenceData:", "notificationDeadline:", conferenceData[i].notificationDeadline);
+        
         console.log(conferenceData[i].conferenceName);
         conferenceData[i].conferenceName = conferenceData[i].conferenceName.replace(/,/g, ';');
         console.log(conferenceData[i].conferenceName);
@@ -335,16 +395,16 @@ async function run() {
       res.end(converted_data);
    };
    app.post("/getSingleUrlData", getSingleUrlData);
-   
-   const returnSingleUrlData = function(req, res) {
-      console.log("returnSingleUrlData:", single_url_data);
-      list_single_url_data = [];
-      list_single_url_data.push(single_url_data);
-      converted_data = convertConferenceData(list_single_url_data);
-      res.end(converted_data);
-   };
-   app.get("/returnSingleUrlData", returnSingleUrlData);
    ///////////////////////////////////////////////////////////////////////////////////////////
+   
+   const getDataBySearch = async function(req, res) {
+      console.log("Attempting to grab data using search");
+      var data_results = await grabSingleSearchData(req.text);
+      console.log("getDataBySearch:", data_results);
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      res.end(data_results);
+   }
+   app.post("/getDataBySearch", getDataBySearch);
    
    const getDataScraper = async function(req, res) {      
       console.log("Entered Data Scraping");

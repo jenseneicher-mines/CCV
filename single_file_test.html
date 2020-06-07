@@ -84,7 +84,7 @@
             * array of conference information (i.e. [["name_1", "field_1"]["field_1", "field_2"]]), then necessary adjustments will be made.
             * If this change is made it should be noted that updating info arrays IS ESSENTIAL
             */
-           constructor(svg, document, x, y, conferences, num_confs) {
+           constructor(svg, document, x, y, conferences_data, num_confs) {
                this.svg = svg;
                this.document = document;
                this.x = x;
@@ -104,6 +104,7 @@
                this.conferenceEnd_dates = [];
                this.abstract_deadlines = [];
                this.locations = [];
+               this.notes = [];
                this.inner_radii = [];
                this.outer_radii = [];
                this.start_angles = [];
@@ -118,76 +119,117 @@
         
                // smallest conference visualization radius
                this.curr_radius = 150;
-        
-               // variables necessary for visual creation
-               var spacing = 20;
-               var ring_size = 3;
-               var arc_size = 10;
+               
+               var now = new Date();
+               this.initVisualization(this, svg, now, x, y, this.curr_radius);
                
                // populate conferences array & fill other empty arrays
-               for (var i = 0; i < num_confs; i++) {
-                    this.names.push(conferences[i][0]);
-                    this.urls.push(conferences[i][1]);
-                    this.fields.push(conferences[i][2]);
-                    this.colors.push(conferences[i][3]);
-                    this.submission_deadlines.push(conferences[i][4]);
-                    this.abstract_deadlines.push(conferences[i][5]);
-                    this.decision_deadlines.push(conferences[i][6]);
-                    this.conferenceStart_dates.push(conferences[i][7]);
-                    this.conferenceEnd_dates.push(conferences[i][8]);
-                    this.locations.push(conferences[i][9]);
-                   
-                    // add math related translations for arc creation
-                    this.inner_radii.push(this.curr_radius - arc_size/2);
-                    this.outer_radii.push(this.curr_radius + arc_size/2);
-                    this.start_angles.push(((this.submission_deadlines[i])/365) * (2*Math.PI));
-                    this.end_angles.push(((this.decision_deadlines[i])/365) * (2*Math.PI));
-                    this.conf_dates_start_angles.push(((this.conferenceStart_dates[i])/365) * (2*Math.PI));
-                    this.conf_dates_end_angles.push(((this.conferenceEnd_dates[i])/365) * (2*Math.PI));
-                    
+               this.addMultipleConferences(svg, document, this, conferences_data, x, y);
+           }
+           
+           initVisualization(conferences_handler, svg, now, x, y, r) {
+                conferences_handler.createDateLine(svg, now, x, y, r);
+                conferences_handler.createMonthsRing(svg, x, y);
+           }
+           
+           addMultipleConferences(svg, document, conferences_handler, conferences_data, x, y) {               
+                // populate conferences array & fill other empty arrays
+                for (var i = 0; i < conferences_data.length; i++) {
                     // handle single conference creation
-                    var conf = this.addConference(svg, document, this, num_confs, this.names[i], this.urls[i], i, this.x, this.y, this.fields[i], this.colors[i],
-                                         this.submission_deadlines[i], this.decision_deadlines[i], this.conferenceStart_dates[i], this.conferenceEnd_dates[i],
-                                         this.abstract_deadlines[i], this.locations[i], this.curr_radius, this.inner_radii[i], this.outer_radii[i],
-                                         this.start_angles[i], this.end_angles[i], this.conf_dates_start_angles[i], this.conf_dates_end_angles[i], ring_size, arc_size, this.conferences);
-               }
-               console.log(this.urls);
-               console.log(this.colors);
+                    conferences_handler.addConference(svg, document, conferences_handler, conferences_data[i], x, y);
+                }
            }
         
            // handles addition of all conference information
-           addConference(svg, document, conferences_handler, num_confs, name, conf_url, i, x, y, field, color, submission_deadline, decision_deadline,
-                         conferenceStart_dates, conferenceEnd_dates, abstract_deadlines, conf_location, curr_radius, inner_radius, outer_radius,
-                         start_angle, end_angle, conf_dates_start_angle, conf_dates_end_angle, ring_size, arc_size, conferences) {
-               console.log("Added conference");
+           addConference(svg, document, conferences_handler, conference, x, y) {
+                
+                // variables necessary for visuals creation
+                var spacing = 20;
+                var ring_size = 3;
+                var arc_size = 10;
+                
+                ///////////////// create variables for conference information and add to visualization conf arrays //////////////
+                var conf_name = conference[0];                                                                                 //
+                var conf_url = conference[1];                                                                                  //
+                var conf_field = conference[2];                                                                                //
+                var conf_color = conference[3];                                                                                //
+                var conf_submission_deadline = conference[4];                                                                  //
+                var conf_abstract_deadline = conference[5];                                                                    //
+                var conf_decision_deadline = conference[6];                                                                    //
+                var conf_start_date = conference[7];                                                                           //
+                var conf_end_date = conference[8];                                                                             //
+                var conf_location = conference[9];                                                                             //
+                var conf_notes = conference[10];                                                                               //
+                                                                                                                               //
+                conferences_handler.names.push(conf_name);                                                                     //
+                conferences_handler.urls.push(conf_url);                                                                       //
+                conferences_handler.fields.push(conf_field);                                                                   //
+                conferences_handler.colors.push(conf_color);                                                                   //
+                conferences_handler.submission_deadlines.push(conf_submission_deadline);                                       //
+                conferences_handler.abstract_deadlines.push(conf_abstract_deadline);                                           //
+                conferences_handler.decision_deadlines.push(conf_decision_deadline);                                           //
+                conferences_handler.conferenceStart_dates.push(conf_start_date);                                               //
+                conferences_handler.conferenceEnd_dates.push(conf_end_date);                                                   //
+                conferences_handler.locations.push(conf_location);                                                             //
+                conferences_handler.notes.push(conf_notes);                                                                    //
+                /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                
+                ////////// create variables for conference visualization creation and add to visualization conf arrays //////////
+                var inner_radius = conferences_handler.curr_radius - arc_size/2;                                               //
+                var outer_radius = conferences_handler.curr_radius + arc_size/2;                                               //
+                var deadline_start_angle = ((conf_submission_deadline)/365) * (2*Math.PI);                                     //
+                var deadline_end_angle = ((conf_decision_deadline)/365) * (2*Math.PI);                                         //
+                var conf_dates_start_angle = ((conf_start_date)/365) * (2*Math.PI);                                            //
+                var conf_dates_end_angle = ((conf_end_date)/365) * (2*Math.PI);                                                //
+                                                                                                                               //
+                conferences_handler.inner_radii.push(inner_radius);                                                            //
+                conferences_handler.outer_radii.push(outer_radius);                                                            //
+                conferences_handler.start_angles.push(deadline_start_angle);                                                   //
+                conferences_handler.end_angles.push(deadline_end_angle);                                                       //
+                conferences_handler.conf_dates_start_angles.push(conf_dates_start_angle);                                      //
+                conferences_handler.conf_dates_end_angles.push(conf_dates_end_angle);                                          //
+                /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                
+                console.log("addConference:", "Added conference");
+                console.log("addConference:", "start & end angles", deadline_start_angle, deadline_end_angle);
+                
+                // create conference
+                var conf = new Conference(conferences_handler, conf_name, conf_url, conferences_handler.conferences.length,
+                                         x, y, conf_field, conf_color,
+                                         conf_submission_deadline, conf_decision_deadline,
+                                         conf_start_date, conf_end_date, conf_abstract_deadline, conf_location, conf_notes,
+                                         conferences_handler.curr_radius, inner_radius, outer_radius, deadline_start_angle,
+                                         deadline_end_angle, conf_dates_start_angle,
+                                         conf_dates_end_angle, null, null, null, null);
                
-               console.log("addConference: ", "start & end angles", start_angle, end_angle);
+                console.log("addConference:", conf.start_angle, conf.end_angle);
+                console.log("addConference:", "conf x & y:", conf.x, conf.y);
+                console.log("addConference:", "conference object:", conf);
+                console.log("addConference:", conf.conf_dates_start_angle, conf.conf_dates_end_angle);
                
-               console.log(name, i, x, y, field, color, submission_deadline, decision_deadline, conferenceStart_dates, conferenceEnd_dates, abstract_deadlines, conf_location,
-                                           curr_radius, inner_radius, outer_radius, start_angle, end_angle, conf_dates_start_angle, conf_dates_end_angle, null, null);
-                                           
-               var conf = new Conference(conferences_handler, name, conf_url, i, x, y, field, color, submission_deadline, decision_deadline, conferenceStart_dates, conferenceEnd_dates, abstract_deadlines, conf_location,
-                   curr_radius, inner_radius, outer_radius, start_angle, end_angle, conf_dates_start_angle, conf_dates_end_angle, null, null, null, null);
+               ///////////////////// create conf visualization objects and add to visualization conf arrays /////////////////////
+               //Create conferences visuals                                                                                    //
+               Conference.createConfVisuals(svg, document, conferences_handler, conf, conf.x, conf.y, conf.radius,             //
+                                            conf.start_angle, conf.end_angle, conf.conf_color,                                 //
+                                            conf.conf_dates_start_angle, conf.conf_dates_end_angle);                           //
+                                                                                                                               //
+               conferences_handler.rings.push(conf.ring);                                                                      //
+               conferences_handler.arcs.push(conf.arc);                                                                        //
+               conferences_handler.abstract_arcs.push(conf.abstract_arc);                                                      //
+               conferences_handler.conf_dates_arcs.push(conf.conf_dates_arc);                                                  //
+               //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                
-               console.log("addConference: ", conf.start_angle, conf.end_angle);
-               
-               console.log("addConference: ", "conf x & y:", conf.x, conf.y);
-               
-               console.log("addConference: ", "conference object:", conf);
-               
-               console.log("addConference: ", conf.conf_dates_start_angle, conf.conf_dates_end_angle);
-        
-               //Create conferences visuals and add to visualization handler arrays 'rings' and 'arcs's
-               Conference.createConfVisuals(svg, document, conferences_handler, conf, conf.x, conf.y, conf.radius, conf.start_angle, conf.end_angle, conf.conf_color, conf.conf_dates_start_angle, conf.conf_dates_end_angle);
-               
-               conferences_handler.rings.push(conf.ring);
-               conferences_handler.arcs.push(conf.arc);
-               conferences_handler.abstract_arcs.push(conf.abstract_arc);
-               conferences_handler.conf_dates_arcs.push(conf.conf_dates_arc);
+               // finally, push the conference object itself to the visualization handler
                conferences_handler.conferences.push(conf);
+               
+               // update num_confs count
                conferences_handler.num_confs += 1;
                // update curr_radius
                conferences_handler.curr_radius += 20;
+               
+               var now = new Date();
+               conferences_handler.createDateLine(svg, now, x, y, conferences_handler.curr_radius);
+               
                return conf;
            }
         
@@ -375,7 +417,7 @@
        class Conference {
            // constructor (must include all fields atm)
            constructor(conferences_handler, conf_name, conf_url, conf_index, x, y, conf_field, conf_color, submission_deadline, decision_deadline,
-                       conferenceStart_date, conferenceEnd_date, abstract_deadline, conf_location, radius, inner_radius, outer_radius, start_angle, end_angle,
+                       conferenceStart_date, conferenceEnd_date, abstract_deadline, conf_location, notes, radius, inner_radius, outer_radius, start_angle, end_angle,
                        conf_dates_start_angle, conf_dates_end_angle, ring, arc, abstract_arc, conf_dates_arc) {
                // var. having to do with conference info.
                this.conferences_handler = conferences_handler;
@@ -403,6 +445,7 @@
                this.conferenceEnd_date = conferenceEnd_date;
                this.abstract_deadline = abstract_deadline;
                this.conf_location = conf_location;
+               this.notes = notes;
                
                // change ring and arc size here
                this.ring_size = 3;
@@ -708,9 +751,6 @@
     <script>
         // declare variable used to keep track of what conference is being looked at currently
         var selected_conf_index;
-
-        // initialize conferences array that will hold all data about conferences
-        var conferences = [];
         
         // define which port will be used to handle server requests (currently only for debugging, admin should later switch to using url in server)
         var port = 8000;
@@ -734,6 +774,7 @@
             return text_file_conference_data;                                                                                    ///
         }                                                                                                                        ///
                                                                                                                                  ///
+        // used to send search call and return most relevant wikicfp conference data                                             ///
         function getSearchData(search) {                                                                                         ///
             var newConference;                                                                                                   ///
                                                                                                                                  ///
@@ -753,6 +794,7 @@
             return newConference;                                                                                                ///
         }                                                                                                                        ///
                                                                                                                                  ///
+        // used to grab data for single conference using url                                                                     ///
         function getSingleUrlData(conf_url) {                                                                                    ///
             var newConference;                                                                                                   ///
                                                                                                                                  ///
@@ -773,7 +815,7 @@
         }                                                                                                                        ///
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         
-        
+        // creates random 6 digit color hex code (used mostly in creation or addition of new conferences to visualization)
         function getRandomColor() {
             var letters = '0123456789ABCDEF';
             var color = '#';
@@ -783,11 +825,14 @@
             return color;
         }
         
+        // used to convert date objects to numbers
         function parseDate(s) {
             var b = s.split(/\D/);
             return new Date(b[0], --b[1], b[2]);
         }
-
+        
+        ///////////////////////////////////////////////////////// UI Functions ////////////////////////////////////////////////////////////////////////
+        // creates and populates UI and plain text objects used to provide user with stored conference data
         function showDetails(svg, document, conferences_handler, data_handler, conference) {
             // create Date obj
             var now = new Date();
@@ -871,7 +916,8 @@
         }
 
     
-        // Button click event function for manually creating a conference
+        // Used in 'Add a Conference' click event. Creates new window with all objects necessary to add conferences
+        // through both manual and data scraping entry
         function enterFields(svg, document, conferences_handler, color, wasOpen) {
 
             // Open pop-up window to input manual data
@@ -979,65 +1025,25 @@
     
             /////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//////////// NOT DONE //////////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!///////////////
             submit_url_button.onclick = function() {
+                var data_handler = new DataHandler();
+                
                 //save new conference URL
                 var inURL = inputConferenceURL.value;
                 
                 newConference = getSingleUrlData(inURL);
-                console.log("submit_url_button","server request done",newConference);
+                console.log("submit_url_button", "server request done", newConference);
                 
                 newConference = data_handler.grabConferenceData(newConference);
                 console.log("submit_url_button", "newConference after converting to conference array", newConference);
                 
                 newConference = newConference[0][0];
                 
-                
-                // ADD CODE TO HERE TO ADD CONFERENCE TO VISUALIZATIONHANDLER
-                var spacing = 20;
-                var ring_size = 3;
-                var arc_size = 10;
-                
-                //console.log("parseDate: ", parseDate(newConference[4]), data_handler.convertDateToNum(parseDate(newConference[4])), data_handler.convertDateToNum(parseDate(newConference[6])));
-                
-                conferences_handler.submission_deadlines.push(newConference[4]);
-                conferences_handler.decision_deadlines.push(newConference[6]);
-                conferences_handler.conferenceStart_dates.push(newConference[7]);
-                conferences_handler.conferenceEnd_dates.push(newConference[8]);
+                conferences_handler.addConference(svg, document, conferences_handler, newConference, conferences_handler.x, conferences_handler.y);
 
-                
-                console.log("Num", conferences_handler.submission_deadlines[conferences_handler.conferences.length]);
-                
-                console.log((((conferences_handler.submission_deadlines[conferences_handler.conferences.length])/365) * (2*Math.PI)));
-                
-                var updated_inner_radius = conferences_handler.curr_radius - arc_size/2;
-                var updated_outer_radius = conferences_handler.curr_radius + arc_size/2;
-                var updated_start_angle = (((conferences_handler.submission_deadlines[conferences_handler.conferences.length])/365) * (2*Math.PI));
-                var updated_end_angle = (((conferences_handler.decision_deadlines[conferences_handler.conferences.length])/365) * (2*Math.PI));
-                var updated_conf_dates_start_angle = (((conferences_handler.conferenceStart_dates[conferences_handler.conferences.length])/365) * (2*Math.PI));
-                var updated_conf_dates_end_angle = (((conferences_handler.conferenceEnd_dates[conferences_handler.conferences.length])/365) * (2*Math.PI));
-                
-                console.log("Updated start date angles", updated_conf_dates_start_angle, updated_conf_dates_end_angle);
-                
-                conferences_handler.addConference(svg, document, conferences_handler, conferences_handler.num_confs + 1, newConference[2], newConference[1],
-                                conferences_handler.conferences.length, conferences_handler.x, conferences_handler.y, newConference[3], getRandomColor(),
-                                newConference[4], newConference[6], // conf submission, decision deadlines
-                                newConference[7], newConference[8], // conf start, end dates
-                                newConference[5], // conf abstract deadline
-                                newConference[9],                                           // conf location
-                                conferences_handler.curr_radius, updated_inner_radius, updated_outer_radius, updated_start_angle,
-                                updated_end_angle, updated_conf_dates_start_angle, updated_conf_dates_end_angle, 3, 10, conferences_handler.conferences);
-                conferences_handler.num_confs += 1;
                 
                 newWindow.close();
             };
             ////////////////////////////////////////////////////////////////////
-            
-            
-            
-            
-            
-            
-            
-            
             
             ////////////////////////////////////// OR //////////////////////////////////////
             var Or = newWindow.document.createElement('Or');
@@ -1192,22 +1198,23 @@
             submit_button.onclick = function() {
                 //create an array to append the data entered for a new conference
                 var newConference = [];
-    
-                //save new conference title
+
+                //store new conference search in inTitle (NOT ADDED TO newConference)
                 var inTitle = inputConferenceTitle.value;       
-                newConference.push(inTitle);                //0
-    
+
+                //save new conference name
+                var inConf = inputConference.value;
+                newConference.push(inConf);                 //0 conf name
+                
                 //save new conference URL
                 var inURL = inputConferenceURL.value;
                 newConference.push(inURL);                  //1 conf url
-    
-                //save new conference name
-                var inConf = inputConference.value;
-                newConference.push(inConf);                 //2 conf name
                 
                 //save new conference field
                 var inField = inputField.value;
-                newConference.push(inField);                //3 conf field
+                newConference.push(inField);                //2 conf field
+                
+                newConference.push(getRandomColor());       //3 conf color
     
                 //save the new conferences submission deadline
                 var inSub = inputSub.value;
@@ -1236,54 +1243,28 @@
                 var inNotes = inputNotes.value;
                 newConference.push(inNotes);                //10 conf notes
 
-                console.log(newConference);
+                console.log("submit_button:", newConference);
                 
                 /////////////////////////////////////////////////////////////////////////////
-                var spacing = 20;
-                var ring_size = 3;
-                var arc_size = 10;
+                var data_handler = new DataHandler();
                 
-                console.log("parseDate: ", parseDate(newConference[4]), data_handler.convertDateToNum(parseDate(newConference[4])), data_handler.convertDateToNum(parseDate(newConference[6])));
+                // convert date objects to numbers for conference creation
+                newConference[4] = data_handler.convertDateToNum(parseDate(newConference[4]));
+                newConference[5] = data_handler.convertDateToNum(parseDate(newConference[5]));
+                newConference[6] = data_handler.convertDateToNum(parseDate(newConference[6]));
+                newConference[7] = data_handler.convertDateToNum(parseDate(newConference[7]));
+                newConference[8] = data_handler.convertDateToNum(parseDate(newConference[8]));
                 
-                conferences_handler.submission_deadlines.push(data_handler.convertDateToNum(parseDate(newConference[4])));
-                conferences_handler.decision_deadlines.push(data_handler.convertDateToNum(parseDate(newConference[6])));
-                conferences_handler.conferenceStart_dates.push(data_handler.convertDateToNum(parseDate(newConference[7])));
-                conferences_handler.conferenceEnd_dates.push(data_handler.convertDateToNum(parseDate(newConference[8])));
-
                 
-                console.log("Num", conferences_handler.submission_deadlines[conferences_handler.conferences.length]);
+                conferences_handler.addConference(svg, document, conferences_handler, newConference, conferences_handler.x, conferences_handler.y);
                 
-                console.log((((conferences_handler.submission_deadlines[conferences_handler.conferences.length])/365) * (2*Math.PI)));
+                console.log("submit_button", conferences_handler.conferences);
+                console.log("submit_button", "Done");
                 
-                var updated_inner_radius = conferences_handler.curr_radius - arc_size/2;
-                var updated_outer_radius = conferences_handler.curr_radius + arc_size/2;
-                var updated_start_angle = (((conferences_handler.submission_deadlines[conferences_handler.conferences.length])/365) * (2*Math.PI));
-                var updated_end_angle = (((conferences_handler.decision_deadlines[conferences_handler.conferences.length])/365) * (2*Math.PI));
-                var updated_conf_dates_start_angle = (((conferences_handler.conferenceStart_dates[conferences_handler.conferences.length])/365) * (2*Math.PI));
-                var updated_conf_dates_end_angle = (((conferences_handler.conferenceEnd_dates[conferences_handler.conferences.length])/365) * (2*Math.PI));
-                
-                console.log("Updated start date angles", updated_conf_dates_start_angle, updated_conf_dates_end_angle);
-                
-                conferences_handler.addConference(svg, document, conferences_handler, conferences_handler.num_confs + 1, newConference[2], newConference[1],
-                                conferences_handler.conferences.length, conferences_handler.x, conferences_handler.y, newConference[3], getRandomColor(),
-                                data_handler.convertDateToNum(parseDate(newConference[4])), data_handler.convertDateToNum(parseDate(newConference[6])), // conf submission, decision deadlines
-                                data_handler.convertDateToNum(parseDate(newConference[7])), data_handler.convertDateToNum(parseDate(newConference[8])), // conf start, end dates
-                                data_handler.convertDateToNum(parseDate(newConference[5])), // conf abstract deadline
-                                newConference[9],                                           // conf location
-                                conferences_handler.curr_radius, updated_inner_radius, updated_outer_radius, updated_start_angle,
-                                updated_end_angle, updated_conf_dates_start_angle, updated_conf_dates_end_angle, 3, 10, conferences_handler.conferences);
-                conferences_handler.num_confs += 1;
-                
-                console.log(conferences_handler.conferences);
-                
-                // display array for checking, close window, and return array containing new conference details
-                console.log(newConference);
-                console.log("Done");
                 newWindow.close();
-                return newConference;
             };
     
-            //Add all elements to the pop-up window
+            //Append all elements to the pop-up window
             newWindow.document.body.appendChild(confTS);
             newWindow.document.body.appendChild(inputConferenceTitle);
             newWindow.document.body.appendChild(wt.cloneNode(true));
@@ -1319,43 +1300,72 @@
             newWindow.document.body.appendChild(submit_url_button);
             newWindow.document.body.appendChild(submit_search_button);
         }
-    
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
         /*
          * main function call
          */
         function init() {
-            //svg creation
-            var svg_width = document.body.clientWidth / 2;
-            var svg_height = document.body.clientHeight;
-            var svg = d3.select("#chart1").append("svg").attr("width", svg_width)
-                                                     .attr("height", svg_height);
-                                                     
-            // dataHandler object for any functions having to do with data handling (self explanatory)
-            data_handler = new DataHandler();
-            console.log("Successfully created data handler: ", data_handler);
-
+            //////////// svg creation (used to show all aspects of conference visualization, /////////////////
+            ////////// any visualization objects are appended to this svg object dynamically) ////////////////
+            var svg_width = document.body.clientWidth / 2;                                                  //
+            var svg_height = document.body.clientHeight;                                                    //
+            var svg = null;                                                                                 //
+                                                                                                            //
+            // svg object creation                                                                          //
+            svg = d3.select("#chart1").append("svg").attr("width", svg_width).attr("height", svg_height);   //
+                                                                                                            //
+            // svg object check                                                                             //
+            if (svg != null) {                                                                              //
+                console.log("init:", "Successfully created svg obj:", svg);                                 //
+            } else {                                                                                        //
+                console.log("init:", "Could not create svg obj");                                           //
+            }                                                                                               //
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+            
+            //// dataHandler object for any functions having to do with data handling (self explanatory) /////
+            var data_handler = null;                                                                        //
+                                                                                                            //
+            // DataHandler object creation                                                                  //
+            data_handler = new DataHandler();                                                               //
+                                                                                                            //
+            // DataHandler object check                                                                     //
+            if (data_handler != null) {                                                                     //
+                console.log("init:", "Successfully created DataHandler class obj", data_handler);           //
+            } else {                                                                                        //
+                console.log("init:", "Could not create DataHandler class obj");                             //
+            }                                                                                               //
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+            
+            ////////////////////// create conferences array and conferences_handler //////////////////////////
+            // initialize conferences array that will hold all data about conferences                       //
+            var conferences = [];                                                                           //
+                                                                                                            //
+            // create conferences_handler                                                                   //
+            var conferences_handler = null;                                                                 //
+            conferences_handler = new VisualizationHandler(svg, document, svg_width/2, svg_height/2,        //
+                                                            conferences, conferences.length);               //
+                                                                                                            //
+            // VisualizationHandler obj check                                                               //
+            if (conferences_handler != null) {                                                              //
+                console.log("init:", "Successfully created VisualizationHandler class obj",                 //
+                                                            conferences_handler);                           //
+            } else {                                                                                        //
+                console.log("init:", "Could not create Visualizationhandler class obj");                    //
+            }                                                                                               //
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+            
+            //// if user has no configuration file pull the top five conferences from wikicfp as example /////
             if (confirm("Do you have a conference configuration file?")) {
                 text_file_conference_data = getScrapedConferenceData();
                 console.log("buttonGetData:", text_file_conference_data);
                 confs_and_num_confs = data_handler.grabConferenceData(text_file_conference_data);
                 conferences = confs_and_num_confs[0];
                 num_confs = conferences.length;
-                conferences_handler = null;
-                //svg creation  (necessary here to clear previous visualization atm)
-                //var svg_width = document.body.clientWidth / 2;
-                //var svg_height = document.body.clientHeight;
-                //var svg = d3.select("#chart1").append("svg").attr("width", svg_width)
-                //                                         .attr("height", svg_height);
-                conferences_handler = new VisualizationHandler(svg, document, svg_width/2, svg_height/2, conferences, num_confs);
-                console.log("Successfully recreated conferences_handler: ", conferences_handler);
 
-                //create months ring
-                conferences_handler.createMonthsRing(svg, conferences_handler.x, conferences_handler.y);
-
-                //create date line
-                var now = new Date();
-                conferences_handler.createDateLine(svg, now, conferences_handler.x, conferences_handler.y, conferences_handler.curr_radius);
+                console.log("conferences data:", conferences);
+                
+                conferences_handler.addMultipleConferences(svg, document, conferences_handler, conferences, conferences_handler.x, conferences_handler.y);
 
                 //handle onclick event for enterFields button (if 10 or more conferences made do not allow creation of another)
                 if (conferences_handler.num_confs >= 10) {
@@ -1376,12 +1386,9 @@
                     download_link.href = data_handler.exportConferenceData(conferences_handler.conferences, data_handler);
                     download_link.style.display = 'block';
                 };
-            }
-            else{
+            //// if user does have configuration file load visual initialization and prompt user for file ////
+            } else {
                 //tell user to choose file
-
-                // handle grabbing file and populating conferences array with necessary data
-                var finished_processing_data = false;
 
                 const file_conference_data = document.getElementById('file_conference_data');
                 file_conference_data.addEventListener('change', (event) => {
@@ -1393,20 +1400,17 @@
                         confs_and_num_confs = data_handler.grabConferenceData(conference_file_text);
                         conferences = confs_and_num_confs[0];
                         num_confs = conferences.length;
-
-                        finished_processing_data = true;
-
-                        ////////////////////////////// INITIALIZATION OF VISUALIZATION HAS MOVED HERE //////////////////////////////////////////
-                        //create conferences & their visuals and add all info to conferences_handler object
-                        var conferences_handler = new VisualizationHandler(svg, document, svg_width/2, svg_height/2, conferences, num_confs);
-                        console.log("Successfully created conferences_handler: ", conferences_handler);
+                        
+                        conferences_handler.addMultipleConferences(svg, document, conferences_handler, conferences, conferences_handler.x, conferences_handler.y);
+                        
+                        
 
                         //create months ring
-                        conferences_handler.createMonthsRing(svg, conferences_handler.x, conferences_handler.y);
+                        //conferences_handler.createMonthsRing(svg, conferences_handler.x, conferences_handler.y);
 
                         //create date line
-                        var now = new Date();
-                        conferences_handler.createDateLine(svg, now, conferences_handler.x, conferences_handler.y, conferences_handler.curr_radius);
+                        //var now = new Date();
+                        //conferences_handler.createDateLine(svg, now, conferences_handler.x, conferences_handler.y, conferences_handler.curr_radius);
 
                         //handle onclick event for enterFields button (if 10 or more conferences made do not allow creation of another)
                         if (conferences_handler.num_confs >= 10) {
