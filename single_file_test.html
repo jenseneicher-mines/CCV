@@ -875,7 +875,7 @@
         function enterFields(svg, document, conferences_handler, color, wasOpen) {
 
             // Open pop-up window to input manual data
-            let newWindow = window.open("about:blank", "Conference Details", "width=765,height=600");
+            let newWindow = window.open("about:blank", "Conference Details", "width=765,height=660");
             newWindow.document.body.style.lineHeight = "30px";
             newWindow.document.body.style.backgroundColor = "#e8e8e8";
     
@@ -917,6 +917,13 @@
             submit_search_button.left = "180px";
             
             submit_search_button.onclick = function() {
+
+                if(inputConferenceTitle.value == ""){
+                    alert("Conference title was not specified");
+                    newWindow.close();
+                    return null;
+                }
+
                 //save new conference URL
                 var inSearch = inputConferenceTitle.value;
                 
@@ -979,6 +986,14 @@
     
             /////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//////////// NOT DONE //////////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!///////////////
             submit_url_button.onclick = function() {
+
+                //check if URL was entered
+                if(inputConferenceURL.value == ""){
+                    alert("URL Not Found");
+                    newWindow.close();
+                    return null;
+                }
+
                 //save new conference URL
                 var inURL = inputConferenceURL.value;
                 
@@ -989,7 +1004,6 @@
                 console.log("submit_url_button", "newConference after converting to conference array", newConference);
                 
                 newConference = newConference[0][0];
-                
                 
                 // ADD CODE TO HERE TO ADD CONFERENCE TO VISUALIZATIONHANDLER
                 var spacing = 20;
@@ -1192,6 +1206,12 @@
             submit_button.onclick = function() {
                 //create an array to append the data entered for a new conference
                 var newConference = [];
+
+                if(inputConference.value == "" || inputField.value == "" || inputSub.value == ""){
+                    alert("For manual conference entry please provide conference name, field, and submission deadline");
+                    newWindow.close();
+                    return null;
+                }
     
                 //save new conference title
                 var inTitle = inputConferenceTitle.value;       
@@ -1287,10 +1307,14 @@
             newWindow.document.body.appendChild(confTS);
             newWindow.document.body.appendChild(inputConferenceTitle);
             newWindow.document.body.appendChild(wt.cloneNode(true));
+            newWindow.document.body.appendChild(submit_search_button);
+            newWindow.document.body.appendChild(wt.cloneNode(true));
             newWindow.document.body.appendChild(confURLS);
             newWindow.document.body.appendChild(confURLSLink);
             newWindow.document.body.appendChild(wt.cloneNode(true));
             newWindow.document.body.appendChild(inputConferenceURL);
+            newWindow.document.body.appendChild(wt.cloneNode(true));
+            newWindow.document.body.appendChild(submit_url_button);
             newWindow.document.body.appendChild(wt.cloneNode(true));
             newWindow.document.body.appendChild(Or);
             newWindow.document.body.appendChild(wt.cloneNode(true));
@@ -1316,8 +1340,6 @@
             newWindow.document.body.appendChild(inputNotes);
             newWindow.document.body.appendChild(wt.cloneNode(true));
             newWindow.document.body.appendChild(submit_button);
-            newWindow.document.body.appendChild(submit_url_button);
-            newWindow.document.body.appendChild(submit_search_button);
         }
     
     
@@ -1335,7 +1357,7 @@
             data_handler = new DataHandler();
             console.log("Successfully created data handler: ", data_handler);
 
-            if (confirm("Do you have a conference configuration file?")) {
+            if (!confirm("Pulling from your conference configuration file")) {
                 text_file_conference_data = getScrapedConferenceData();
                 console.log("buttonGetData:", text_file_conference_data);
                 confs_and_num_confs = data_handler.grabConferenceData(text_file_conference_data);
