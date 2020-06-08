@@ -693,7 +693,7 @@
                                                                                                                    //               //
                    var conference = [];                                                                            //               //
                    for (var k = 0; k < split_line.length; k++) {                                                   //               //
-                       if ((k <= 3) || (k == 9)) {                                                                 //               //
+                       if ((k <= 3) || (k == 9) || (k == 10)) {                                                    //               //
                            conference.push(split_line[k]);                                                         //               //
                        } else {                                                                                    //               //
                            conference.push(parseInt(split_line[k], 10));                                           //               //
@@ -707,7 +707,7 @@
            }                                                                                                       //               //
            //////////////////////////////////////////////////////////////////////////////////////////////////////////               //
                                                                                                                                     //
-           ////////////////////////////////// used to create downloadable txt file //////////////////////////////////               //
+            ////////////////////////////////// used to create downloadable txt file //////////////////////////////////               //
            /*********************************************************************************************          //               //
             * exportConferenceData                                                                      *          //               //
             * @params conferences                                                                       *          //               //
@@ -728,11 +728,12 @@
                    var conference_start_date = conferences[k].conferenceStart_date;                                //               //
                    var conference_end_date = conferences[k].conferenceEnd_date;                                    //               //
                    var location = conferences[k].conf_location;                                                    //               //
+                   var notes = conferences[k].notes;                                                               //               //
                    text_conferences_data += name + ',' + url + ','+ field + ',' + color + ',' +                    //               //
                                                 submission_deadline + ',' + abstract_deadline + ',' +              //               //
                                                 decision_deadline + ',' +                                          //               //
                                                 conference_start_date + ',' + conference_end_date +                //               //
-                                                ',' + location + '\n';                                             //               //
+                                                ',' + location + ',' + notes + '\n';                               //               //
                }                                                                                                   //               //
                console.log("exportConferenceData:", "conference data to be exported:", text_conferences_data);     //               //
                                                                                                                    //               //

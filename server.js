@@ -197,7 +197,7 @@ async function grabSingleUrlData(conf_url) {
     await page.goBack();
 
    // DEBUG SUCCESS: wait for the last conference to load its data before returning
-   await page.waitFor(500);
+   await page.waitFor(300);
    
    return all_info;
 }
@@ -329,7 +329,9 @@ function convertConferenceData(conferenceData) {
         console.log("convertConferenceData:", "notificationDeadline:", conferenceData[i].notificationDeadline);
         
         console.log(conferenceData[i].conferenceName);
-        conferenceData[i].conferenceName = conferenceData[i].conferenceName.replace(/,/g, ';');
+        conferenceData[i].conferenceName = conferenceData[i].conferenceName.replace(/,/g, ' |');
+        conferenceData[i].location = conferenceData[i].location.replace(/,/g, ' |');
+
         console.log(conferenceData[i].conferenceName);
         //for (var k = 0; k < conferenceData[i].conferenceName.length; k++) {
         //    console.log("boom",conferenceData[i].conferenceName[k]);
@@ -348,10 +350,8 @@ function convertConferenceData(conferenceData) {
 
 //run used to call created async function and allow 'await' followed by the results given
 async function run() {
-   //var all_info = await grabTopFiveUrls('http://www.wikicfp.com/cfp/');
+   // grab html file
    html_file = await grabHTML();
-   var result = await scrapeConferenceDataUsingCheerio("http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=99543&copyownerid=692&skip=1");
-   console.log("Test result:", result);
    console.log("--------------------");
    
    
@@ -421,8 +421,8 @@ async function run() {
       console.log("Attempting to download conference data file");
       const file = 'conference_data.txt';
       var stringConferences = confToString(file);
+      console.log("downloadConferenceDataFile:", stringConferences);
       res.end(stringConferences);
-      console.log(stringConferences);
    };
    app.get("/files", downloadConferenceDataFile);
    

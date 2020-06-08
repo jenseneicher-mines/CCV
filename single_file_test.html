@@ -52,8 +52,8 @@
 <p style="position: absolute; font-size:30px; font-style: italic; color: whitesmoke; text-shadow: 1.2px 1.2px 1.2px #34010e; top: 0%; left: 1%;">Conference Cycle Visualization</p>
 
 <button id="buttonEnterFields" style="position: absolute; border: thin solid #ad193d; border-bottom-width: 2px; border-right-width: 2px; top:11%; left:1%;" onclick="enterFields();">Enter A Conference</button>
-<button id="buttonGetData" style="position: absolute; border: thin solid #ad193d; border-bottom-width: 2px; border-right-width: 2px; top:15%; left:1%;">Get Conference Data</button>
-
+<!--<button id="buttonGetData" style="position: absolute; border: thin solid #ad193d; border-bottom-width: 2px; border-right-width: 2px; top:15%; left:1%;">Get Conference Data</button>
+-->
     <script> /////////////////////////////////////// VisualizationHandler script /////////////////////////////////////////////////////
         /*
         * VisualizationHandler
@@ -703,7 +703,7 @@
                                                                                                                    //               //
                    var conference = [];                                                                            //               //
                    for (var k = 0; k < split_line.length; k++) {                                                   //               //
-                       if ((k <= 3) || (k == 9)) {                                                                 //               //
+                       if ((k <= 3) || (k == 9) || (k == 10)) {                                                    //               //
                            conference.push(split_line[k]);                                                         //               //
                        } else {                                                                                    //               //
                            conference.push(parseInt(split_line[k], 10));                                           //               //
@@ -738,11 +738,12 @@
                    var conference_start_date = conferences[k].conferenceStart_date;                                //               //
                    var conference_end_date = conferences[k].conferenceEnd_date;                                    //               //
                    var location = conferences[k].conf_location;                                                    //               //
+                   var notes = conferences[k].notes;                                                               //               //
                    text_conferences_data += name + ',' + url + ','+ field + ',' + color + ',' +                    //               //
                                                 submission_deadline + ',' + abstract_deadline + ',' +              //               //
                                                 decision_deadline + ',' +                                          //               //
                                                 conference_start_date + ',' + conference_end_date +                //               //
-                                                ',' + location + '\n';                                             //               //
+                                                ',' + location + ',' + notes + '\n';                               //               //
                }                                                                                                   //               //
                console.log("exportConferenceData:", "conference data to be exported:", text_conferences_data);     //               //
                                                                                                                    //               //
@@ -929,6 +930,10 @@
             container2.appendChild(h1);
             //container2.appendChild(h1);
 
+            if (typeof conference.notes === "undefined") {
+                conference.notes = "No notes taken for this conference.";
+            }
+            
             // Paragraph element, unknown what this will contain
             var p1 = document.createElement('p1');
             p1.id = "mainParagraph";
@@ -1432,7 +1437,7 @@
             //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             ////////////// if user has no configuration file pull the top five conferences from wikicfp as example ///////////////
-            if (confirm("Do you have a conference configuration file?")) {                                                      //
+            if (confirm("Please select OK if you would like to pull the top five conferences from wikicfp as an example.")) {   //
                                                                                                                                 //
                 //////// handle initial visualization population using top 5 wikicfp conferences /////////////                  //
                 // call server request and return the top five conferences currently on wikicfp             //                  //
