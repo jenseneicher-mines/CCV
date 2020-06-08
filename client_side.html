@@ -846,7 +846,7 @@
         p1.textContent = "Conference Topic: " + conference.conf_field + "\r\nLocation: " + conference.conf_location + "\r\nSubmission Deadline: " +
             data_handler.convertNumToDate(new Date(), conference.submission_deadline).toDateString() + "\r\nAbstract Deadline: " +
             data_handler.convertNumToDate(new Date(), conference.abstract_deadline).toDateString() + "\r\nFinal Version Due: " +
-            data_handler.convertNumToDate(new Date(), conference.decision_deadline).toDateString();
+            data_handler.convertNumToDate(new Date(), conference.decision_deadline).toDateString() + "\r\n" + "\r\nNotes: " + conference.notes;
         p1.setAttribute('class', 'note');
         p1.setAttribute('vertical-align', 'baseline');
         p1.style.border = "thick solid #F3EBCE";
