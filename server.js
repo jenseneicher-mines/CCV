@@ -258,7 +258,7 @@ function exportConferenceData(conferences) {
 }
 
 async function grabHTML() {
-   fs.readFile('single_file_test.html', function(err, html) {
+   fs.readFile('admin.html', function(err, html) {
       if (err) {
          throw err; 
       }
@@ -276,6 +276,7 @@ function convertDateToNum(now) {
     return day;
 }
 
+// converts the string date to a date object
 function convertDateStringToDateObj(date_string) {
     var secs = date_string;
     var date = new Date(secs);

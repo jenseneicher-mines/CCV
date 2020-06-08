@@ -923,12 +923,7 @@
             var left = document.clientWidth/2;
             var top = document.clientHeight/2;
             h1.style.width = "710px";
-            //h1.style.left = left;
-            //h1.style.top = top;
-            //h1.setAttribute("style", "position: left; z-index: 1; left: "+left+"; top: "+top+"; width:200px; height:20px;");
-            //h1.style.zIndex = 1;
             container2.appendChild(h1);
-            //container2.appendChild(h1);
 
             if (typeof conference.notes === "undefined") {
                 conference.notes = "No notes taken for this conference.";
@@ -977,23 +972,24 @@
         function enterFields(svg, document, conferences_handler, color, wasOpen) {
 
             // Open pop-up window to input manual data
-            let newWindow = window.open("about:blank", "Conference Details", "width=765,height=660");
+            let newWindow = window.open("about:blank", "Conference Details", "width=765,height=565");
             newWindow.document.body.style.lineHeight = "30px";
             newWindow.document.body.style.backgroundColor = "#e8e8e8";
     
             //////////////////////// NON-MANUAL CONFERENCE ENTRY METHODS ////////////////////////
-            // Allow for searching for a conference with it's title and a search bar
-            var confTS = newWindow.document.createElement('confTS');
-            confTS.setAttribute('style', 'white-space: pre;');
-            confTS.textContent = "Search Conference by Title \r\n";
-            confTS.style.fontWeight = 'bold';
-            confTS.style.fontSize = "17";
-            confTS.style.textShadow = "0px 0px 1px #34010e";
+
+            // // Allow for searching for a conference with it's title and a search bar NEARLY IMPLEMENTED
+            // var confTS = newWindow.document.createElement('confTS');
+            // confTS.setAttribute('style', 'white-space: pre;');
+            // confTS.textContent = "Search Conference by Title \r\n";
+            // confTS.style.fontWeight = 'bold';
+            // confTS.style.fontSize = "17";
+            // confTS.style.textShadow = "0px 0px 1px #34010e";
     
             // Allow for searching conference by URL
             var confURLS = newWindow.document.createElement('confURLS');
             confURLS.setAttribute('style', 'white-space: pre;');
-            confURLS.textContent = "\r\nLoad Conference by ";
+            confURLS.textContent = "Load Conference by ";
             confURLS.style.fontWeight = 'bold';
             confURLS.style.fontSize = "17";
             confURLS.style.textShadow = "0px 0px 1px #34010e";
@@ -1009,7 +1005,7 @@
                 window.open(this.href);
             }
             
-            //create a submit button that will call the function to save inputs
+            //create a submit button that will call the function to save inputs NEARLY IMPLEMENTED
             var submit_search_button = newWindow.document.createElement("button");
             submit_search_button.innerHTML = "Submit Search";
             submit_search_button.id = "submit_search_button";
@@ -1026,9 +1022,9 @@
                     return null;
                 }
 
-                //save new conference URL
+                //save new conference URL for search by title
                 var inSearch = inputConferenceTitle.value;
-                
+
                 newConference = getSearchData(inSearch);
                 console.log("submit_search_button","server request done",newConference);
                 
@@ -1042,9 +1038,7 @@
                 var spacing = 20;
                 var ring_size = 3;
                 var arc_size = 10;
-                
-                //console.log("parseDate: ", parseDate(newConference[4]), data_handler.convertDateToNum(parseDate(newConference[4])), data_handler.convertDateToNum(parseDate(newConference[6])));
-                
+
                 conferences_handler.submission_deadlines.push(newConference[4]);
                 conferences_handler.decision_deadlines.push(newConference[6]);
                 conferences_handler.conferenceStart_dates.push(newConference[7]);
@@ -1342,11 +1336,13 @@
             };
     
             //Append all elements to the pop-up window
-            newWindow.document.body.appendChild(confTS);
-            newWindow.document.body.appendChild(inputConferenceTitle);
-            newWindow.document.body.appendChild(wt.cloneNode(true));
-            newWindow.document.body.appendChild(submit_search_button);
-            newWindow.document.body.appendChild(wt.cloneNode(true));
+            //NEARLY IMPLEMENTED (SEARCH BY TITLE)
+            // newWindow.document.body.appendChild(confTS);
+            // newWindow.document.body.appendChild(inputConferenceTitle);
+            // newWindow.document.body.appendChild(wt.cloneNode(true));
+            // newWindow.document.body.appendChild(submit_search_button);
+            //newWindow.document.body.appendChild(wt.cloneNode(true));
+
             newWindow.document.body.appendChild(confURLS);
             newWindow.document.body.appendChild(confURLSLink);
             newWindow.document.body.appendChild(wt.cloneNode(true));
