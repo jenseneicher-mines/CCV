@@ -1422,96 +1422,93 @@ function enterFields(svg, document, conferences_handler, color, wasOpen) {
 function init() {
     //////////// svg creation (used to show all aspects of conference visualization, /////////////////////////////////////
     ////////// any visualization objects are appended to this svg object dynamically) ////////////////////////////////////
-    var svg_width = document.body.clientWidth / 2;                                                                      //
-    var svg_height = document.body.clientHeight;                                                                        //
-    var svg = null;                                                                                                     //
-                                                                                                                        //
-    // svg object creation                                                                                              //
-    svg = d3.select("#chart1").append("svg").attr("width", svg_width).attr("height", svg_height);                       //
-                                                                                                                        //
-    // svg object check                                                                                                 //
-    if (svg != null) {                                                                                                  //
-        console.log("init:", "Successfully created svg obj:", svg);                                                     //
-    } else {                                                                                                            //
-        console.log("init:", "Could not create svg obj");                                                               //
-    }                                                                                                                   //
+    var svg_width = document.body.clientWidth / 2;
+    var svg_height = document.body.clientHeight;
+
+    // svg object check
+    try {
+        // svg object creation
+        var svg = d3.select("#chart1").append("svg").attr("width", svg_width).attr("height", svg_height);
+        console.log("init:", "Successfully created svg obj:", svg);
+    } catch(e) {
+        console.error("init:", "Could not create svg obj:", e);
+    }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// dataHandler object for any functions having to do with data handling (self explanatory) /////////////////////////
-    var data_handler = null;                                                                                            //
-                                                                                                                        //
-    // DataHandler object creation                                                                                      //
-    data_handler = new DataHandler();                                                                                   //
-                                                                                                                        //
-    // DataHandler object check                                                                                         //
-    if (data_handler != null) {                                                                                         //
-        console.log("init:", "Successfully created DataHandler class obj", data_handler);                               //
-    } else {                                                                                                            //
-        console.log("init:", "Could not create DataHandler class obj");                                                 //
-    }                                                                                                                   //
+
+    // DataHandler object check
+    try {
+        // DataHandler object creation
+        var data_handler = new DataHandler();
+        console.log("init:", "Successfully created DataHandler class obj", data_handler);
+    } catch(e) {
+        console.error("init:", "Could not create DataHandler class obj:", e);
+    }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     ///////////////////// initialize conferences array that will hold all data about conferences /////////////////////////
-    var conferences = [];                                                                                               //
+    let conferences = [];
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////// create conferences array and conferences_handler //////////////////////////////////////////////
-    //
-    // create conferences_handler                                                                                       //
-    var conferences_handler = null;                                                                                     //
-    conferences_handler = new VisualizationHandler(svg, document, svg_width/2, svg_height/2,                            //
-        conferences);                                                       //
-                                                                            //
-    // VisualizationHandler obj check                                                                                   //
-    if (conferences_handler != null) {                                                                                  //
-        console.log("init:", "Successfully created VisualizationHandler class obj",                                     //
-            conferences_handler);                                               //
-    } else {                                                                                                            //
-        console.log("init:", "Could not create Visualizationhandler class obj");                                        //
-    }                                                                                                                   //
+
+    // VisualizationHandler obj check
+    try {
+        // VisualizationHandler object creation
+        var conferences_handler = new VisualizationHandler(svg, document, svg_width/2, svg_height/2, conferences);
+        console.log("init:", "Successfully created VisualizationHandler class obj",
+            conferences_handler);
+    } catch(e) {
+        console.error("init:", "Could not create Visualizationhandler class obj:", e);
+    }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     ////////////// if user has no configuration file pull the top five conferences from wikicfp as example ///////////////
-    if (confirm("Please select OK if you would like to pull the top five conferences from wikicfp as an example.")) {   //
-        //
-        //////// handle initial visualization population using top 5 wikicfp conferences /////////////                  //
-        // call server request and return the top five conferences currently on wikicfp             //                  //
-        var top_five_conferences_data = getScrapedConferenceData();                                 //                  //
-        console.log("init:", "getScrapedConferenceData() returned:", top_five_conferences_data);    //                  //
-        // handle conversion from file format to array of useable data                              //                  //
-        conferences = data_handler.grabConferenceData(top_five_conferences_data);                   //                  //
-        console.log("init:", "conference data after conversion from file to arr:", conferences);    //                  //
-                                                                                                    //                  //
-        // add conferences to visualization using conferences data array                            //                  //
-        conferences_handler.addMultipleConferences(svg, document, conferences_handler, conferences, //                  //
-            conferences_handler.x, conferences_handler.y);   //                  //
-        //////////////////////////////////////////////////////////////////////////////////////////////                  //
-        //
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    if (confirm("Please select OK if you would like to pull the top five conferences from wikicfp as an example.")) {
+        //////// handle initial visualization population using top 5 wikicfp conferences /////////////
 
-        /////////////// if user does have configuration file load visual initialization and prompt user for file /////////////
-    } else {                                                                                                            //
-        //tell user to choose file                                                                                      //
-        //
-        const file_conference_data = document.getElementById('file_conference_data');                                   //
-        file_conference_data.addEventListener('change', (event) => {                                                    //
-            const file_list = event.target.files;                                                                       //
-                                                                                                                        //
-            var reader = new FileReader();                                                                              //
-            reader.onload = function(event) {                                                                           //
-                conference_file_text = event.target.result;                                                             //
-                conferences = data_handler.grabConferenceData(conference_file_text);                                    //
-                                                                                                                        //
-                console.log("init:","conferences:", conferences);                                                       //
-                                                                                                                        //
-                conferences_handler.addMultipleConferences(svg, document, conferences_handler, conferences,             //
-                    conferences_handler.x, conferences_handler.y);               //
-                                                                                 //
-                                                                                 //
-            };                                                                                                          //
-            reader.readAsText(file_list[0]);                                                                            //
-        });                                                                                                             //
-    }                                                                                                                   //
+        // attempt to grab top five conferences data
+        try {
+            // call server request and return the top five conferences currently on wikicfp
+            var top_five_conferences_data = getScrapedConferenceData();
+            console.log("init:", "getScrapedConferenceData() returned:", top_five_conferences_data);
+        } catch(e) {
+            console.err("init:", "Could not grab top five conferences data class obj:", e);
+        }
+
+        // handle conversion from file format to array of useable data
+        conferences = data_handler.grabConferenceData(top_five_conferences_data);
+        console.log("init:", "conference data after conversion from file to arr:", conferences);
+
+        // add conferences to visualization using conferences data array
+        conferences_handler.addMultipleConferences(svg, document, conferences_handler, conferences,
+            conferences_handler.x, conferences_handler.y);
+
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /////////////// if user does have configuration file load visual initialization and prompt user for file /////////
+    } else {
+        //tell user to choose file
+        const file_conference_data = document.getElementById('file_conference_data');
+        file_conference_data.addEventListener('change', (event) => {
+            const file_list = event.target.files;
+
+            var reader = new FileReader();
+            reader.onload = function(event) {
+                conference_file_text = event.target.result;
+                conferences = data_handler.grabConferenceData(conference_file_text);
+
+                console.log("init:","conferences:", conferences);
+
+                conferences_handler.addMultipleConferences(svg, document, conferences_handler, conferences,
+                    conferences_handler.x, conferences_handler.y);
+
+
+            };
+            reader.readAsText(file_list[0]);
+        });
+    }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //handle onclick event for enterFields button (if 10 or more conferences made do not allow creation of another)
