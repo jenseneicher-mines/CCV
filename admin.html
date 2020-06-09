@@ -52,6 +52,11 @@
 <p style="position: absolute; font-size:30px; font-style: italic; color: whitesmoke; text-shadow: 1.2px 1.2px 1.2px #34010e; top: 0%; left: 1%;">Conference Cycle Visualization</p>
 
 <button id="buttonEnterFields" style="position: absolute; border: thin solid #ad193d; border-bottom-width: 2px; border-right-width: 2px; top:11%; left:1%;" onclick="enterFields();">Enter A Conference</button>
+
+<div id="myDIV" class="loader" style="position: absolute; top:50%; left:20%">
+    Loading... Please Wait
+</div>
+
 <script> /////////////////////////////////////// VisualizationHandler script /////////////////////////////////////////////////////
 /******************************
  * VisualizationHandler class *
@@ -874,7 +879,8 @@ var port = 8000;                                                                
 //////////////////////////////////////// Server calls ///////////////////////////////////////////////
 //
 //////////////////// used to grab top five conferences from wikicfp //////////////////             //
-function getScrapedConferenceData() {                                               //             //
+function getScrapedConferenceData(loader) {                                               //             //
+    loader.style.display = 'block';
     var top_five_conferences_data = [];                                             //             //
     var xmlhttp = new XMLHttpRequest();                                             //             //
     xmlhttp.onreadystatechange=function() {                                         //             //
@@ -882,7 +888,7 @@ function getScrapedConferenceData() {                                           
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {                     //             //
             top_five_conferences_data = xmlhttp.responseText;                       //             //
             console.log("getScrapedConferenceData:", "top_five_conferences_data",   //             //
-                top_five_conferences_data);                                 //             //
+                top_five_conferences_data);                                         //             //
             return top_five_conferences_data;                                       //             //
         }                                                                           //             //
     };                                                                              //             //
@@ -893,7 +899,9 @@ function getScrapedConferenceData() {                                           
 //////////////////////////////////////////////////////////////////////////////////////             //
 //
 ///// used to send search call and return most relevant wikicfp conference data //////             //
-function getSearchData(search) {                                                    //             //
+function getSearchData(search, loader) {                                                    //             //
+    loader.style.display = 'block';
+
     var newConference;                                                              //             //
                                                                                     //             //
     var xmlhttp = new XMLHttpRequest();                                             //             //
@@ -902,6 +910,7 @@ function getSearchData(search) {                                                
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {                     //             //
             console.log("getSearchData:", "Successfully completed server put");     //             //
             newConference = xmlhttp.responseText;                                   //             //
+
             return newConference;                                                   //             //
         }                                                                           //             //
     };                                                                              //             //
@@ -913,7 +922,9 @@ function getSearchData(search) {                                                
 //////////////////////////////////////////////////////////////////////////////////////             //
 //
 ///////////////// used to grab data for single conference using url //////////////////             //
-function getSingleUrlData(conf_url) {                                               //             //
+function getSingleUrlData(conf_url, loader) {                                               //             //
+    loader.style.display = 'block';
+
     var newConference;                                                              //             //
                                                                                     //             //
     var xmlhttp = new XMLHttpRequest();                                             //             //
@@ -922,6 +933,7 @@ function getSingleUrlData(conf_url) {                                           
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {                     //             //
             console.log("getSingleUrlData:", "Successfully completed server put");  //             //
             newConference = xmlhttp.responseText;                                   //             //
+
             return newConference;                                                   //             //
         }                                                                           //             //
     };                                                                              //             //
@@ -1039,7 +1051,7 @@ function showDetails(svg, document, conferences_handler, conference) {
 
 // Used in 'Add a Conference' click event. Creates new window with all objects necessary to add conferences
 // through both manual and data scraping entry
-function enterFields(svg, document, conferences_handler, color, wasOpen) {
+function enterFields(svg, document, conferences_handler, color, loader) {
 
     // Open pop-up window to input manual data
     let newWindow = window.open("about:blank", "Conference Details", "width=765,height=710");
@@ -1096,7 +1108,7 @@ function enterFields(svg, document, conferences_handler, color, wasOpen) {
     //     //save new conference URL for search by title
     //     var inSearch = inputConferenceTitle.value;
     //
-    //     newConference = getSearchData(inSearch);
+    //     newConference = getSearchData(inSearch, loader);
     //     console.log("submit_search_button","server request done",newConference);
     //
     //     newConference = data_handler.grabConferenceData(newConference);
@@ -1120,6 +1132,7 @@ function enterFields(svg, document, conferences_handler, color, wasOpen) {
 
     /////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//////////// NOT DONE //////////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!///////////////
     submit_url_button.onclick = function() {
+        loader.style.display = 'block';
         var data_handler = new DataHandler();
 
         //check if URL was entered
@@ -1132,7 +1145,9 @@ function enterFields(svg, document, conferences_handler, color, wasOpen) {
         var inURL = inputConferenceURL.value;
         var notes = inputUrlNotes.value;
 
-        newConference = getSingleUrlData(inURL);
+        newConference = getSingleUrlData(inURL, loader);
+        loader.style.display = 'none';
+
         console.log("submit_url_button", "server request done", newConference);
 
         newConference = data_handler.grabConferenceData(newConference);
@@ -1453,7 +1468,9 @@ function enterFields(svg, document, conferences_handler, color, wasOpen) {
 /**********************
  * main function call *
  **********************/
-function init() {
+function init(loader) {
+
+
     //////////// svg creation (used to show all aspects of conference visualization, /////////////////////////////////////
     ////////// any visualization objects are appended to this svg object dynamically) ////////////////////////////////////
     var svg_width = document.body.clientWidth / 2;
@@ -1505,7 +1522,8 @@ function init() {
         // attempt to grab top five conferences data
         try {
             // call server request and return the top five conferences currently on wikicfp
-            var top_five_conferences_data = getScrapedConferenceData();
+            var top_five_conferences_data = getScrapedConferenceData(loader);
+            loader.style.display = 'none';
             console.log("init:", "getScrapedConferenceData() returned:", top_five_conferences_data);
         } catch(e) {
             console.err("init:", "Could not grab top five conferences data class obj:", e);
@@ -1553,7 +1571,7 @@ function init() {
         var button_enter_fields = document.getElementById("buttonEnterFields");
         button_enter_fields.onclick = function () {
             var color = "#AD193D";
-            enterFields(svg, document, conferences_handler, color);
+            enterFields(svg, document, conferences_handler, color, loader);
         };
     }
 
@@ -1569,7 +1587,9 @@ function init() {
 //calls main function using
 $(document).ready(function() {
     console.log("Start");
-    init();
+    var loader = document.getElementById('myDIV');
+    loader.style.display = 'none';
+    init(loader);
 });
 
 </script>
