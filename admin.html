@@ -263,12 +263,16 @@ class VisualizationHandler {
         // remove ring and arc from d3 and svg                                                                         //
         console.log(conferences_handler, selected_index);                                                              //
                                                                                                                        //
-        conferences_handler.rings[selected_index].remove();                                                            //
-        conferences_handler.arcs[selected_index].remove();                                                             //
-        conferences_handler.abstract_arcs[selected_index].remove();                                                    //
-        conferences_handler.conf_dates_arcs[selected_index].remove();                                                  //
-                                                                                                                       //
-        console.log(conferences_handler.arcs, conferences_handler.rings);                                              //
+        // remove svg objects from html
+        if(isNaN(conferences_handler.decision_deadlines[selected_index])) {
+            conferences_handler.rings[selected_index].remove();                                                            //
+            conferences_handler.abstract_arcs[selected_index].remove();                                                    //
+        } else {
+            conferences_handler.rings[selected_index].remove();                                                            //
+            conferences_handler.arcs[selected_index].remove();                                                             //
+            conferences_handler.abstract_arcs[selected_index].remove();                                                    //
+            conferences_handler.conf_dates_arcs[selected_index].remove();                                                  //
+        }
                                                                                                                        //
         // check if you need to update the visualization                                                               //
         if (conferences_handler.conferences[selected_index].conf_index < (conferences_handler.num_confs - 1)) {        //
@@ -286,38 +290,45 @@ class VisualizationHandler {
                 console.log(conferences_handler.rings[i]);                                                              //
                 conferences_handler.rings[i].attr("r", conference.radius);                                              //
                                                                                                                         //
-                //update arc                                                                                            //
-                // 1) remove current arc                                                                                //
-                conferences_handler.arcs[i].remove();                                                                   //
-                conferences_handler.arcs[i] = null;                                                                     //
-                // 2) create new, updated arc and re-add to conf object                                                 //
-                conferences_handler.arcs[i] = Conference.createConfArc(svg, document, conferences_handler,              //
-                    conference, conference.x, conference.y, conference.radius,             //
-                    conference.start_angle, conference.end_angle,                          //
-                    conference.conf_color, conferences_handler.arc_size);                  //
-                                                                                           //
-                                                                                           //
-                //update abstract arc                                                                                   //
-                // 1) remove current arc                                                                               //
-                conferences_handler.abstract_arcs[i].remove();                                                          //
-                conferences_handler.abstract_arcs[i] = null;                                                            //
-                                                                                                                        //
-                // 2) create new, updated arc and re-add to conf object                                                 //
-                conferences_handler.abstract_arcs[i] = Conference.createConfAbstractDeadlineArc(svg, document,          //
-                    conferences_handler, data_handler, conference, conference.x,           //
-                    conference.y, conference.radius);                                      //
-                                                                                           //
-                                                                                           //
-                //update conference dates arc                                                                           //
-                // 1) remove current arc                                                                               //
-                conferences_handler.conf_dates_arcs[i].remove();                                                        //
-                conferences_handler.conf_dates_arcs[i] = null;                                                          //
-                                                                                                                        //
-                // 2) create new, updated arc and re-add to conf object                                                 //
-                conferences_handler.conf_dates_arcs[i] = Conference.createConfDatesArc(svg, document,                   //
-                    conferences_handler, data_handler, conference, conference.x,           //
-                    conference.y, conference.radius, conference.conf_dates_start_angle,    //
-                    conference.conf_dates_end_angle);                                      //
+
+
+                if (isNaN(conferences_handler.decision_deadlines[i])) {
+                    //update abstract arc                                                                                   //
+                    // 1) remove current arc                                                                               //
+                    conferences_handler.abstract_arcs[i].remove();                                                          //
+                    conferences_handler.abstract_arcs[i] = null;                                                            //
+                } else {
+                    //update arc                                                                                            //
+                    // 1) remove current arc                                                                                //
+                    conferences_handler.arcs[i].remove();                                                                   //
+                    conferences_handler.arcs[i] = null;                                                                     //
+                    // 2) create new, updated arc and re-add to conf object                                                 //
+                    conferences_handler.arcs[i] = Conference.createConfArc(svg, document, conferences_handler,              //
+                        conference,             //
+                        conference.start_angle, conference.end_angle,                          //
+                        conference.conf_color);                  //
+                    //
+                    //
+                    //update abstract arc                                                                                   //
+                    // 1) remove current arc                                                                               //
+                    conferences_handler.abstract_arcs[i].remove();                                                          //
+                    conferences_handler.abstract_arcs[i] = null;                                                            //
+                                                                                                                            //
+                    // 2) create new, updated arc and re-add to conf object                                                 //
+                    conferences_handler.abstract_arcs[i] = Conference.createConfAbstractDeadlineArc(svg, document,          //
+                        conferences_handler, conference);                                      //
+                                                                                               //
+                                                                                               //
+                    //update conference dates arc                                                                           //
+                    // 1) remove current arc                                                                               //
+                    conferences_handler.conf_dates_arcs[i].remove();                                                        //
+                    conferences_handler.conf_dates_arcs[i] = null;                                                          //
+                                                                                                                            //
+                    // 2) create new, updated arc and re-add to conf object                                                 //
+                    conferences_handler.conf_dates_arcs[i] = Conference.createConfDatesArc(svg, document,                   //
+                        conferences_handler, conference, conference.conf_dates_start_angle,    //
+                        conference.conf_dates_end_angle);                                      //
+                }
             }                                                                                                           //
         }                                                                                                              //
         // update conferences_handler data arrays after deletions                                                      //
@@ -376,6 +387,7 @@ class VisualizationHandler {
             .concat(conferences_handler.conf_dates_arcs                                                                //
                 .slice(selected_index + 1, conferences_handler.conf_dates_arcs.length));                                   //
                                                                                                                            //
+        conferences_handler.curr_radius -= conferences_handler.spacing;
         // return updated num_confs                                                                                    //
         return conferences_handler.num_confs - 1;                                                                      //
     }                                                                                                                   //
@@ -590,8 +602,8 @@ class Conference {                                                              
      *********************************************************************************************/                       // //
     static createConfArc(svg, document, conferences_handler, conference, start_angle, end_angle, color) {                 // //
         //init. and append new conference arc to svg                                                                      // //
-        var newly_built_arc = d3.svg.arc().innerRadius(conferences_handler.curr_radius - (conference.arc_size/2))         // //
-            .outerRadius(conferences_handler.curr_radius + (conference.arc_size/2))     // //
+        var newly_built_arc = d3.svg.arc().innerRadius(conference.radius - (conference.arc_size/2))         // //
+            .outerRadius(conference.radius + (conference.arc_size/2))     // //
             .startAngle(start_angle)                                                    // //
             .endAngle(end_angle);                                                       // //
                                                                                         // //
@@ -619,8 +631,8 @@ class Conference {                                                              
      *********************************************************************************************/                       // //
     static createConfDatesArc(svg, document, conferences_handler, conference, start_angle, end_angle) {                   // //
         //init. and append new conference arc to svg                                                                      // //
-        var newly_built_arc = d3.svg.arc().innerRadius(conferences_handler.curr_radius - (conference.arc_size/2))         // //
-            .outerRadius(conferences_handler.curr_radius + (conference.arc_size/2))     // //
+        var newly_built_arc = d3.svg.arc().innerRadius(conference.radius - (conference.arc_size/2))         // //
+            .outerRadius(conference.radius + (conference.arc_size/2))     // //
             .startAngle(start_angle)                                                    // //
             .endAngle(end_angle);                                                       // //
                                                                                         // //
@@ -651,8 +663,8 @@ class Conference {                                                              
                                                                                                                           // //
         var abstract_deadline_angle = (((conference.abstract_deadline)/365) * (2*Math.PI));// - arc_spacing*30;           // //
         // //
-        var newly_built_arc = d3.svg.arc().innerRadius(conferences_handler.curr_radius - (conference.arc_size/2))         // //
-            .outerRadius(conferences_handler.curr_radius + (conference.arc_size/2))         // //
+        var newly_built_arc = d3.svg.arc().innerRadius(conference.radius - (conference.arc_size/2))         // //
+            .outerRadius(conference.radius + (conference.arc_size/2))         // //
             .startAngle(abstract_deadline_angle - arc_spacing)                              // //
             .endAngle(abstract_deadline_angle + arc_spacing);                               // //
                                                                                             // //
@@ -685,8 +697,8 @@ class Conference {                                                              
                                                                                                                           // //
         var abstract_deadline_angle = (((conference.submission_deadline)/365) * (2*Math.PI));// - arc_spacing*30;         // //
         // //
-        var newly_built_arc = d3.svg.arc().innerRadius(conferences_handler.curr_radius - (conference.arc_size/2))         // //
-            .outerRadius(conferences_handler.curr_radius + (conference.arc_size/2))         // //
+        var newly_built_arc = d3.svg.arc().innerRadius(conference.radius - (conference.arc_size/2))         // //
+            .outerRadius(conference.radius + (conference.arc_size/2))         // //
             .startAngle(abstract_deadline_angle - arc_spacing)                              // //
             .endAngle(abstract_deadline_angle + arc_spacing);                               // //
                                                                                             // //
@@ -1072,29 +1084,30 @@ function enterFields(svg, document, conferences_handler, color, wasOpen) {
     submit_search_button.top = "100px";
     submit_search_button.left = "180px";
 
-    submit_search_button.onclick = function() {
-
-        if(inputConferenceTitle.value == ""){
-            alert("Conference title was not specified");
-            newWindow.close();
-            return null;
-        }
-
-        //save new conference URL for search by title
-        var inSearch = inputConferenceTitle.value;
-
-        newConference = getSearchData(inSearch);
-        console.log("submit_search_button","server request done",newConference);
-
-        newConference = data_handler.grabConferenceData(newConference);
-        console.log("submit_search_button", "newConference after converting to conference array", newConference);
-
-        newConference = newConference[0];
-
-        conferences_handler.addConference(svg, document, conferences_handler, newConference, conferences_handler.x, conferences_handler.y);
-
-        newWindow.close();
-    };
+    //////////////////////////////////////////// almost working ///////////////////////////////////////////
+    // submit_search_button.onclick = function() {
+    //
+    //     if(inputConferenceTitle.value == ""){
+    //         alert("Conference title was not specified");
+    //         newWindow.close();
+    //         return null;
+    //     }
+    //
+    //     //save new conference URL for search by title
+    //     var inSearch = inputConferenceTitle.value;
+    //
+    //     newConference = getSearchData(inSearch);
+    //     console.log("submit_search_button","server request done",newConference);
+    //
+    //     newConference = data_handler.grabConferenceData(newConference);
+    //     console.log("submit_search_button", "newConference after converting to conference array", newConference);
+    //
+    //     newConference = newConference[0];
+    //
+    //     conferences_handler.addConference(svg, document, conferences_handler, newConference, conferences_handler.x, conferences_handler.y);
+    //
+    //     newWindow.close();
+    // };
 
     //create a submit button that will call the function to save inputs
     var submit_url_button = newWindow.document.createElement("button");
