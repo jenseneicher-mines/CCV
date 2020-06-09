@@ -1003,9 +1003,9 @@ function showDetails(svg, document, conferences_handler, conference) {
     var p1 = document.createElement('p1');
     p1.id = "mainParagraph";
     p1.setAttribute("style", "white-space: pre; position: absolute; font-size:20px; z-index: 1; left: "+left+"; top: "+top+"; width:710px; height:275px;");
-    p1.textContent = "Conference Topic: " + conference.conf_field + "\r\nLocation: " + conference.conf_location + "\r\nSubmission Deadline: " +
-        data_handler.convertNumToDate(new Date(), conference.submission_deadline).toDateString() + "\r\nAbstract Deadline: " +
-        data_handler.convertNumToDate(new Date(), conference.abstract_deadline).toDateString() + "\r\nFinal Version Due: " +
+    p1.textContent = "Conference Topic: " + conference.conf_field + "\r\nLocation: " + conference.conf_location + "\r\nAbstract Deadline: " +
+        data_handler.convertNumToDate(new Date(), conference.abstract_deadline).toDateString() + "\r\nSubmission Deadline: " +
+        data_handler.convertNumToDate(new Date(), conference.submission_deadline).toDateString()  + "\r\nFinal Version Due: " +
         data_handler.convertNumToDate(new Date(), conference.decision_deadline).toDateString() + "\r\n" + "\r\nNotes: " + conference.notes;
     p1.setAttribute('class', 'note');
     p1.setAttribute('vertical-align', 'baseline');
@@ -1042,7 +1042,7 @@ function showDetails(svg, document, conferences_handler, conference) {
 function enterFields(svg, document, conferences_handler, color, wasOpen) {
 
     // Open pop-up window to input manual data
-    let newWindow = window.open("about:blank", "Conference Details", "width=765,height=700");
+    let newWindow = window.open("about:blank", "Conference Details", "width=765,height=710");
     newWindow.document.body.style.lineHeight = "30px";
     newWindow.document.body.style.backgroundColor = "#e8e8e8";
 
@@ -1187,17 +1187,17 @@ function enterFields(svg, document, conferences_handler, color, wasOpen) {
     field.textContent = "\r\nPlease Enter your Conference Field:";
     field.style.fontWeight = 'bold';
 
-    //Ask User for submission deadline
-    var sub = newWindow.document.createElement('conf');
-    sub.setAttribute('style', 'white-space: pre;');
-    sub.textContent = "\r\nPlease Select the Submission Deadline:";
-    sub.style.fontWeight = 'bold';
-
     //Ask the user for a abstract deadline
     var notif = newWindow.document.createElement('notif');
     notif.setAttribute('style', 'white-space: pre;');
     notif.textContent = "\r\nPlease Select the Abstract Deadline:";
     notif.style.fontWeight = 'bold';
+
+    //Ask User for submission deadline
+    var sub = newWindow.document.createElement('conf');
+    sub.setAttribute('style', 'white-space: pre;');
+    sub.textContent = "\r\nPlease Select the Submission Deadline:";
+    sub.style.fontWeight = 'bold';
 
     //Ask user for decision deadline
     var dec = newWindow.document.createElement('conf');
@@ -1205,17 +1205,23 @@ function enterFields(svg, document, conferences_handler, color, wasOpen) {
     dec.textContent = "\r\nPlease Select the Final Version Deadline:";
     dec.style.fontWeight = 'bold';
 
-    //Ask user for notes
+    //Ask user for notes URL
     var urlNotes = newWindow.document.createElement('conf');
     urlNotes.setAttribute('style', 'white-space: pre;');
-    urlNotes.textContent = "\r\nNotes (Optional):";
+    urlNotes.textContent = "\r\nNotes:";
     urlNotes.style.fontWeight = 'bold';
 
     //Ask user for notes
     var notes = newWindow.document.createElement('conf');
     notes.setAttribute('style', 'white-space: pre;');
-    notes.textContent = "\r\nNotes (Optional):";
+    notes.textContent = "\r\nNotes:";
     notes.style.fontWeight = 'bold';
+
+    //Tell user what fields are required *
+    var reqFields = newWindow.document.createElement('reqFields');
+    reqFields.setAttribute('style', 'white-space: pre;');
+    reqFields.textContent = "\r\nFields Marked With a '*' are Required";
+    reqFields.style.fontWeight = 'bold';
 
     //White space
     var wt = newWindow.document.createElement('wt');
@@ -1226,6 +1232,11 @@ function enterFields(svg, document, conferences_handler, color, wasOpen) {
     var dash = newWindow.document.createElement('dash');
     dash.setAttribute('style', 'white-space: pre;');
     dash.textContent = " - ";
+
+    //White space
+    var req = newWindow.document.createElement('req');
+    req.setAttribute('style', 'white-space: pre;');
+    req.textContent = "*";
 
     /////////////////////////// inputs ////////////////////////////////
     //input text box for searching by conference name
@@ -1266,19 +1277,19 @@ function enterFields(svg, document, conferences_handler, color, wasOpen) {
     inputField.setAttribute('type', 'text');
     inputField.style.boxShadow = "inset 0px 0px 1px #7b0721";
 
-    //input text box for submission deadline
-    var inputSub = newWindow.document.createElement("input");
-    inputSub.type = "date";
-    inputSub.style.width = '130px';
-    inputSub.style.color = "#7b0721";
-    inputSub.style.boxShadow = "inset 0px 0px 1px #7b0721";
-
     //input text box for abstract deadline
     var inputConferenceNotif = newWindow.document.createElement("input");
     inputConferenceNotif.type = "date";
     inputConferenceNotif.style.width = '130px';
     inputConferenceNotif.style.color = "#7b0721";
     inputConferenceNotif.style.boxShadow = "inset 0px 0px 1px #7b0721";
+
+    //input text box for submission deadline
+    var inputSub = newWindow.document.createElement("input");
+    inputSub.type = "date";
+    inputSub.style.width = '130px';
+    inputSub.style.color = "#7b0721";
+    inputSub.style.boxShadow = "inset 0px 0px 1px #7b0721";
 
     //input text box for decision deadline
     var inputDec = newWindow.document.createElement("input");
@@ -1400,6 +1411,7 @@ function enterFields(svg, document, conferences_handler, color, wasOpen) {
     newWindow.document.body.appendChild(confURLSLink);
     newWindow.document.body.appendChild(wt.cloneNode(true));
     newWindow.document.body.appendChild(inputConferenceURL);
+    newWindow.document.body.appendChild(req.cloneNode(true));
     newWindow.document.body.appendChild(urlNotes);
     newWindow.document.body.appendChild(wt.cloneNode(true));
     newWindow.document.body.appendChild(inputUrlNotes);
@@ -1418,17 +1430,21 @@ function enterFields(svg, document, conferences_handler, color, wasOpen) {
     newWindow.document.body.appendChild(inputConfEnd);
     newWindow.document.body.appendChild(conf);
     newWindow.document.body.appendChild(inputConference);
+    newWindow.document.body.appendChild(req.cloneNode(true));
     newWindow.document.body.appendChild(field);
     newWindow.document.body.appendChild(inputField);
-    newWindow.document.body.appendChild(sub);
-    newWindow.document.body.appendChild(inputSub);
+    newWindow.document.body.appendChild(req.cloneNode(true));
     newWindow.document.body.appendChild(notif);
     newWindow.document.body.appendChild(inputConferenceNotif);
+    newWindow.document.body.appendChild(sub);
+    newWindow.document.body.appendChild(inputSub);
+    newWindow.document.body.appendChild(req.cloneNode(true));
     newWindow.document.body.appendChild(dec);
     newWindow.document.body.appendChild(inputDec);
     newWindow.document.body.appendChild(notes);
     newWindow.document.body.appendChild(wt.cloneNode(true));
     newWindow.document.body.appendChild(inputNotes);
+    newWindow.document.body.appendChild(reqFields);
     newWindow.document.body.appendChild(wt.cloneNode(true));
     newWindow.document.body.appendChild(submit_button);
 }
