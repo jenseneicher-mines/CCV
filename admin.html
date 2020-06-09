@@ -53,115 +53,115 @@
 
 <button id="buttonEnterFields" style="position: absolute; border: thin solid #ad193d; border-bottom-width: 2px; border-right-width: 2px; top:11%; left:1%;" onclick="enterFields();">Enter A Conference</button>
 <script> /////////////////////////////////////// VisualizationHandler script /////////////////////////////////////////////////////
-/***********************
- * VisualizationHandler *
- ************************/
+/******************************
+ * VisualizationHandler class *
+ ******************************/
 class VisualizationHandler {
-    /////////////////////////////////////////////////// constructor //////////////////////////////////////////////////////
-    /***********************************************************************************                                //
-     * constructor                                                                     *                                //
-     *                                                                                 *                                //
-     * @params svg, document, x, y, conference_data                                    *                                //
-     * svg: svg                                                                        *                                //
-     * document: used in creation of Conference object                                 *                                //
-     * x, y: where visualization is centered on the x, y axis                          *                                //
-     * conferences_data: array of conference data                                      *                                //
-     ***********************************************************************************/                               //
-    constructor(svg, document, x, y, conferences_data) {                                                                //
-        this.svg = svg;                                                                                                 //
-        this.document = document;                                                                                       //
-        this.x = x;                                                                                                     //
-        this.y = y;                                                                                                     //
-                                                                                                                        //
-        // array for storing Conference objs, not to be confused with conferences_data array                            //
-        this.conferences = [];                                                                                          //
-                                                                                                                        //
-        this.num_confs = 0;                                                                                             //
-        this.names = [];                                                                                                //
-        this.urls = [];                                                                                                 //
-        this.fields = [];                                                                                               //
-        this.colors = [];                                                                                               //
-        this.submission_deadlines = [];                                                                                 //
-        this.decision_deadlines = [];                                                                                   //
-        this.conferenceStart_dates = [];                                                                                //
-        this.conferenceEnd_dates = [];                                                                                  //
-        this.abstract_deadlines = [];                                                                                   //
-        this.locations = [];                                                                                            //
-        this.notes = [];                                                                                                //
-        this.inner_radii = [];                                                                                          //
-        this.outer_radii = [];                                                                                          //
-        this.start_angles = [];                                                                                         //
-        this.end_angles = [];                                                                                           //
-        this.conf_dates_start_angles = [];                                                                              //
-        this.conf_dates_end_angles = [];                                                                                //
-        this.rings = [];                                                                                                //
-        this.arcs = [];                                                                                                 //
-        this.abstract_arcs = [];                                                                                        //
-        this.conf_dates_arcs = [];                                                                                      //
-        this.self = this;                                                                                               //
-                                                                                                                        //
-        this.ring_size = 3;                                                                                             //
-        this.arc_size = 10;                                                                                             //
-        this.spacing = 20;                                                                                              //
-                                                                                                                        //
-        // smallest conference visualization radius                                                                     //
-        this.curr_radius = 150;                                                                                         //
-                                                                                                                        //
-        // create date line and month ring upon VisualizationHandler obj creation                                       //
-        var now = new Date();                                                                                           //
-        this.initVisualization(this, svg, now, x, y, this.curr_radius);                                                 //
-                                                                                                                        //
-        // populate conferences array & fill other empty arrays with initial conference_data array                      //
-        this.addMultipleConferences(svg, document, this, conferences_data, x, y);                                       //
-    }                                                                                                                   //
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////// constructor /////////////////////////////////////////////////////
+    /***********************************************************************************                               //
+     * constructor                                                                     *                               //
+     *                                                                                 *                               //
+     * @params svg, document, x, y, conference_data                                    *                               //
+     * svg: svg                                                                        *                               //
+     * document: used in creation of Conference object                                 *                               //
+     * x, y: where visualization is centered on the x, y axis                          *                               //
+     * conferences_data: array of conference data                                      *                               //
+     ***********************************************************************************/                              //
+    constructor(svg, document, x, y, conferences_data) {                                                               //
+        this.svg = svg;                                                                                                //
+        this.document = document;                                                                                      //
+        this.x = x;                                                                                                    //
+        this.y = y;                                                                                                    //
+        //
+        // array for storing Conference objs, not to be confused with conferences_data array                           //
+        this.conferences = [];                                                                                         //
+        //
+        this.num_confs = 0;                                                                                            //
+        this.names = [];                                                                                               //
+        this.urls = [];                                                                                                //
+        this.fields = [];                                                                                              //
+        this.colors = [];                                                                                              //
+        this.submission_deadlines = [];                                                                                //
+        this.decision_deadlines = [];                                                                                  //
+        this.conferenceStart_dates = [];                                                                               //
+        this.conferenceEnd_dates = [];                                                                                 //
+        this.abstract_deadlines = [];                                                                                  //
+        this.locations = [];                                                                                           //
+        this.notes = [];                                                                                               //
+        this.inner_radii = [];                                                                                         //
+        this.outer_radii = [];                                                                                         //
+        this.start_angles = [];                                                                                        //
+        this.end_angles = [];                                                                                          //
+        this.conf_dates_start_angles = [];                                                                             //
+        this.conf_dates_end_angles = [];                                                                               //
+        this.rings = [];                                                                                               //
+        this.arcs = [];                                                                                                //
+        this.abstract_arcs = [];                                                                                       //
+        this.conf_dates_arcs = [];                                                                                     //
+        this.self = this;                                                                                              //
+        //
+        this.ring_size = 3;                                                                                            //
+        this.arc_size = 10;                                                                                            //
+        this.spacing = 20;                                                                                             //
+        //
+        // smallest conference visualization radius                                                                    //
+        this.curr_radius = 150;                                                                                        //
+        //
+        // create date line and month ring upon VisualizationHandler obj creation                                      //
+        var now = new Date();                                                                                          //
+        this.initVisualization(this, svg, now, x, y, this.curr_radius);                                                //
+        //
+        // populate conferences array & fill other empty arrays with initial conference_data array                     //
+        this.addMultipleConferences(svg, document, this, conferences_data, x, y);                                      //
+    }                                                                                                                  //
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    /////// call createDateLine() and createMonthsRing() to initialize date line and month ring (self explanatory) ///////
-    /***********************************************************************************                                //
-     * initVisualization                                                               *                                //
-     *                                                                                 *                                //
-     * @params conferences_handler, svg, now, x, y, r                                  *                                //
-     * conferences_handler: used to call non static functions                          *                                //
-     * svg: svg obj                                                                    *                                //
-     * x, y: where visualization is centered on the x, y axis                          *                                //
-     * r: radius of largest circle, used in creation of date line                      *                                //
-     ***********************************************************************************/                               //
-    initVisualization(conferences_handler, svg, now, x, y, r) {                                                         //
+    /////// call createDateLine() and createMonthsRing() to initialize date line and month ring (self explanatory) //////
+    /***********************************************************************************                               //
+     * initVisualization                                                               *                               //
+     *                                                                                 *                               //
+     * @params conferences_handler, svg, now, x, y, r                                  *                               //
+     * conferences_handler: used to call non static functions                          *                               //
+     * svg: svg obj                                                                    *                               //
+     * x, y: where visualization is centered on the x, y axis                          *                               //
+     * r: radius of largest circle, used in creation of date line                      *                               //
+     ***********************************************************************************/                              //
+    initVisualization(conferences_handler, svg, now, x, y, r) {                                                        //
         conferences_handler.createDateLine(svg, now, x, y, r);                                                         //
         conferences_handler.createMonthsRing(svg, x, y);                                                               //
-    }                                                                                                                   //
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    }                                                                                                                  //
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    ///// takes in conferences_data array and populates all data arrays as well as creating conference visualizations ////
-    /***********************************************************************************                                //
-     * initVisualization                                                               *                                //
-     *                                                                                 *                                //
-     * @params svg, document, conferences_handler, conferences_data, x, y,             *                                //
-     * svg, document: svg obj & document obj necessary for creation of visualizations  *                                //
-     * conferences_handler: used to call non static functions (glorified 'this')       *                                //
-     * conferences_data: array of conference data for population of info and visuals   *                                //
-     * x, y: where visualization is centered on the x, y axis                          *                                //
-     ***********************************************************************************/                               //
-    addMultipleConferences(svg, document, conferences_handler, conferences_data, x, y) {                                //
+    ///// takes in conferences_data array and populates all data arrays as well as creating conference visualizations ///
+    /***********************************************************************************                               //
+     * initVisualization                                                               *                               //
+     *                                                                                 *                               //
+     * @params svg, document, conferences_handler, conferences_data, x, y,             *                               //
+     * svg, document: svg obj & document obj necessary for creation of visualizations  *                               //
+     * conferences_handler: used to call non static functions (glorified 'this')       *                               //
+     * conferences_data: array of conference data for population of info and visuals   *                               //
+     * x, y: where visualization is centered on the x, y axis                          *                               //
+     ***********************************************************************************/                              //
+    addMultipleConferences(svg, document, conferences_handler, conferences_data, x, y) {                               //
         // populate conferences array & fill other empty arrays                                                        //
         for (var i = 0; i < conferences_data.length; i++) {                                                            //
             // handle single conference creation                                                                       //
             conferences_handler.addConference(svg, document, conferences_handler, conferences_data[i], x, y);          //
         }                                                                                                              //
-    }                                                                                                                   //
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    }                                                                                                                  //
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    /////////// handles addition of all conference information as well as creation of conference visualizations //////////
-    /***********************************************************************************                                //
-     * addConference                                                                   *                                //
-     *                                                                                 *                                //
-     * @params svg, document, conferences_handler, conferences_data, x, y,             *                                //
-     * svg, document: svg obj & document obj necessary for creation of visualizations  *                                //
-     * conferences_handler: used to call non static functions (glorified 'this')       *                                //
-     * conferences_data: array of conference data for population of info and visuals   *                                //
-     * x, y: where visualization is centered on the x, y axis                          *                                //
-     ***********************************************************************************/                               //
-    addConference(svg, document, conferences_handler, conference_data, x, y) {                                          //
+    /////////// handles addition of all conference information as well as creation of conference visualizations /////////
+    /***********************************************************************************                               //
+     * addConference                                                                   *                               //
+     *                                                                                 *                               //
+     * @params svg, document, conferences_handler, conferences_data, x, y,             *                               //
+     * svg, document: svg obj & document obj necessary for creation of visualizations  *                               //
+     * conferences_handler: used to call non static functions (glorified 'this')       *                               //
+     * conferences_data: array of conference data for population of info and visuals   *                               //
+     * x, y: where visualization is centered on the x, y axis                          *                               //
+     ***********************************************************************************/                              //
+    addConference(svg, document, conferences_handler, conference_data, x, y) {                                         //
         //////////// create variables for conference information and add to visualization conf arrays ////////////     //
         var conf_name = conference_data[0];                                                                     //     //
         var conf_url = conference_data[1];                                                                      //     //
@@ -206,22 +206,22 @@ class VisualizationHandler {
         //
         ///////////////////////////// create conference obj using created variables //////////////////////////////     //
         var conf = new Conference(conferences_handler, conf_name, conf_url,                                     //     //
-            conferences_handler.conferences.length, x, y, conf_field,                       //     //
-            conf_color, conf_submission_deadline, conf_decision_deadline,                   //     //
-            conf_start_date, conf_end_date, conf_abstract_deadline,                         //     //
-            conf_location, conf_notes, conferences_handler.curr_radius,                     //     //
-            inner_radius, outer_radius, deadline_start_angle,                               //     //
-            deadline_end_angle, conf_dates_start_angle, conf_dates_end_angle,               //     //
-            null, null, null, null);                                                        //     //
+            conferences_handler.conferences.length, x, y, conf_field,                                           //     //
+            conf_color, conf_submission_deadline, conf_decision_deadline,                                       //     //
+            conf_start_date, conf_end_date, conf_abstract_deadline,                                             //     //
+            conf_location, conf_notes, conferences_handler.curr_radius,                                         //     //
+            inner_radius, outer_radius, deadline_start_angle,                                                   //     //
+            deadline_end_angle, conf_dates_start_angle, conf_dates_end_angle,                                   //     //
+            null, null, null, null);                                                                            //     //
         console.log("addConference:", "Successfully created conference:", conf);                                //     //
         //////////////////////////////////////////////////////////////////////////////////////////////////////////     //
         //
         /////////////// create conf visualization objects and add to visualization conf arrays ////////////////////     //
         // create visualization objects and adds them to conf obj                                                //     //
         Conference.createConfVisuals(svg, document, conferences_handler, conf,                                   //     //
-            conf.start_angle, conf.end_angle, conf.conf_color,                          //     //
-            conf.conf_dates_start_angle, conf.conf_dates_end_angle);                    //     //
-                                                                                        //     //
+            conf.start_angle, conf.end_angle, conf.conf_color,                                                   //     //
+            conf.conf_dates_start_angle, conf.conf_dates_end_angle);                                             //     //
+                                                                                                                 //     //
         // add created visualization objects to conferences_handler                                              //     //
         conferences_handler.rings.push(conf.ring);                                                               //     //
         conferences_handler.arcs.push(conf.arc);                                                                 //     //
@@ -1130,6 +1130,7 @@ function enterFields(svg, document, conferences_handler, color, wasOpen) {
         }
         //save new conference URL
         var inURL = inputConferenceURL.value;
+        var notes = inputUrlNotes.value;
 
         newConference = getSingleUrlData(inURL);
         console.log("submit_url_button", "server request done", newConference);
@@ -1138,6 +1139,7 @@ function enterFields(svg, document, conferences_handler, color, wasOpen) {
         console.log("submit_url_button", "newConference after converting to conference array", newConference);
 
         newConference = newConference[0];
+        newConference.push(notes);
 
         conferences_handler.addConference(svg, document, conferences_handler, newConference, conferences_handler.x, conferences_handler.y);
 
@@ -1202,6 +1204,12 @@ function enterFields(svg, document, conferences_handler, color, wasOpen) {
     dec.setAttribute('style', 'white-space: pre;');
     dec.textContent = "\r\nPlease Select the Final Version Deadline:";
     dec.style.fontWeight = 'bold';
+
+    //Ask user for notes
+    var urlNotes = newWindow.document.createElement('conf');
+    urlNotes.setAttribute('style', 'white-space: pre;');
+    urlNotes.textContent = "\r\nNotes (Optional):";
+    urlNotes.style.fontWeight = 'bold';
 
     //Ask user for notes
     var notes = newWindow.document.createElement('conf');
@@ -1278,6 +1286,13 @@ function enterFields(svg, document, conferences_handler, color, wasOpen) {
     inputDec.style.width = '130px';
     inputDec.style.color = "#7b0721"
     inputDec.style.boxShadow = "inset 0px 0px 1px #7b0721";
+
+    //input text box for decision deadline
+    var inputUrlNotes = newWindow.document.createElement("textarea");
+    inputUrlNotes.type = "text";
+    inputUrlNotes.style.width = '155px';
+    inputUrlNotes.style.height = "65px";
+    inputUrlNotes.style.boxShadow = "inset 0px 0px 1px #7b0721";
 
     //input text box for decision deadline
     var inputNotes = newWindow.document.createElement("textarea");
@@ -1385,6 +1400,9 @@ function enterFields(svg, document, conferences_handler, color, wasOpen) {
     newWindow.document.body.appendChild(confURLSLink);
     newWindow.document.body.appendChild(wt.cloneNode(true));
     newWindow.document.body.appendChild(inputConferenceURL);
+    newWindow.document.body.appendChild(urlNotes);
+    newWindow.document.body.appendChild(wt.cloneNode(true));
+    newWindow.document.body.appendChild(inputUrlNotes);
     newWindow.document.body.appendChild(wt.cloneNode(true));
     newWindow.document.body.appendChild(submit_url_button);
     newWindow.document.body.appendChild(wt.cloneNode(true));
