@@ -27,6 +27,9 @@ Homepage of Conference Cycle Visualization Website:
 Add Conference Pop-up Window:
 ![Alt text](/Images/CCVwebsiteImage2.PNG)
 
+**(USER) WEBSITE LOOK/LAYOUT**
+![Alt text](/Images/CCVwebsiteImage3.png)
+
 **(ADMIN) SETUP/USAGE/HOW TO**
 
 To load conference rings into the visualization, click the "Choose File" button and select the text file you want to import. The text file in this repository named "conference_data.txt" is an example of a file that can
